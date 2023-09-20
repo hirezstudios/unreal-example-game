@@ -1,4 +1,4 @@
-// Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
+// Copyright 2016-2049 Hi-Rez Studios, Inc. All Rights Reserved.
 
 #include "RallyHereStart.h"
 #include "Player/Controllers/RHPlayerState.h"

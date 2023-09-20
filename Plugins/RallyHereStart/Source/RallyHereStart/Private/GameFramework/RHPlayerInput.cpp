@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "RallyHereStart.h"
 #include "GameFramework/RHPlayerInput.h"
