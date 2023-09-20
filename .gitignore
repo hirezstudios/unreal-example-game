@@ -1,0 +1,18 @@
+
+
+# Ignore intermediate or generated files
+*/Intermediate/
+Binaies/
+Build/
+Intermediate/
+Saved/
+DerivedDataCache/
+
+# Ignore files that contain potential secrets or NDA'd items
+Config/DefaultRallyHereIntegration.ini
+Config/*/*RallyHereIntegration.ini
+Platforms/
+
+# Ignore a plugin folder called RallyHere, as that may be a mapped version of the engine plugins
+Plugins/RallyHere/
+
