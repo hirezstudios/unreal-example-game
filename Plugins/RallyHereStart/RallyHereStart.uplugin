@@ -1,0 +1,86 @@
+{
+	"FileVersion": 3,
+
+	"FriendlyName": "Rally Here Start",
+	"Version": 1,
+	"VersionName": "1.0",
+	"CreatedBy": "Rally Here, Inc.",
+	"CreatedByURL": "rallyhere.gg",
+	"Description": "Contains classes and content for Rally Here Start",
+	"Category": "Other",
+	"CanContainContent": true,
+	"EnabledByDefault": false,
+
+	"Modules": [
+		{
+			"Name": "RallyHereStart",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject",
+				"UMG"
+			]
+		},
+		{
+			"Name": "RallyHereStartEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"RallyHereStart"
+			]
+		}
+	],
+
+	"LocalizationTargets": [
+		{
+			"Name": "RallyHereStart",
+			"LoadingPolicy": "Always"
+		}
+	],
+
+	"Plugins": [
+		{
+			"Name": "RallyHereIntegration",
+			"Enabled": true
+		},
+		{
+			"Name": "RallyHereEventClient",
+			"Enabled": true
+		},
+		{
+			"Name": "RallyHereDebugTool",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true,
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "OnlineSubsystemAnon",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemHotfix",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineFramework",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "WinDualShock",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
+		}
+	]
+}

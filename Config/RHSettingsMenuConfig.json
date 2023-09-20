@@ -1,0 +1,5071 @@
+{
+	"settingsPages": [
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Display\", \"Display\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"VideoDisplay\", \"VideoDisplay\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ConsolePerformanceMode\", \"ConsolePerformanceMode\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ConsolePerformanceModeDesc\", \"ConsolePerformanceModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": true,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": false,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_ConsolePerformanceMode.SettingsInfo_ConsolePerformanceMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ScreenMode\", \"ScreenMode\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ScreenModeDesc\", \"ScreenModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsDropdown.WBP_SettingsDropdown_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_ScreenMode.SettingsInfo_ScreenMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"Resolution\", \"Resolution\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ResolutionDesc\", \"ResolutionDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsDropdown.WBP_SettingsDropdown_C'",
+										"settingInfo": "Class'/Script/RallyHereStart.RHSettingsInfo_Resolution'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"VSync\", \"VSync\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"VSyncDesc\", \"VSyncDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_VSyncEnabled.SettingsInfo_VSyncEnabled_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"Brightness\", \"Brightness\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"BrightnessDesc\", \"BrightnessDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": false
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_Brightness.SettingsInfo_Brightness_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"Brightness\", \"Brightness\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"BrightnessDesc\", \"BrightnessDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": true,
+									"windows": false,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": false,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_BrightnessHandheld.SettingsInfo_BrightnessHandheld_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MotionBlur\", \"MotionBlur\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MotionBlurDesc\", \"MotionBlurDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_MotionBlur.SettingsInfo_MotionBlur_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ADSBlur\", \"ADSBlur\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ADSBlurDesc\", \"ADSBlurDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_ADSBlur.SettingsInfo_ADSBlur_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"SafeFrameSetting\", \"SafeFrameSetting\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"SafeFrameDesc\", \"SafeFrameDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_SafeFrame.SettingsInfo_SafeFrame_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ColorCorrection\", \"ColorCorrection\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ColorCorrectionDesc\", \"ColorCorrectionDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_ColorCorrection.SettingsInfo_ColorCorrection_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GlobalQuality\", \"GlobalQuality\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GlobalQualityDesc\", \"GlobalQualityDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_GlobalQuality.SettingsInfo_GlobalQuality_C'"
+									}
+								]
+							},
+							"subSettingContainers": [
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"ViewDistance\", \"ViewDistance\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ViewDistanceDesc\", \"ViewDistanceDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_ViewDistanceQuality.SettingsInfo_ViewDistanceQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"Shadows\", \"Shadows\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ShadowsDesc\", \"ShadowsDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_ShadowQuality.SettingsInfo_ShadowQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"Antialiasing\", \"Antialiasing\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"AntialiasingDesc\", \"AntialiasingDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_AntiAliasingQuality.SettingsInfo_AntiAliasingQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"Textures\", \"Textures\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"TexturesDesc\", \"TexturesDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_TextureQuality.SettingsInfo_TextureQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"VisualFX\", \"VisualFX\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"VisualFXDesc\", \"VisualFXDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_VisualEffectQuality.SettingsInfo_VisualEffectQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"PostProcessing\", \"PostProcessing\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"PostProcessingDesc\", \"PostProcessingDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_PostProcessingQuality.SettingsInfo_PostProcessingQuality_C'"
+										}
+									]
+								},
+								{
+									"settingName": "NSLOCTEXT(\"KSSettings\", \"Foliage\", \"Foliage\")",
+									"settingNameByPlatform":
+									{
+									},
+									"settingDescription": "NSLOCTEXT(\"KSSettings\", \"FoliageDesc\", \"FoliageDesc\")",
+									"settingDescriptionByPlatform":
+									{
+									},
+									"bIsAvailableOffline": true,
+									"bRequires120HzDisplay": false,
+									"allowedPlatformTypes":
+									{
+										"xBoxOne": true,
+										"pS4": true,
+										"switch": true,
+										"windows": true,
+										"mac": true,
+										"linux": true,
+										"iOS": true,
+										"android": true,
+										"xSX": true,
+										"pS5": true
+									},
+									"requiredInputTypes":
+									{
+										"gamepad": false,
+										"mouse": false
+									},
+									"switchDockedModeSetting":
+									{
+										"showDocked": true,
+										"showHandheld": true
+									},
+									"bUsePreview": false,
+									"previewWidget": "None",
+									"widgetConfigs": [
+										{
+											"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsRadioButtonGroup.WBP_SettingsRadioButtonGroup_C'",
+											"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Display/SettingsInfo_FoliageQuality.SettingsInfo_FoliageQuality_C'"
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Audio\", \"Audio\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Volume\", \"Volume\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MasterVolume\", \"MasterVolume\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MasterVolumeDesc\", \"MasterVolumeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Audio/SettingsInfo_MasterVolume.SettingsInfo_MasterVolume_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MusicVolume\", \"MusicVolume\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MusicVolumeDesc\", \"MusicVolumeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Audio/SettingsInfo_MusicVolume.SettingsInfo_MusicVolume_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"SFXVolume\", \"SFXVolume\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"SFXVolumeDesc\", \"SFXVolumeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Audio/SettingsInfo_EffectsVolume.SettingsInfo_EffectsVolume_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"VoiceVolume\", \"VoiceVolume\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"VoiceVolumeDesc\", \"VoiceVolumeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Audio/SettingsInfo_VoiceVolume.SettingsInfo_VoiceVolume_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"VoiceChat\", \"VoiceChat\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"VoiceChatToggle\", \"VoiceChatToggle\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"VoiceChatToggleDesc\", \"VoiceChatToggleDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/VoiceChat/SettingsInfo_VoiceChat.SettingsInfo_VoiceChat_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"PushToTalk\", \"PushToTalk\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"PushToTalkDesc\", \"PushToTalkDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/VoiceChat/SettingsInfo_PushToTalk.SettingsInfo_PushToTalk_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"SpeakerSettings\", \"SpeakerSettings\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"SpatialSoundEnabled\", \"SpatialSoundEnabled\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabled\", \"HeadphonesEnabled\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabled\", \"HeadphonesEnabled\")",
+									"XBox One": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabled\", \"HeadphonesEnabled\")",
+									"XSX": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabled\", \"HeadphonesEnabled\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"SpatialSoundEnabledDesc\", \"SpatialSoundEnabledDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabledDesc\", \"HeadphonesEnabledDesc\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabledDesc\", \"HeadphonesEnabledDesc\")",
+									"XSX": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabledDesc\", \"HeadphonesEnabledDesc\")",
+									"XBox One": "NSLOCTEXT(\"KSSettings\", \"HeadphonesEnabledDesc\", \"HeadphonesEnabledDesc\")"
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Audio/SettingsInfo_SpatialSoundEnabled.SettingsInfo_SpatialSoundEnabled_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Controls\", \"Controls\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Movement\", \"Movement\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"HoldToCrouch\", \"HoldToCrouch\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"HoldToCrouchDesc\", \"HoldToCrouchDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_HoldToCrouch.SettingsInfo_HoldToCrouch_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"HoldToSprint\", \"HoldToSprint\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"HoldToSprintDesc\", \"HoldToSprintDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_HoldToSprint.SettingsInfo_HoldToSprint_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"AutoSprint\", \"AutoSprint\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"AutoSprintDesc\", \"AutoSprintDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_AutoSprint.SettingsInfo_AutoSprint_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Mouse\", \"Mouse\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivity\", \"MouseSensitivity\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivityDesc\", \"MouseSensitivityDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityMouseLook.SettingsInfo_SensitivityMouseLook_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivityADS\", \"MouseSensitivityADS\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivityADSDesc\", \"MouseSensitivityADSDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityMouseLookADS.SettingsInfo_SensitivityMouseLookADS_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivityScope\", \"MouseSensitivityScope\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"MouseSensitivityScopeDesc\", \"MouseSensitivityScopeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityMouseLookScope.SettingsInfo_SensitivityMouseLookScope_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ADSMode\", \"ADSMode\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ADSModeDesc\", \"ADSModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_ADSMode.SettingsInfo_ADSMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"InvertX\", \"InvertX\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"InvertXDesc\", \"InvertXDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_InvertX.SettingsInfo_InvertX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"InvertY\", \"InvertY\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"InvertYDesc\", \"InvertYDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_InvertY.SettingsInfo_InvertY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"HoldTime\", \"HoldTime\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"HoldTimeDesc\", \"HoldTimeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_MouseHoldTime.SettingsInfo_MouseHoldTime_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"DoubleClickTime\", \"DoubleClickTime\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"DoubleClickTimeDesc\", \"DoubleClickTimeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_MouseDoubleClickTime.SettingsInfo_MouseDoubleClickTime_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"ControllerTitle\", \"ControllerTitle\")",
+					"headingByPlatform":
+					{
+						"PS4": "NSLOCTEXT(\"KSSettings\", \"DualShockTitle\", \"DualShockTitle\")"
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityX\", \"GamepadLookSensitivityX\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityXDesc\", \"GamepadLookSensitivityXDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookX.SettingsInfo_SensitivityGamepadLookX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityY\", \"GamepadLookSensitivityY\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityYDesc\", \"GamepadLookSensitivityYDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookY.SettingsInfo_SensitivityGamepadLookY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityXADS\", \"GamepadLookSensitivityXADS\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityXADSDesc\", \"GamepadLookSensitivityXADSDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookADSX.SettingsInfo_SensitivityGamepadLookADSX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityYADS\", \"GamepadLookSensitivityYADS\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityYADSDesc\", \"GamepadLookSensitivityYADSDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookADSY.SettingsInfo_SensitivityGamepadLookADSY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZone\", \"LeftDeadZone\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZonePS4\", \"LeftDeadZonePS4\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZoneSwitch\", \"LeftDeadZoneSwitch\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZoneDesc\", \"LeftDeadZoneDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZoneDescPS4\", \"LeftDeadZoneDescPS4\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"LeftDeadZoneDescSwitch\", \"LeftDeadZoneDescSwitch\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadLeftDeadZone.SettingsInfo_GamepadLeftDeadZone_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"RightDeadZone\", \"RightDeadZone\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"RightDeadZonePS4\", \"RightDeadZonePS4\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"RightDeadZoneSwitch\", \"RightDeadZoneSwitch\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"RightDeadZoneDesc\", \"RightDeadZoneDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"RightDeadZoneDescPS4\", \"RightDeadZoneDescPS4\")",
+									"Switch": "NSLOCTEXT(\"KSSettings\", \"RightDeadZoneDescSwitch\", \"RightDeadZoneDescSwitch\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadRightDeadZone.SettingsInfo_GamepadRightDeadZone_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadAccelerationBoost\", \"GamepadAccelerationBoost\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadAccelerationBoostDesc\", \"GamepadAccelerationBoostDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadAccelerationBoost.SettingsInfo_GamepadAccelerationBoost_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadMultiplierBoost\", \"GamepadMultiplierBoost\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadMultiplierBoostDesc\", \"GamepadMultiplierBoostDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadMultiplierBoost.SettingsInfo_GamepadMultiplierBoost_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadADSMode\", \"GamepadADSMode\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadADSModeDesc\", \"GamepadADSModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_ADSMode.SettingsInfo_ADSMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityXScope\", \"GamepadLookSensitivityXScope\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityXScopeDesc\", \"GamepadLookSensitivityXScopeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookScopeX.SettingsInfo_SensitivityGamepadLookScopeX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityYScope\", \"GamepadLookSensitivityYScope\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadLookSensitivityYScopeDesc\", \"GamepadLookSensitivityYScopeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGamepadLookScopeY.SettingsInfo_SensitivityGamepadLookScopeY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadInvertY\", \"GamepadInvertY\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadInvertYDesc\", \"GamepadInvertYDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_InvertY.SettingsInfo_InvertY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GamepadInvertX\", \"GamepadInvertX\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GamepadInvertXDesc\", \"GamepadInvertXDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_InvertX.SettingsInfo_InvertX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"UseVibration\", \"UseVibration\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"UseVibrationDesc\", \"UseVibrationDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_UseForceFeedback.SettingsInfo_UseForceFeedback_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"ContextualButtonMode\", \"ContextualButtonMode\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"ContextualButtonModeDesc\", \"ContextualButtonModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_ContextualActionMode.SettingsInfo_ContextualActionMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"HoldTime\", \"HoldTime\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"HoldTimeDesc\", \"HoldTimeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadHoldTime.SettingsInfo_GamepadHoldTime_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"DoubleClickTime\", \"DoubleClickTime\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"DoubleClickTimeDesc\", \"DoubleClickTimeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GamepadDoubleClickTime.SettingsInfo_GamepadDoubleClickTime_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Gyro\", \"Gyro\")",
+					"headingByPlatform":
+					{
+						"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensor\", \"MotionSensor\")"
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroModeLabel\", \"GyroModeLabel\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorMode\", \"MotionSensorMode\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroModeDesc\", \"GyroModeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorModeDesc\", \"MotionSensorModeDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GyroMode.SettingsInfo_GyroMode_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivity\", \"GyroSensitivity\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivity\", \"MotionSensorSensitivity\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityDesc\", \"GyroSensitivityDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityDesc\", \"MotionSensorSensitivityDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGyroLook.SettingsInfo_SensitivityGyroLook_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityY\", \"GyroSensitivityY\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityY\", \"MotionSensorSensitivityY\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityYDesc\", \"GyroSensitivityYDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityYDesc\", \"MotionSensorSensitivityYDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SenstivityGyroLookY.SettingsInfo_SenstivityGyroLookY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityADS\", \"GyroSensitivityADS\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityADS\", \"MotionSensorSensitivityADS\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityADSDesc\", \"GyroSensitivityADSDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityADSDesc\", \"MotionSensorSensitivityADSDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGyroLookADS.SettingsInfo_SensitivityGyroLookADS_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityScope\", \"GyroSensitivityScope\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityScope\", \"MotionSensorSensitivityScope\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroSensitivityScopeDesc\", \"GyroSensitivityScopeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorSensitivityScopeDesc\", \"MotionSensorSensitivityScopeDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsSlider.WBP_SettingsSlider_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_SensitivityGyroLookScope.SettingsInfo_SensitivityGyroLookScope_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroInvertX\", \"GyroInvertX\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorInvertX\", \"MotionSensorInvertX\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroInvertXDesc\", \"GyroInvertXDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorInvertXDesc\", \"MotionSensorInvertXDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GyroInvertX.SettingsInfo_GyroInvertX_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroInvertY\", \"GyroInvertY\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorInvertY\", \"MotionSensorInvertY\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroInvertYDesc\", \"GyroInvertYDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorInvertYDesc\", \"MotionSensorInvertYDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GyroInvertY.SettingsInfo_GyroInvertY_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroAimAssist\", \"GyroAimAssist\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorAimAssist\", \"MotionSensorAimAssist\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroAimAssistDesc\", \"GyroAimAssistDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorAimAssistDesc\", \"MotionSensorAimAssistDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": true,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GyroAimAssist.SettingsInfo_GyroAimAssist_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"GyroRawInput\", \"GyroRawInput\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorRawInput\", \"MotionSensorRawInput\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"GyroRawInputDesc\", \"GyroRawInputDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSSettings\", \"MotionSensorRawInputDesc\", \"MotionSensorRawInputDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/MouseGamepad/SettingsInfo_GyroRawInput.SettingsInfo_GyroRawInput_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Bindings\", \"Bindings\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Gameplay\", \"Gameplay\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Map\", \"Map\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MapDesc\", \"MapDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMap.SettingsInfo_BindMap_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Shop\", \"Shop\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"ShopDesc\", \"ShopDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindShop.SettingsInfo_BindShop_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Scoreboard\", \"Scoreboard\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"ScoreboardDesc\", \"ScoreboardDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindScoreboard.SettingsInfo_BindScoreboard_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"PushToTalk\", \"PushToTalk\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"PushToTalkDesc\", \"PushToTalkDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindPushToTalk.SettingsInfo_BindPushToTalk_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"ContextualPing\", \"ContextualPing\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"ContextualPingDesc\", \"ContextualPingDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindContextualPing.SettingsInfo_BindContextualPing_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"GyroReset\", \"GyroReset\")",
+								"settingNameByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSBinding\", \"MotionSensorReset\", \"MotionSensorReset\")"
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"GyroResetDesc\", \"GyroResetDesc\")",
+								"settingDescriptionByPlatform":
+								{
+									"PS4": "NSLOCTEXT(\"KSBinding\", \"MotionSensorResetDesc\", \"MotionSensorResetDesc\")"
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": true,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindGyroReset.SettingsInfo_BindGyroReset_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Emote\", \"Emote\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"EmoteDesc\", \"EmoteDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindEmote.SettingsInfo_BindEmote_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Quip\", \"Quip\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"QuipDesc\", \"QuipDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindQuip.SettingsInfo_BindQuip_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Communication\", \"Communication\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"CommunicationDesc\", \"CommunicationDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindCommunication.SettingsInfo_BindCommunication_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Movement\", \"Movement\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"MoveForward\", \"MoveForward\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MoveForwardDesc\", \"MoveForwardDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMoveForward.SettingsInfo_BindMoveForward_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"MoveBackward\", \"MoveBackward\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MoveBackwardDesc\", \"MoveBackwardDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMoveBackward.SettingsInfo_BindMoveBackward_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"MoveLeft\", \"MoveLeft\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MoveLeftDesc\", \"MoveLeftDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMoveLeft.SettingsInfo_BindMoveLeft_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"MoveRight\", \"MoveRight\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MoveRightDesc\", \"MoveRightDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMoveRight.SettingsInfo_BindMoveRight_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Jump\", \"Jump\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"JumpDesc\", \"JumpDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindJump.SettingsInfo_BindJump_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Sprint\", \"Sprint\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SprintDesc\", \"SprintDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSprint.SettingsInfo_BindSprint_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Crouch\", \"Crouch\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"CrouchDesc\", \"CrouchDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindCrouch.SettingsInfo_BindCrouch_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"DodgeRoll\", \"DodgeRoll\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"DodgeRollDesc\", \"DodgeRollDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindDodgeRoll.SettingsInfo_BindDodgeRoll_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Combat\", \"Combat\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"AimDownSight\", \"AimDownSight\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"AimDownSightDesc\", \"AimDownSightDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindADS.SettingsInfo_BindADS_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Fire\", \"Fire\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"FireDesc\", \"FireDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindFire.SettingsInfo_BindFire_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Interact\", \"Interact\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"InteractDesc\", \"InteractDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindInteract.SettingsInfo_BindInteract_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Reload\", \"Reload\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"ReloadDesc\", \"ReloadDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindReload.SettingsInfo_BindReload_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Belt\", \"Belt\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"BeltDesc\", \"BeltDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindGadget.SettingsInfo_BindGadget_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"ShoulderToggle\", \"ShoulderToggle\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"ShoulderToggleDesc\", \"ShoulderToggleDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindShoulderSwap.SettingsInfo_BindShoulderSwap_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Ability\", \"Ability\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"AbilityDesc\", \"AbilityDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindAbility.SettingsInfo_BindAbility_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapGadget\", \"SwapGadget\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapGadgetDesc\", \"SwapGadgetDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindGadgetSwap.SettingsInfo_BindGadgetSwap_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon1\", \"SwapWeapon1\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon1Desc\", \"SwapWeapon1Desc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwap1.SettingsInfo_BindSwap1_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon2\", \"SwapWeapon2\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon2Desc\", \"SwapWeapon2Desc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwap2.SettingsInfo_BindSwap2_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon3\", \"SwapWeapon3\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon3Desc\", \"SwapWeapon3Desc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwap3.SettingsInfo_BindSwap3_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon4\", \"SwapWeapon4\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapWeapon4Desc\", \"SwapWeapon4Desc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwap4.SettingsInfo_BindSwap4_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapUp\", \"SwapUp\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapUpDesc\", \"SwapUpDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwapNext.SettingsInfo_BindSwapNext_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"SwapDown\", \"SwapDown\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"SwapDownDesc\", \"SwapDownDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": true
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindSwapPrevious.SettingsInfo_BindSwapPrevious_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSBinding\", \"Melee\", \"Melee\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSBinding\", \"MeleeDesc\", \"MeleeDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsBinding.WBP_SettingsBinding_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Binding/SettingsInfo_BindMelee.SettingsInfo_BindMelee_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Gameplay\", \"Gameplay\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Gameplay\", \"Gameplay\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"UseQuickCast\", \"UseQuickCast\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"UseQuickCastDesc\", \"UseQuickCastDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_QuickCast.SettingsInfo_QuickCast_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"AutoPickup\", \"AutoPickup\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"AutoPickupDesc\", \"AutoPickupDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_AutoPickup.SettingsInfo_AutoPickup_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"Language\", \"Language\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"LanguageDesc\", \"LanguageDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsDropdown.WBP_SettingsDropdown_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_Language.SettingsInfo_Language_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"[1848D0C148CD200B544D74A914533144]\", \"497B41BF48B8F701D6CB76995090C568\", \"HUD\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"DamageNumbersDisplayEnabledLabel\", \"DamageNumbersDisplayEnabledLabel\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"DamageNumbersDisplayEnabledDesc\", \"DamageNumbersDisplayEnabledDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_DamageNumbersEnabled.SettingsInfo_DamageNumbersEnabled_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"DamageNumbersDisplayStackingLabel\", \"DamageNumbersDisplayStackingLabel\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"DamageNumbersDisplayStackingDesc\", \"DamageNumbersDisplayStackingDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Gameplay/SettingsInfo_DamageNumbersStack.SettingsInfo_DamageNumbersStack_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				},
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Telemetry\", \"Telemetry\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"FPSEnabled\", \"FPSEnabled\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"FPSEnabledDesc\", \"FPSEnabledDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": true,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Telemetry/SettingsInfo_FPSEnabled.SettingsInfo_FPSEnabled_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"pageName": "NSLOCTEXT(\"KSSettings\", \"Social\", \"Social\")",
+			"headingByPlatform":
+			{
+			},
+			"settingsSections": [
+				{
+					"heading": "NSLOCTEXT(\"KSSettings\", \"Social\", \"Social\")",
+					"headingByPlatform":
+					{
+					},
+					"settingsGroups": [
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"CrossPlaySettings\", \"CrossPlaySettings\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"CrossPlaySettingsDesc\", \"CrossPlaySettingsDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": false,
+									"switch": false,
+									"windows": false,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": true,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Social/SettingsInfo_Crossplay.SettingsInfo_Crossplay_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"InputCrossplay\", \"InputCrossplay\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"InputCrossplayDesc\", \"InputCrossplayDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": false,
+									"pS4": false,
+									"switch": false,
+									"windows": false,
+									"mac": false,
+									"linux": false,
+									"iOS": false,
+									"android": false,
+									"xSX": false,
+									"pS5": false
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": false,
+									"showHandheld": false
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Social/SettingsInfo_InputCrossplay.SettingsInfo_InputCrossplay_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"Region\", \"Region\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"RegionDesc\", \"RegionDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "Class'/Script/RallyHereStart.RHSettingsInfo_Region'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						},
+						{
+							"mainSettingContainer":
+							{
+								"settingName": "NSLOCTEXT(\"KSSettings\", \"DoNotDisturb\", \"DoNotDisturb\")",
+								"settingNameByPlatform":
+								{
+								},
+								"settingDescription": "NSLOCTEXT(\"KSSettings\", \"DoNotDisturbDesc\", \"DoNotDisturbDesc\")",
+								"settingDescriptionByPlatform":
+								{
+								},
+								"bIsAvailableOffline": false,
+								"bRequires120HzDisplay": false,
+								"allowedPlatformTypes":
+								{
+									"xBoxOne": true,
+									"pS4": true,
+									"switch": true,
+									"windows": true,
+									"mac": true,
+									"linux": true,
+									"iOS": true,
+									"android": true,
+									"xSX": true,
+									"pS5": true
+								},
+								"requiredInputTypes":
+								{
+									"gamepad": false,
+									"mouse": false
+								},
+								"switchDockedModeSetting":
+								{
+									"showDocked": true,
+									"showHandheld": true
+								},
+								"bUsePreview": false,
+								"previewWidget": "None",
+								"widgetConfigs": [
+									{
+										"widgetClass": "WidgetBlueprintGeneratedClass'/Game/UI/Shared/Settings/WBP_SettingsCarousel.WBP_SettingsCarousel_C'",
+										"settingInfo": "BlueprintGeneratedClass'/Game/UI/Shared/Settings/SettingsInfo/Social/SettingsInfo_DoNotDisturb.SettingsInfo_DoNotDisturb_C'"
+									}
+								]
+							},
+							"subSettingContainers": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

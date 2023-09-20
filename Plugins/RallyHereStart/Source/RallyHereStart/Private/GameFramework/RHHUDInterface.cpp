@@ -1,0 +1,8 @@
+// Copyright 2016-2018 Hi-Rez Studios, Inc. All Rights Reserved.
+
+#include "RallyHereStart.h"
+#include "GameFramework/RHHUDInterface.h"
+
+URHHUDInterface::URHHUDInterface(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+}

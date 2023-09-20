@@ -1,0 +1,79 @@
+
+{
+	"FileVersion": 3,
+	"EngineAssociation": "",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "RHExampleGame",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject",
+				"UMG"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "RallyHereIntegration",
+			"Enabled": true
+		},
+		{
+			"Name": "RallyHereDebugTool",
+			"Enabled": true
+		},
+		{
+			"Name": "RallyHereStart",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteamV2",
+			"Enabled": true
+		},
+		{
+			"Name": "EOSShared",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemEOS",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemAnon",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemBasic",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemHotfix",
+			"Enabled": true
+		},
+		{
+			"Name": "WinDualShock",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "RallyHereEventClient",
+			"Enabled": true
+		}
+	],
+	"TargetPlatforms": [
+		"Desktop",
+		"LinuxNoEditor",
+		"WindowsNoEditor",
+		"XboxOne",
+		"PS4"
+	]
+}
