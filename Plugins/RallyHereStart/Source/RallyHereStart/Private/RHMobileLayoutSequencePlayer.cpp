@@ -1,4 +1,4 @@
-// Copyright 2016-2021 Hi-Rez Studios, Inc. All Rights Reserved.
+// Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "RHMobileLayoutSequencePlayer.h"
 #include "MovieScene.h"
