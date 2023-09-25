@@ -188,8 +188,22 @@ void URHGameInstance::Shutdown()
 		EventManager->Uninitialize();
 	}
 
-	FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeDelegateHandle);
-	FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(AppReactivatedDelegateHandle);
+	if (AppSuspendHandle.IsValid())
+	{
+		FCoreDelegates::ApplicationWillEnterBackgroundDelegate.Remove(AppSuspendHandle);
+	}
+	if (AppResumeHandle.IsValid())
+	{
+		FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeHandle);
+	}
+	if (AppDeactivatedHandle.IsValid())
+	{
+		FCoreDelegates::ApplicationWillDeactivateDelegate.Remove(AppDeactivatedHandle);
+	}
+	if (AppReactivatedHandle.IsValid())
+	{
+		FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(AppReactivatedHandle);
+	}
 }
 
 void URHGameInstance::AppReactivatedCallbackInGameThread()
