@@ -45,11 +45,11 @@
 			"Enabled": true
 		},
 		{
-			"Name": "RallyHereEventClient",
+			"Name": "RallyHereDebugTool",
 			"Enabled": true
 		},
 		{
-			"Name": "RallyHereDebugTool",
+			"Name": "AnalyticsRallyHere",
 			"Enabled": true
 		},
 		{
