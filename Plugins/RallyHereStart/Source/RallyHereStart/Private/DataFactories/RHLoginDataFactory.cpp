@@ -7,7 +7,7 @@
 #include "Engine/LocalPlayer.h"
 #include "DataFactories/RHLoginDataFactory.h"
 #include "Shared/HUD/RHHUDCommon.h"
-#include "EventClient/RallyHereEventClientIntegration.h"
+#include "Interfaces/IAnalyticsProvider.h"
 #include "Framework/Application/SlateApplication.h"
 #include "PlatformFeatures.h"
 #include "RH_LocalPlayerLoginSubsystem.h"
@@ -164,14 +164,20 @@ void URHLoginDataFactory::RecordLoginState(ERHLoginState NewState)
 {
     if (LoginState != NewState)
     {
+		auto RH_LoginSubsystem = GetRH_LocalPlayerLoginSubsystem();
+		auto RH_LPSubsystem = RH_LoginSubsystem != nullptr ? RH_LoginSubsystem->GetLocalPlayerSubsystem() : nullptr;
+
 		if (NewState == ERHLoginState::ELS_LoggingIn)
 		{
-			FRallyHereEventClientIntegration::OnLoginEvent_LoginRequested();
+			if (RH_LPSubsystem != nullptr && RH_LPSubsystem->GetAnalyticsProvider().IsValid())
+			{
+				RH_LPSubsystem->GetAnalyticsProvider()->RecordEvent(TEXT("loginRequested"));
+			}
 		}
 
 		if (NewState == ERHLoginState::ELS_LoggedIn)
 		{
-			if (auto RH_LoginSubsystem = GetRH_LocalPlayerLoginSubsystem())
+			if (RH_LoginSubsystem != nullptr)
 			{
 				RH_LoginSubsystem->GetAuthContext().Get()->OnLogout().AddUObject(this, &URHLoginDataFactory::HandlePlayerLoggedOut);
 			}
@@ -341,8 +347,6 @@ void URHLoginDataFactory::SubmitLogin(int32 ControllerId, const FOnlineAccountCr
 
 void URHLoginDataFactory::OnRHLoginResponse(const FRH_LoginResult& LR)
 {
-	FRallyHereEventClientIntegration::OnRHLoginResponse(LR);
-
     UE_LOG(RallyHereStart, Log, TEXT("[%s] Result=%s OSSType=%s OSSError=%s"), ANSI_TO_TCHAR(__FUNCTION__), *ToString(LR.Result), *ToString(LR.OSSType), *LR.OSSErrorMessage);
     switch (LR.Result)
     {

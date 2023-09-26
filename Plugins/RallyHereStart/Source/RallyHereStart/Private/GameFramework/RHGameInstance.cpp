@@ -20,7 +20,6 @@
 #include "RH_LocalPlayerLoginSubsystem.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "Interfaces/OnlineGameMatchesInterface.h"
-#include "EventClient/RallyHereEventClientIntegration.h"
 #include "PlayerExperience/PlayerExperienceGlobals.h"
 
 URHGameInstance::URHGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -101,7 +100,6 @@ void URHGameInstance::Init()
 	}
 
 	UPlayerExperienceGlobals::Get().InitGlobalData(this);
-	FRallyHereEventClientIntegration::SetGameInstance(this);
 
     if (!HasAnyFlags(RF_ClassDefaultObject))
     {
@@ -676,7 +674,6 @@ int32 URHGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId U
 			{
 				RHSS->GetAuthContext()->OnLoginUserChanged().AddWeakLambda(this, [this, NewPlayer]()
 					{
-						FRallyHereEventClientIntegration::OnPLayerLoginStatusChanged(NewPlayer);
 						OnLocalPlayerLoginChanged.Broadcast(NewPlayer);
 					});
 			}

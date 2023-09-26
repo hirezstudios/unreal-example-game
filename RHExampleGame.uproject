@@ -26,6 +26,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "AnalyticsRallyHere",
+			"Enabled": true
+		},
+		{
 			"Name": "RallyHereStart",
 			"Enabled": true
 		},
@@ -63,10 +67,6 @@
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
-		},
-		{
-			"Name": "RallyHereEventClient",
-			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

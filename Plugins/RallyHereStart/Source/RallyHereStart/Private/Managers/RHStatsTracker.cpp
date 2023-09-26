@@ -1,10 +1,12 @@
 #include "RallyHereStart.h"
 
-#include "RH_EventClient.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "RH_PlayerInventory.h"
 #include "RH_PlayerInfoSubsystem.h"
 #include "Managers/RHStatsTracker.h"
+
+#include "Analytics.h"
+#include "Interfaces/IAnalyticsProvider.h"
 
 FRHStatsTracker::FRHStatsTracker(class URHStatsMgr* pMgr)
 	: m_pStatsMgr(pMgr)
@@ -213,43 +215,46 @@ void URHStatsMgr::FinishStats(class ARHGameModeBase* pGameMode)
 					FString DisplayName;
 					PlayerInfo->GetLastKnownDisplayName(DisplayName);
 					
-					FRH_JsonDataSet OptionalParameters{
-					FRH_JsonInteger(TEXT("xpEarned"), Tracker->GetEarnedPlayerXp()),
-					//FRH_JsonString(TEXT("inputType"), "GPD"), // #RHTODO
-					//FRH_JsonInteger(TEXT("queueId"), 2), // #RHTODO
-					FRH_JsonString(TEXT("playerName"), DisplayName),
-					FRH_JsonInteger(TEXT("duration"), Tracker->GetTimespan().GetTotalSeconds()),
-					FRH_JsonString(TEXT("matchStartTime"), Tracker->GetStartTime().ToIso8601()),
-					FRH_JsonString(TEXT("matchEndTime"), FDateTime::UtcNow().ToIso8601()),
-					FRH_JsonString(TEXT("hostName"), "RallyTestServer")
-					//FRH_JsonString(TEXT("groupId"), "Group ID GUID"), // #RHTODO
-					//FRH_JsonString(TEXT("matchSessionId"), "Match Session ID GUID"), // #RHTODO
-					//FRH_JsonInteger(TEXT("partySize"), 1), // #RHTODO
-					//FRH_JsonString(TEXT("partySessionId"), "Players Party ID GUID"), // #RHTODO
-					};
+					TArray<FAnalyticsEventAttribute> Attributes;
+
+					Attributes.Add(FAnalyticsEventAttribute(TEXT("xpEarned"), Tracker->GetEarnedPlayerXp()));
+					Attributes.Add(FAnalyticsEventAttribute(TEXT("duration"), Tracker->GetTimespan().GetTotalSeconds()));
+					Attributes.Add(FAnalyticsEventAttribute(TEXT("matchStartTime"), Tracker->GetStartTime().ToIso8601()));
+					Attributes.Add(FAnalyticsEventAttribute(TEXT("matchEndTime"), FDateTime::UtcNow().ToIso8601()));
+					Attributes.Add(FAnalyticsEventAttribute(TEXT("hostName"), TEXT("RallyTestServer")));
 
 					if (ActiveSession != nullptr)
 					{
-						OptionalParameters.Add(FRH_JsonInteger(TEXT("totalPlayers"), ActiveSession->GetSessionPlayerCount()));
-						OptionalParameters.Add(FRH_JsonString(TEXT("serverSessionId"), ActiveSession->GetSessionId()));
+						Attributes.Add(FAnalyticsEventAttribute(TEXT("totalPlayers"), ActiveSession->GetSessionPlayerCount()));
+						Attributes.Add(FAnalyticsEventAttribute(TEXT("serverSessionId"), ActiveSession->GetSessionId()));
 
 						if (const FRHAPI_InstanceInfo* InstanceData = ActiveSession->GetInstanceData())
 						{
 							FString InstanceId;
 							if ((InstanceData)->GetInstanceId(InstanceId))
 							{
-								OptionalParameters.Add(FRH_JsonString(TEXT("instanceId"), InstanceId));
+								Attributes.Add(FAnalyticsEventAttribute(TEXT("instanceId"), InstanceId));
 							}
 						}
 
 						FString RegionId;
 						if (ActiveSession->GetSessionData().GetRegionId(RegionId))
 						{
-							OptionalParameters.Add(FRH_JsonString(TEXT("regionId"), RegionId));
+							Attributes.Add(FAnalyticsEventAttribute(TEXT("regionId"), RegionId));
 						}
 					}
 
-					FRH_EventClientInterface::SendCustomEvent("matchResult", OptionalParameters);
+					// temp - make an analytics provider per player
+					auto AnalyticsProvider = FAnalytics::Get().GetDefaultConfiguredProvider();
+
+					if (AnalyticsProvider.IsValid())
+					{
+						auto PlayerUuid = Tracker->GetPlayerUuid();
+						AnalyticsProvider->SetUserID(PlayerUuid.IsValid() ? PlayerUuid.ToString(EGuidFormats::DigitsWithHyphens) : TEXT(""));
+						AnalyticsProvider->StartSession();
+						AnalyticsProvider->RecordEvent(TEXT("matchResult"), Attributes);
+						AnalyticsProvider->EndSession();
+					}
 				}
 			}
 		}
