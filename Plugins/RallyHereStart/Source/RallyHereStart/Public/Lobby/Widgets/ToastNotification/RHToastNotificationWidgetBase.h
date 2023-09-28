@@ -6,6 +6,7 @@
 
 #include "Shared/Widgets/RHWidget.h"
 #include "Managers/RHPartyManager.h"
+#include "Managers/RHStoreItemHelper.h"
 #include "RHToastNotificationWidgetBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnToastReceived);

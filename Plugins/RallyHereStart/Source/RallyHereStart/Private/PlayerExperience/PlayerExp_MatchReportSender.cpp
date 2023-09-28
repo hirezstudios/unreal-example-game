@@ -3,6 +3,7 @@
 #include "PlayerExperience/PlayerExp_MatchReportSender.h"
 #include "PlayerExperience/PlayerExperienceGlobals.h"
 
+#include "Engine/GameInstance.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "RH_ConfigSubsystem.h"
 

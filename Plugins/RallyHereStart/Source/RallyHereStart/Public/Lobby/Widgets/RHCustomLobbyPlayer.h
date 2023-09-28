@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
+#include "DataFactories/RHQueueDataFactory.h"
 #include "RHCustomLobbyPlayer.generated.h"
+
+class URHCustomLobbyPlayer;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustomPlayerSwapTeam, FGuid, PlayerUUID, int32, CurrentTeam);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerSelected, FRH_CustomMatchMember, MatchMember, URHCustomLobbyPlayer*, PlayerWidget);

@@ -1,5 +1,8 @@
-#include "GameFramework/RHGameModeBase.h"
+
 #include "RHExampleEndZone.h"
+#include "GameFramework/RHGameModeBase.h"
+#include "Components/PrimitiveComponent.h"
+
 
 void ARHExampleEndZone::AddPrimitiveToPawnOverlapCheck(UPrimitiveComponent* InPrimitive)
 {
