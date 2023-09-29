@@ -434,7 +434,7 @@ void URHQueueDataFactory::SendMatchStatusUpdateNotify(ERH_MatchStatus MatchStatu
 	OnQueueStatusChange.Broadcast(MatchStatus);
 }
 
-void URHQueueDataFactory::HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult)
+void URHQueueDataFactory::HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult, const FRH_ErrorInfo& ErrorInfo)
 {
 	if (bSuccess)
 	{

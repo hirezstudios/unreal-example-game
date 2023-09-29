@@ -391,7 +391,7 @@ protected:
 
 	void							SendMatchStatusUpdateNotify(ERH_MatchStatus MatchStatus);
 
-	void							HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult);
+	void							HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult, const FRH_ErrorInfo& ErrorInfo);
 
 	void							OnMatchStatusError(FText ErrorMsg) { }
 
