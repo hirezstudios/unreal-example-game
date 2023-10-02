@@ -7,10 +7,6 @@
 #include "Player/Controllers/RHPlayerController.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
 
-#if WITH_EDITOR
-#include "UnrealEd.h"
-#endif
-
 ARHExampleGameMode::ARHExampleGameMode(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
     : Super(ObjectInitializer)
 {
