@@ -9,7 +9,7 @@
 URHQueueDataFactory::URHQueueDataFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
 	bInitialized(false),
-	RHSessionType(FString(TEXT("browser_game"))),
+	RHSessionType(FString(TEXT("game"))),
 	SessionLeaderNameFieldName(FString(TEXT("leader_name"))),
 	CustomMatchMembers(),
 	SelectedCustomMatchMapRowName(FName(TEXT("Map1"))),
@@ -529,6 +529,13 @@ void URHQueueDataFactory::HandleCustomMatchSessionCreated(bool bSuccess, URH_Joi
 	if (bSuccess)
 	{
 		CustomMatchSession = JoinedSession;
+
+		// mark the custom session as publicly joinable
+		{
+			auto UpdateRequest = CustomMatchSession->GetSessionUpdateInfoDefaults();
+			UpdateRequest.SetJoinable(true);
+			CustomMatchSession->UpdateSessionInfo(UpdateRequest);
+		}
 
 		// Set leader's name in session custom data
 		UpdateCustomSessionBrowserInfo();
