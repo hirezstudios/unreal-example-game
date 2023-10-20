@@ -353,6 +353,8 @@ protected:
 
 	// handle a session update event
 	void								HandleSessionUpdate(bool bSuccess, URH_JoinedSession* pSession);
+
+	FTimerHandle						UpdatePartyTimerHandle;
 #pragma endregion
 
 #pragma region USER INTERFACE
