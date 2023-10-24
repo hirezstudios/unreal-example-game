@@ -214,7 +214,8 @@ protected:
 	virtual void InitializeSoundTheme();
     virtual void UninitializeDataFactories();
 
-	void CreateInputManager();
+	virtual void CreateInputManager(); // //$$ LDP: Made virtual so we can opt out of RHInputManager entirely
+	void ShutdownInputManager(); //$$ JJJT: Addition - navigation config cleanup
 
 	UFUNCTION()
 	virtual void OnConfirmQuit();
@@ -242,6 +243,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "InputManager")
 	TSubclassOf<URHInputManager> InputManagerClass;
+
+	//$$ JJJT: Begin Addition - disable RH-specific functionality
+	UPROPERTY(EditDefaultsOnly, Category = "InputManager")
+	bool bUseRHNavigation = true; // If we want the input manager to use its RHNavigationConfig. Disable to allow CommonUI to function.
+	//$$ JJJT: End Addition
 
 private:
 	TWeakObjectPtr<URHPlayerInput> PlayerInput;

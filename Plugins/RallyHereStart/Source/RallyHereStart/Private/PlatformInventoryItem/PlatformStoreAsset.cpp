@@ -18,7 +18,7 @@ UPlatformStoreAsset::UPlatformStoreAsset(const FObjectInitializer& ObjectInitial
     CollectionContainer.AddTag(StoreAssetCollectionTag);
 
     IsOwnableInventoryItem = false;
-    LootId = FRH_LootId();
+	//$$ KAB - REMOVED - Move Loot Id from StoreAsset to InventoryItem
 }
 
 FPrimaryAssetId UPlatformStoreAsset::GetPrimaryAssetId() const
@@ -80,7 +80,7 @@ void UPlatformStoreAsset::IsOwned(const URH_PlayerInfo* PlayerInfo, const FRH_Ge
 	}
 
 	FRHAPI_Loot LootItem;
-	if (CatalogSubsystem->GetVendorItemByLootId(LootId, LootItem))
+	if (CatalogSubsystem->GetVendorItemByLootId(PurchaseLootId, LootItem)) //$$ KAB - BEGIN - Move Loot Id from StoreAsset to InventoryItem
 	{
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{
@@ -162,7 +162,7 @@ void UPlatformStoreAsset::CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH
 	}
 
 	FRHAPI_Loot LootItem;
-	if (CatalogSubsystem->GetVendorItemByLootId(LootId, LootItem))
+	if (CatalogSubsystem->GetVendorItemByLootId(PurchaseLootId, LootItem)) //$$ KAB - Move Loot Id from StoreAsset to InventoryItem
 	{
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{

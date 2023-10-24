@@ -23,8 +23,8 @@ public class RallyHereStart : ModuleRules
 				"OnlineSubsystem",
 				"OnlineSubsystemUtils",
 				"RallyHereAPI",
+				"RallyHereEventClient",
 				"RallyHereIntegration",
-				"AnalyticsRallyHere",
 				"HTTP",
 				"RHI",
 				"UMG",
@@ -40,7 +40,8 @@ public class RallyHereStart : ModuleRules
 				"ApplicationCore",
 				"DeveloperSettings",
 				"NetCore",
-				"EnhancedInput"
+				"EnhancedInput",
+				"CommonUI"
 			}
 		);
 

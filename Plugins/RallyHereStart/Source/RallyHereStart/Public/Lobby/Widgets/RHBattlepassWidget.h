@@ -25,4 +25,12 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	URHBattlepass* DisplayedBattlepass;
+
+	//$$ KAB - Route names changed to Gameplay Tags, New Var to set ViewTag
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Views", meta = (Categories = "View"))
+	FGameplayTag HomeViewTag;
+
+	//$$ KAB - Route names changed to Gameplay Tags, New Var to set ViewTag
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Views", meta = (Categories = "View"))
+	FGameplayTag PurchaseConfirmationViewTag;
 };

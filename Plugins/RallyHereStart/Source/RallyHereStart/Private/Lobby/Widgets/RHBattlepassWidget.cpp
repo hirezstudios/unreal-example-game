@@ -24,8 +24,8 @@ void URHBattlepassWidget::OnShown_Implementation()
 
 	// Consume pending route data that may have been stored prior to this show
 	UObject* PendingRouteData = nullptr;
-	GetPendingRouteData(MyRouteName, PendingRouteData);
-	SetPendingRouteData(MyRouteName, nullptr);
+	GetPendingRouteData(MyRouteTag, PendingRouteData);  //$$ KAB - Route names changed to Gameplay Tags
+	SetPendingRouteData(MyRouteTag, nullptr);  //$$ KAB - Route names changed to Gameplay Tags
 
 	// If we have a passed in battlepass data use that to display on screen
 	DisplayedBattlepass = Cast<URHBattlepass>(PendingRouteData);
@@ -44,7 +44,7 @@ void URHBattlepassWidget::OnShown_Implementation()
 		// If we don't have a displayed battlepass at this time, we should head back home
 		if (DisplayedBattlepass == nullptr)
 		{
-			AddViewRoute(TEXT("Home"));
+			AddViewRoute(HomeViewTag); //$$ KAB - Route names changed to Gameplay Tags
 			return;
 		}
 	}
@@ -69,7 +69,7 @@ void URHBattlepassWidget::ShowPurchaseBattlepass()
 					}
 					
 					PurchaseData->ExternalTransactionId = "PurchaseBattlepass";
-					AddViewRoute("PurchaseConfirmation", false, false, PurchaseData);
+					AddViewRoute(PurchaseConfirmationViewTag, false, false, PurchaseData); //$$ KAB - Route names changed to Gameplay Tags
 				}
 			}
 		}
@@ -97,7 +97,7 @@ void URHBattlepassWidget::ShowPurchaseBattlepassTiers(int32 TierCount)
 					PurchaseData->BattlepassItem = DisplayedBattlepass;
 					PurchaseData->PurchaseQuantity = TierCount;
 					PurchaseData->ExternalTransactionId = "PurchaseBattlepass";
-					AddViewRoute("PurchaseConfirmation", false, false, PurchaseData);
+					AddViewRoute(PurchaseConfirmationViewTag, false, false, PurchaseData); //$$ KAB - Route names changed to Gameplay Tags
 				}
 			}
 		}

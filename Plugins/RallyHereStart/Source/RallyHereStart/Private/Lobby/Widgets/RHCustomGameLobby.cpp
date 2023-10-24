@@ -11,8 +11,8 @@ URHCustomGameLobby::URHCustomGameLobby(const FObjectInitializer& ObjectInitializ
 	NumTeamPlayers(5),
 	NumSpectators(2),
 	LobbyPlayerWidgetClass(URHCustomLobbyPlayer::StaticClass()),
-	SpectatorTeamNum(INDEX_NONE),
-	MassInviteRouteName(FName(TEXT("MassInvite")))
+	SpectatorTeamNum(INDEX_NONE)
+	//$$ KAB - Removed MassInviteRouteName Initializer, Route names changed to Gameplay Tags
 {
 }
 
@@ -68,7 +68,13 @@ void URHCustomGameLobby::SetUpTeamPlayerWidgets()
 	TArray<int32> PanelTeamNums;
 	TeamNumToTeamPanelMap.GetKeys(PanelTeamNums);
 
-	for (int32 PanelTeamNum : PanelTeamNums)
+	//$$ DLF BEGIN - Added controller navigation support to the Custom Lobby
+	int32 TeamIndex = 0;
+	PlayerWidgets.Empty();
+	PlayerWidgets.AddDefaulted(PanelTeamNums.Num());
+	//$$ DLF END - Added controller navigation support to the Custom Lobby
+	
+	for (const int32 PanelTeamNum : PanelTeamNums)
 	{
 		// For normal teams (non-spectator), need 1 more valid widget that only shows up if it represents a player 
 		// for ease of moving people around
@@ -92,10 +98,75 @@ void URHCustomGameLobby::SetUpTeamPlayerWidgets()
 					PlayerWidget->OnCustomPlayerSwapTeamDel.AddDynamic(this, &URHCustomGameLobby::HandlePlayerSwapTeam);
 					PlayerWidget->OnPlayerSelectedDel.AddDynamic(this, &URHCustomGameLobby::HandlePlayerClicked);
 					PlayerWidget->OnEmptySelectedDel.AddDynamic(this, &URHCustomGameLobby::OpenMassInviteView);
+
+					PlayerWidgets[TeamIndex].Add(PlayerWidget); //$$ DLF - Added controller navigation support to the Custom Lobby
 				}
 			}
 		}
+
+		TeamIndex++; //$$ DLF - Added controller navigation support to the Custom Lobby
 	}
+
+	//$$ DLF BEGIN - Added controller navigation support to the Custom Lobby
+	URHWidget* MapButton = GetMapButton();
+	URHWidget* StartGameButton = GetStartGameButton();
+	URHWidget* SpectatorButton = GetSpectatorButton();
+	URHWidget* LeaveLobbyButton = GetLeaveLobbyButton();
+
+	for (TeamIndex = 0; TeamIndex < PlayerWidgets.Num(); TeamIndex++)
+	{
+		for (int32 PlayerIndex = 0; PlayerIndex < PlayerWidgets[TeamIndex].Num(); PlayerIndex++)
+		{
+			URHWidget *Up = nullptr, *Down = nullptr, *Left = nullptr, *Right = nullptr;
+			if (PlayerIndex > 0)
+			{
+				Up = PlayerWidgets[TeamIndex][PlayerIndex - 1];
+			}
+			else if (TeamIndex == 0)
+			{
+				Up = MapButton;
+			}
+			else
+			{
+				Up = StartGameButton;
+			}
+
+			if (PlayerIndex < PlayerWidgets[TeamIndex].Num() - 1)
+			{
+				Down = PlayerWidgets[TeamIndex][PlayerIndex + 1];
+			}
+			else if (TeamIndex == 2)
+			{
+				Down = SpectatorButton;
+			}
+
+			if (TeamIndex > 0)
+			{
+				Left = PlayerWidgets[TeamIndex - 1][PlayerIndex];
+			}
+
+			if (TeamIndex == 0 || (TeamIndex == 1 && PlayerIndex < 2))
+			{
+				Right = PlayerWidgets[TeamIndex + 1][PlayerIndex];
+			}
+			else if (TeamIndex == 1 && PlayerIndex < 4)
+			{
+				Right = SpectatorButton;
+			}
+			else if (TeamIndex == 1)
+			{
+				Right = LeaveLobbyButton;
+			}
+			
+			RegisterWidgetToInputManager(PlayerWidgets[TeamIndex][PlayerIndex], 0, Up, Down, Left, Right);
+		}
+	}
+
+	if (PlayerWidgets.Num() > 0 && PlayerWidgets[0].Num() > 0)
+	{
+		SetDefaultFocusForGroup(PlayerWidgets[0][0], 0);
+	}
+	//$$ DLF END - Added controller navigation support to the Custom Lobby
 }
 
 void URHCustomGameLobby::PopulateLobbyWithSessionData_Implementation()
@@ -221,6 +292,23 @@ URH_JoinedSession* URHCustomGameLobby::GetCustomMatchSession() const
 	return nullptr;
 }
 
+//$$ DLF BEGIN - Added controller navigation support to the Custom Lobby
+URHWidget* URHCustomGameLobby::GetPlayerWidget(int32 TeamIndex, int32 PlayerIndex) const
+{
+	if (TeamIndex < PlayerWidgets.Num())
+	{
+		if (PlayerIndex < 0 || PlayerIndex >= PlayerWidgets[TeamIndex].Num())
+		{
+			return PlayerWidgets[TeamIndex][PlayerWidgets[TeamIndex].Num() - 1];
+		}
+
+		return PlayerWidgets[TeamIndex][PlayerIndex];
+	}
+	
+	return nullptr;
+}
+//$$ DLF END - Added controller navigation support to the Custom Lobby
+
 void URHCustomGameLobby::SortPlayerListsInMap()
 {
 	TArray<int32> TeamNums;
@@ -257,7 +345,7 @@ void URHCustomGameLobby::OpenMassInviteView(int32 InTeamToInviteTo)
 
 			InviteViewData->SetCallbacks(IsSelectedDel, SelectDel, ShouldShowPlayerDel, InviteCancelDel);
 
-			AddViewRoute(MassInviteRouteName, false, false, InviteViewData);
+			AddViewRoute(MassInviteRouteTag, false, false, InviteViewData); // $$ KAB - Route names changed to Gameplay Tags
 
 			TeamToInviteTo = InTeamToInviteTo;
 		}

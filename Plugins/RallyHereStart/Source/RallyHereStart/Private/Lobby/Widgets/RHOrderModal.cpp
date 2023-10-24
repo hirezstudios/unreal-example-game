@@ -7,7 +7,7 @@
 #include "Managers/RHViewManager.h"
 #include "Lobby/Widgets/RHOrderModal.h"
 
-bool URHOrderViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData)
+bool URHOrderViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData) //$$ KAB - Route names changed to Gameplay Tags
 {
 	if (UWorld* World = GetWorld())
 	{
@@ -20,7 +20,7 @@ bool URHOrderViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObj
 					if (URHViewManager* ViewManager = HUD->GetViewManager())
 					{
 						FViewRoute ViewRoute;
-						if (ViewManager->GetViewRoute(Route, ViewRoute))
+						if (ViewManager->GetViewRoute(RouteTag, ViewRoute)) //$$ KAB - Route names changed to Gameplay Tags
 						{
 							if (!ViewRoute.BlockOrders)
 							{

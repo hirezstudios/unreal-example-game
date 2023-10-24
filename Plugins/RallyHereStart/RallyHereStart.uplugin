@@ -45,11 +45,11 @@
 			"Enabled": true
 		},
 		{
-			"Name": "RallyHereDebugTool",
+			"Name": "RallyHereEventClient",
 			"Enabled": true
 		},
 		{
-			"Name": "AnalyticsRallyHere",
+			"Name": "RallyHereDebugTool",
 			"Enabled": true
 		},
 		{
@@ -81,6 +81,10 @@
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
 		}
 	]
 }

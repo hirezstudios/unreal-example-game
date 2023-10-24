@@ -157,7 +157,7 @@ bool URHHomeScreenWidget::CheckForWhatsNewModal()
 							{
 								if (pair.Value)
 								{
-									AddViewRoute("WhatsNew");
+									AddViewRoute(NewsViewTag);  //$$ KAB - Route names changed to Gameplay Tags
 									return;
 								}
 							}

@@ -13,7 +13,7 @@ class RALLYHERESTART_API URHRedirectToLoginViewRedirector : public URHViewRedire
 	GENERATED_BODY()
 
 public:
-	virtual bool ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData);
+	virtual bool ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData); //$$ KAB - Route names changed to Gameplay Tags
 };
 
 /**

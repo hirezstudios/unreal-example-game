@@ -11,6 +11,8 @@
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
+
 URHWidget::URHWidget(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
@@ -486,11 +488,11 @@ bool URHWidget::ExplicitNavigateRight()
 
 void URHWidget::ClearContextAction(FName ContextName)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->ClearContextAction(MyRouteName, ContextName);
+			InputManager->ClearContextAction(MyRouteTag, ContextName);
 		}
 	}
 	else
@@ -501,11 +503,11 @@ void URHWidget::ClearContextAction(FName ContextName)
 
 void URHWidget::ClearAllContextActions()
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->ClearAllContextActions(MyRouteName);
+			InputManager->ClearAllContextActions(MyRouteTag);
 		}
 	}
 	else
@@ -516,11 +518,11 @@ void URHWidget::ClearAllContextActions()
 
 void URHWidget::AddContextAction(FName ContextName, FText FormatAdditive /*= FText()*/)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->AddContextAction(MyRouteName, ContextName, FormatAdditive);
+			InputManager->AddContextAction(MyRouteTag, ContextName, FormatAdditive);
 		}
 	}
 	else
@@ -531,11 +533,11 @@ void URHWidget::AddContextAction(FName ContextName, FText FormatAdditive /*= FTe
 
 void URHWidget::AddContextActions(TArray<FName> ContextNames)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->AddContextActions(MyRouteName, ContextNames);
+			InputManager->AddContextActions(MyRouteTag, ContextNames);
 		}
 	}
 	else
@@ -546,11 +548,11 @@ void URHWidget::AddContextActions(TArray<FName> ContextNames)
 
 void URHWidget::SetContextAction(FName ContextName, const FOnContextAction& EventCallback)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->SetContextAction(MyRouteName, ContextName, EventCallback);
+			InputManager->SetContextAction(MyRouteTag, ContextName, EventCallback);
 		}
 	}
 	else
@@ -561,11 +563,11 @@ void URHWidget::SetContextAction(FName ContextName, const FOnContextAction& Even
 
 void URHWidget::SetContextCycleAction(FName ContextName, const FOnContextCycleAction& EventCallback)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->SetContextCycleAction(MyRouteName, ContextName, EventCallback);
+			InputManager->SetContextCycleAction(MyRouteTag, ContextName, EventCallback);
 		}
 	}
 	else
@@ -576,11 +578,11 @@ void URHWidget::SetContextCycleAction(FName ContextName, const FOnContextCycleAc
 
 void URHWidget::SetContextHoldReleaseAction(FName ContextName, const FOnContextHoldActionUpdate& UpdateCallback, const FOnContextHoldAction& EventCallback)
 {
-	if (MyRouteName != NAME_None)
+	if (MyRouteTag.IsValid())
 	{
 		if (URHInputManager* InputManager = GetInputManager())
 		{
-			InputManager->SetContextHoldReleaseAction(MyRouteName, ContextName, UpdateCallback, EventCallback);
+			InputManager->SetContextHoldReleaseAction(MyRouteTag, ContextName, UpdateCallback, EventCallback);
 		}
 	}
 	else
@@ -704,11 +706,20 @@ void URHWidget::ClearPressedStates()
 	NavigateConfirmIsPressed = false;
 }
 
-void URHWidget::HideWidget()
+//$$ LDP - Allow specifying if we want to hide as Collapsed or as Hidden
+void URHWidget::HideWidget(ESlateVisibility InVisibility /* = ESlateVisibility::Collapsed */)
 {
-	if (GetVisibility() == ESlateVisibility::Collapsed) return;
+	//$$ JJJT: Begin Modification - Disabling features that clash with CommonUI
+	if(!bSetVisibilityOnDeactivated)
+	{
+		//$$ LDP BEGIN - Use given visibility instead of hardcoding to Collapsed
+		ensureAlways(InVisibility == ESlateVisibility::Collapsed || InVisibility == ESlateVisibility::Hidden);
+		if (GetVisibility() == InVisibility) return;
 
-	SetVisibility(ESlateVisibility::Collapsed);
+		SetVisibility(InVisibility);
+		//$$ LDP END - Use given visibility instead of hardcoding to Collapsed
+	}
+	//$$ JJJT: End Modification
 
 	if (MyHud.IsValid())
 	{
@@ -720,11 +731,20 @@ void URHWidget::HideWidget()
 	OnHide();
 }
 
-void URHWidget::ShowWidget()
+//$$ LDP: Allow specifying if we want to show as Visible or as NotHitTestable
+void URHWidget::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
-	if (GetVisibility() == ESlateVisibility::SelfHitTestInvisible) return;
+	//$$ JJJT: Begin Modification - Disabling features that clash with CommonUI
+	if(!bSetVisibilityOnActivated)
+	{
+		//$$ LDP BEGIN - Use given visibility instead of hardcoding to SelfHitTestInvisible
+		ensureAlways(InVisibility == ESlateVisibility::Visible || InVisibility == ESlateVisibility::HitTestInvisible || InVisibility == ESlateVisibility::SelfHitTestInvisible);
+		if (GetVisibility() == InVisibility) return;
 
-	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		SetVisibility(InVisibility);
+		//$$ LDP END - Use given visibility instead of hardcoding to SelfHitTestInvisible
+	}
+	//$$ JJJT: End Modification
 
 	if (MyHud.IsValid())
 	{
@@ -857,13 +877,13 @@ bool URHWidget::IsFocusEnabled_Implementation()
 #endif
 }
 
-void URHWidget::StartHideSequence_Implementation(FName FromRoute, FName ToRoute)
+void URHWidget::StartHideSequence_Implementation(const FGameplayTag& FromRoute, const FGameplayTag& ToRoute)
 {
 	HideWidget();
 	CallOnHideSequenceFinished();
 }
 
-void URHWidget::StartShowSequence_Implementation(FName FromRoute, FName ToRoute)
+void URHWidget::StartShowSequence_Implementation(const FGameplayTag& FromRoute, const FGameplayTag& ToRoute)
 {
 	ShowWidget();
 	CallOnShowSequenceFinished();
@@ -879,38 +899,38 @@ void URHWidget::CallOnShowSequenceFinished()
 	OnShowSequenceFinished.Broadcast(this);
 }
 
-bool URHWidget::AddViewRoute(FName RouteName, bool ClearRouteStack, bool ForceTransition, UObject* Data)
+bool URHWidget::AddViewRoute(FGameplayTag RouteTag, bool ClearRouteStack, bool ForceTransition, UObject* Data)
 {
 	if (URHViewManager* ViewManager = GetViewManager())
 	{
 		if (ClearRouteStack)
 		{
-			return ViewManager->ReplaceRoute(RouteName, ForceTransition, Data);
+			return ViewManager->ReplaceRoute(RouteTag, ForceTransition, Data);
 		}
 		else
 		{
-			return ViewManager->PushRoute(RouteName, ForceTransition, Data);
+			return ViewManager->PushRoute(RouteTag, ForceTransition, Data);
 		}
 	}
 
 	return false;
 }
 
-bool URHWidget::RemoveViewRoute(FName RouteName, bool ForceTransition/* = false*/)
+bool URHWidget::RemoveViewRoute(FGameplayTag RouteTag, bool ForceTransition/* = false*/)
 {
 	if (URHViewManager* ViewManager = GetViewManager())
 	{
-		return ViewManager->RemoveRoute(RouteName, ForceTransition);
+		return ViewManager->RemoveRoute(RouteTag, ForceTransition);
 	}
 
 	return false;
 }
 
-bool URHWidget::SwapViewRoute(FName RouteName, FName SwapTargetRoute, bool ForceTransition)
+bool URHWidget::SwapViewRoute(FGameplayTag RouteTag, FGameplayTag SwapTargetRouteTag, bool ForceTransition)
 {
 	if (URHViewManager* ViewManager = GetViewManager())
 	{
-		return ViewManager->SwapRoute(RouteName, SwapTargetRoute, ForceTransition);
+		return ViewManager->SwapRoute(RouteTag, SwapTargetRouteTag, ForceTransition);
 	}
 
 	return false;
@@ -936,21 +956,21 @@ bool URHWidget::IsTopViewRoute()
 	return false;
 }
 
-bool URHWidget::GetPendingRouteData(FName RouteName, UObject*& Data) const
+bool URHWidget::GetPendingRouteData(FGameplayTag RouteTag, UObject*& Data) const
 {
 	if (URHViewManager* ViewManager = GetViewManager())
 	{
-		return ViewManager->GetPendingRouteData(RouteName, Data);
+		return ViewManager->GetPendingRouteData(RouteTag, Data);
 	}
 
 	return false;
 }
 
-void URHWidget::SetPendingRouteData(FName RouteName, UObject* Data)
+void URHWidget::SetPendingRouteData(FGameplayTag RouteTag, UObject* Data)
 {
 	if (URHViewManager* ViewManager = GetViewManager())
 	{
-		ViewManager->SetPendingRouteData(RouteName, Data);
+		ViewManager->SetPendingRouteData(RouteTag, Data);
 	}
 }
 

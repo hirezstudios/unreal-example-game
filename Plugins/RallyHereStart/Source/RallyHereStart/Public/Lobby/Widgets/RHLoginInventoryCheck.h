@@ -14,7 +14,7 @@ class RALLYHERESTART_API URHLoginInventoryCheckViewRedirector : public URHViewRe
     GENERATED_BODY()
 
 public:
-    virtual bool ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData) override;
+    virtual bool ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData) override; //$$ KAB - Route names changed to Gameplay Tags
 };
 
 UCLASS()
@@ -42,7 +42,7 @@ protected:
     // Checks if the player has all of their required inventory to be allowed to complete login
     bool HasRequiredInventory();
 
-    virtual void ShowWidget() override;
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible) override; //$$ LDP - Added visibility param
 
 	bool bHasRequiredVendors;
 };

@@ -20,7 +20,7 @@ public:
 
 protected:
 	// Updates the context actions displayed by the context bar
-	void UpdateContextActions(const TArray<UContextActionData*>& RouteActions, const TArray<UContextActionData*>& GlobalActions, FName ActiveRoute);
+	void UpdateContextActions(const TArray<UContextActionData*>& RouteActions, const TArray<UContextActionData*>& GlobalActions, const FGameplayTag& ActiveRouteTag); //$$ KAB - Route names changed to Gameplay Tags
 
 	// Adds actions from a data set to the context bar
 	void AddContextActions(const TArray<UContextActionData*>& RouteActions, TArray<FName>& AddList);

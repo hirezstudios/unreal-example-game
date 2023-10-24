@@ -7,7 +7,7 @@
 #include "Engine/LocalPlayer.h"
 #include "DataFactories/RHLoginDataFactory.h"
 #include "Shared/HUD/RHHUDCommon.h"
-#include "Interfaces/IAnalyticsProvider.h"
+#include "EventClient/RallyHereEventClientIntegration.h"
 #include "Framework/Application/SlateApplication.h"
 #include "PlatformFeatures.h"
 #include "RH_LocalPlayerLoginSubsystem.h"
@@ -164,20 +164,14 @@ void URHLoginDataFactory::RecordLoginState(ERHLoginState NewState)
 {
     if (LoginState != NewState)
     {
-		auto RH_LoginSubsystem = GetRH_LocalPlayerLoginSubsystem();
-		auto RH_LPSubsystem = RH_LoginSubsystem != nullptr ? RH_LoginSubsystem->GetLocalPlayerSubsystem() : nullptr;
-
 		if (NewState == ERHLoginState::ELS_LoggingIn)
 		{
-			if (RH_LPSubsystem != nullptr && RH_LPSubsystem->GetAnalyticsProvider().IsValid())
-			{
-				RH_LPSubsystem->GetAnalyticsProvider()->RecordEvent(TEXT("loginRequested"));
-			}
+			FRallyHereEventClientIntegration::OnLoginEvent_LoginRequested();
 		}
 
 		if (NewState == ERHLoginState::ELS_LoggedIn)
 		{
-			if (RH_LoginSubsystem != nullptr)
+			if (auto RH_LoginSubsystem = GetRH_LocalPlayerLoginSubsystem())
 			{
 				RH_LoginSubsystem->GetAuthContext().Get()->OnLogout().AddUObject(this, &URHLoginDataFactory::HandlePlayerLoggedOut);
 			}
@@ -347,6 +341,8 @@ void URHLoginDataFactory::SubmitLogin(int32 ControllerId, const FOnlineAccountCr
 
 void URHLoginDataFactory::OnRHLoginResponse(const FRH_LoginResult& LR)
 {
+	FRallyHereEventClientIntegration::OnRHLoginResponse(LR);
+
     UE_LOG(RallyHereStart, Log, TEXT("[%s] Result=%s OSSType=%s OSSError=%s"), ANSI_TO_TCHAR(__FUNCTION__), *ToString(LR.Result), *ToString(LR.OSSType), *LR.OSSErrorMessage);
     switch (LR.Result)
     {
@@ -407,7 +403,7 @@ void URHLoginDataFactory::OnRHLoginResponse(const FRH_LoginResult& LR)
         LoginEvent_FailedClient(NSLOCTEXT("RHErrorMsg", "AgeRestrictions", "AgeRestrictions"));
         break;
     case ERHAPI_LoginResult::Fail_OSSPrivilegeCheck:
-		LoginEvent_FailedClient(NSLOCTEXT("RHErrorMsg", "OSSPrivilegeError", "OSSPrivilegeError"));
+		LoginEvent_FailedClient(NSLOCTEXT("RHErrorMsg", "OSSPrivledgeError", "OSSPrivledgeError"));
         break;
     case ERHAPI_LoginResult::Fail_OSSAccountTypeNotSufficient:
         LogOff(false); // The plugin prompts the user to upgrade their account, so we don't need to show an error

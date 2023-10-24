@@ -26,7 +26,7 @@ class RALLYHERESTART_API URHQueueTimerWidgetBase : public URHQueueWidgetBase
 	virtual void InitializeWidget_Implementation() override;
 	virtual void UninitializeWidget_Implementation() override;
 
-	virtual void ShowWidget() override;
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible) override; //$$ LDP - Added visibility param
 
 protected:
 	virtual void OnQueuePermissionUpdate_Implementation(bool CanQueue) override;

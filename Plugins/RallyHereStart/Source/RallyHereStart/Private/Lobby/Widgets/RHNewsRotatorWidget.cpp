@@ -171,7 +171,7 @@ void URHNewsRotatorWidget::OnNewsPanelClicked(URHNewsRotatorData* Panel)
 	switch (Panel->PanelAction)
 	{
 		case ENewsActions::ENewsActions_NavToRoute:
-			AddViewRoute(FName(*Panel->ActionDetails));
+			//AddViewRoute(FName(*Panel->ActionDetails)); //$$ KAB - Route names changed to Gameplay Tags, this no longer works
 			break;
 		case ENewsActions::ENewsActions_ExternalURL:
 			FPlatformProcess::LaunchURL(*Panel->ActionDetails, nullptr, nullptr);
@@ -185,7 +185,7 @@ void URHNewsRotatorWidget::OnNewsPanelClicked(URHNewsRotatorData* Panel)
 				TSoftObjectPtr<UPlatformInventoryItem> SoftItemPtr = pAssetManager->GetSoftPrimaryAssetByItemId<UPlatformInventoryItem>(ItemId);
 				if (SoftItemPtr.IsValid())
 				{
-					AddViewRoute("Store", false, false, SoftItemPtr.Get());
+					AddViewRoute(StoreViewTag, false, false, SoftItemPtr.Get()); //$$ KAB - Route names changed to Gameplay Tags
 				}
 			}
 			break;

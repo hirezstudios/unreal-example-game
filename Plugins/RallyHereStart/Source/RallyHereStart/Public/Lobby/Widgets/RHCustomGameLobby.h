@@ -72,6 +72,11 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Custom Lobby|Helper")
 	URH_JoinedSession* GetCustomMatchSession() const;
+
+	//$$ DLF BEGIN - Added controller navigation support to the Custom Lobby
+	UFUNCTION(BlueprintPure, Category = "Custom Lobby|Helper")
+	URHWidget* GetPlayerWidget(int32 TeamIndex, int32 PlayerIndex) const;
+	//$$ DLF END - Added controller navigation support to the Custom Lobby
 #pragma endregion
 
 	/* To be called after setting TeamNumToTeamPanelMap and SpectatorTeamNum */
@@ -90,6 +95,20 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Lobby|Player Widget")
 	void HandlePlayerClicked(FRH_CustomMatchMember MatchMember, class URHCustomLobbyPlayer* PlayerWidget);
 
+	//$$ DLF BEGIN - Added controller navigation support to the Custom Lobby
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Lobby|Widgets")
+	URHWidget* GetMapButton();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Lobby|Widgets")
+	URHWidget* GetStartGameButton();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Lobby|Widgets")
+	URHWidget* GetSpectatorButton();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Lobby|Widgets")
+	URHWidget* GetLeaveLobbyButton();
+	//$$ DLF END - Added controller navigation support to the Custom Lobby
+
 private:
 	/* Swap between teams of players only */
 	UFUNCTION()
@@ -97,10 +116,13 @@ private:
 
 	void SortPlayerListsInMap();
 
+	TArray<TArray<URHWidget*>> PlayerWidgets; //$$ DLF - Added controller navigation support to the Custom Lobby
+
 #pragma region MASS INVITE
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Custom Lobby|Mass Invite")
-	FName MassInviteRouteName;
+	//$$ KAB - Route names changed to Gameplay Tags, New Var to set ViewTag
+	UPROPERTY(EditDefaultsOnly, Category = "Custom Lobby|Mass Invite", meta = (Categories = "View"))
+	FGameplayTag MassInviteRouteTag; // $$ KAB - Route names changed to Gameplay Tags
 
 private:
 	/* Transient */

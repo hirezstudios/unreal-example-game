@@ -54,7 +54,7 @@ void URHCustomMapSelect::OnShown_Implementation()
 
 bool URHCustomMapSelect::NavigateBack_Implementation()
 {
-	RemoveViewRoute(FName("MapSelect"));
+	RemoveViewRoute(MyRouteTag);  //$$ KAB - Route names changed to Gameplay Tags
 	return Super::NavigateBack_Implementation();
 }
 

@@ -15,6 +15,7 @@ UPlatformInventoryItem::UPlatformInventoryItem(const FObjectInitializer& ObjectI
 {
 	ItemId = INDEX_NONE;
 	CanOwnMultiple = false;
+	PurchaseLootId = FRH_LootId(); //$$ KAB - BEGIN - Move Loot Id from StoreAsset to InventoryItem
 }
 
 FPrimaryAssetId UPlatformInventoryItem::GetPrimaryAssetId() const

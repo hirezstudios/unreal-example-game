@@ -3,7 +3,6 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "RHVoucherOrder.generated.h"
 
 UCLASS()

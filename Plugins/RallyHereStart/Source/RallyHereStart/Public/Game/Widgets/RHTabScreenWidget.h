@@ -32,6 +32,10 @@ protected:
 protected:
 	FOnInputAction ScoreboardReleased;
 
+	//$$ KAB - Route names changed to Gameplay Tags, New Var to set ViewTag
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Views", meta = (Categories = "View"))
+	FGameplayTag ScoreboardViewTag;
+
 	UFUNCTION()
 	void HandleScoreboardReleased();
 #pragma endregion

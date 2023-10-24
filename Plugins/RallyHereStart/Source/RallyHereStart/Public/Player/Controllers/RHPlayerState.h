@@ -36,10 +36,18 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &OutLifetimeProps) const override;
 
 protected:
-    virtual void CopyProperties(APlayerState* PlayerState) override;
+	//$$ LDP BEGIN - Allow derived classes to be notified of when RHPlayerUuid replicates
+	UFUNCTION()
+	virtual void OnRep_RHPlayerUuid() {}
+	//$$ LDP END - Allow derived classes to be notified of when RHPlayerUuid replicates
+
+	virtual void CopyProperties(APlayerState* PlayerState) override;
 
 	UPROPERTY(Replicated)
     int32 RHPlayerId;
-	UPROPERTY(Replicated)
+
+	//$$ LDP BEGIN - Allow derived classes to be notified of when RHPlayerUuid replicates
+	UPROPERTY(ReplicatedUsing = OnRep_RHPlayerUuid)
 	FGuid RHPlayerUuid;
+	//$$ LDP END - Allow derived classes to be notified of when RHPlayerUuid replicates
 };

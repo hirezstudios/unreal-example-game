@@ -21,7 +21,8 @@ void URHSettingsMenu::InitializeWidget_Implementation()
     Super::InitializeWidget_Implementation();
 }
 
-void URHSettingsMenu::ShowWidget()
+//$$ LDP - Added Visibility param
+void URHSettingsMenu::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
 	if (SettingsPages.Num() == 0)
 	{
@@ -36,7 +37,7 @@ void URHSettingsMenu::ShowWidget()
 			}
 		}
 	}
-	Super::ShowWidget();
+	Super::ShowWidget(InVisibility); //$$ LDP - Added Visibility Param
 }
 
 void URHSettingsMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

@@ -107,14 +107,14 @@ void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 									IOnlineAchievementsPtr Achievements = OSS->GetAchievementsInterface();
 									if (Achievements.IsValid())
 									{
-										FOnQueryAchievementsCompleteDelegate QueryAchievementsDel;
-										FOnQueryAchievementsCompleteDelegate QueryAchievementDescriptionsDel;
+									//	FOnQueryAchievementsCompleteDelegate QueryAchievementsDel;
+									//	FOnQueryAchievementsCompleteDelegate QueryAchievementDescriptionsDel;
 
-										QueryAchievementsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementsComplete, PlayerInfo);
-										QueryAchievementDescriptionsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementDescriptionsComplete, PlayerInfo);
+									//	QueryAchievementsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementsComplete, PlayerInfo);
+									//	QueryAchievementDescriptionsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementDescriptionsComplete, PlayerInfo);
 
-										Achievements->QueryAchievements(*PlayerUniqueNetId.Get(), QueryAchievementsDel);
-										Achievements->QueryAchievementDescriptions(*PlayerUniqueNetId.Get(), QueryAchievementDescriptionsDel);
+									//	Achievements->QueryAchievements(*PlayerUniqueNetId.Get(), QueryAchievementsDel);
+									//	Achievements->QueryAchievementDescriptions(*PlayerUniqueNetId.Get(), QueryAchievementDescriptionsDel);
 									}
 								}
 							}

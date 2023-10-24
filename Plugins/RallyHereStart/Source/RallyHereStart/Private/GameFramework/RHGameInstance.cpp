@@ -20,6 +20,7 @@
 #include "RH_LocalPlayerLoginSubsystem.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "Interfaces/OnlineGameMatchesInterface.h"
+#include "EventClient/RallyHereEventClientIntegration.h"
 #include "PlayerExperience/PlayerExperienceGlobals.h"
 
 URHGameInstance::URHGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -100,6 +101,7 @@ void URHGameInstance::Init()
 	}
 
 	UPlayerExperienceGlobals::Get().InitGlobalData(this);
+	FRallyHereEventClientIntegration::SetGameInstance(this);
 
     if (!HasAnyFlags(RF_ClassDefaultObject))
     {
@@ -186,22 +188,8 @@ void URHGameInstance::Shutdown()
 		EventManager->Uninitialize();
 	}
 
-	if (AppSuspendHandle.IsValid())
-	{
-		FCoreDelegates::ApplicationWillEnterBackgroundDelegate.Remove(AppSuspendHandle);
-	}
-	if (AppResumeHandle.IsValid())
-	{
-		FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeHandle);
-	}
-	if (AppDeactivatedHandle.IsValid())
-	{
-		FCoreDelegates::ApplicationWillDeactivateDelegate.Remove(AppDeactivatedHandle);
-	}
-	if (AppReactivatedHandle.IsValid())
-	{
-		FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(AppReactivatedHandle);
-	}
+	FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeDelegateHandle);
+	FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(AppReactivatedDelegateHandle);
 }
 
 void URHGameInstance::AppReactivatedCallbackInGameThread()
@@ -674,6 +662,7 @@ int32 URHGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId U
 			{
 				RHSS->GetAuthContext()->OnLoginUserChanged().AddWeakLambda(this, [this, NewPlayer]()
 					{
+						FRallyHereEventClientIntegration::OnPLayerLoginStatusChanged(NewPlayer);
 						OnLocalPlayerLoginChanged.Broadcast(NewPlayer);
 					});
 			}

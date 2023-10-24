@@ -112,6 +112,9 @@ public:
         UPARAM() bool IsPC,
         UPARAM() bool IsMobile
     );
+	
+	UFUNCTION(BlueprintPure, Category = "Game")
+	static bool IsSteamDeck();
 
 	UFUNCTION(BlueprintPure, Category = "Game")
 	static bool IsAnonymousLogin(ARHHUDCommon* pHUD);

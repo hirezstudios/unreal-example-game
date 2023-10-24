@@ -28,21 +28,21 @@ void URHContextBar::RefreshContextBar()
 		{
 			TArray<UContextActionData*> TopRouteActions;
 			TArray<UContextActionData*> GlobalActions;
-			FName ActiveRoute;
+			FGameplayTag ActiveRouteTag = FGameplayTag::EmptyTag; //$$ KAB - Route names changed to Gameplay Tags
 
-			if (InputManager->GetActiveContextActions(TopRouteActions, GlobalActions, ActiveRoute))
+			if (InputManager->GetActiveContextActions(TopRouteActions, GlobalActions, ActiveRouteTag)) //$$ KAB - Route names changed to Gameplay Tags
 			{
-				UpdateContextActions(TopRouteActions, GlobalActions, ActiveRoute);
+				UpdateContextActions(TopRouteActions, GlobalActions, ActiveRouteTag); //$$ KAB - Route names changed to Gameplay Tags
 			}
 			else
 			{
-				UpdateContextActions(TArray<UContextActionData*>(), TArray<UContextActionData*>(), NAME_None);
+				UpdateContextActions(TArray<UContextActionData*>(), TArray<UContextActionData*>(), FGameplayTag::EmptyTag); //$$ KAB - Route names changed to Gameplay Tags
 			}
 		}
 	}
 }
 
-void URHContextBar::UpdateContextActions(const TArray<UContextActionData*>& RouteActions, const TArray<UContextActionData*>& GlobalActions, FName ActiveRoute)
+void URHContextBar::UpdateContextActions(const TArray<UContextActionData*>& RouteActions, const TArray<UContextActionData*>& GlobalActions, const FGameplayTag& ActiveRouteTag) //$$ KAB - Route names changed to Gameplay Tags
 {
 	// Build out a list of actions we are looking to add via the RouteActions/GLobalActions
 	TArray<FName> AddList;
@@ -73,10 +73,10 @@ void URHContextBar::UpdateContextActions(const TArray<UContextActionData*>& Rout
 	AddContextActions(GlobalActions, AddList);
 
 	bool bAlwaysShowContextBar = false;
-	if (MyHud != nullptr && MyHud->GetViewManager() && ActiveRoute != NAME_None)
+	if (MyHud != nullptr && MyHud->GetViewManager() && ActiveRouteTag.IsValid()) //$$ KAB - Route names changed to Gameplay Tags
 	{
 		FViewRoute ViewRoute;
-		if (MyHud->GetViewManager()->GetViewRoute(ActiveRoute, ViewRoute))
+		if (MyHud->GetViewManager()->GetViewRoute(ActiveRouteTag, ViewRoute))
 		{
 			bAlwaysShowContextBar = ViewRoute.AlwaysShowContextBar;
 		}

@@ -34,9 +34,10 @@ void URHQuickPlayWidget::InitializeWidget_Implementation()
 	UpdateState();
 }
 
-void URHQuickPlayWidget::ShowWidget()
+//$$ LDP - Added Visibility param
+void URHQuickPlayWidget::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
-	Super::ShowWidget();
+	Super::ShowWidget(InVisibility);
 
 	UpdateState();
 }

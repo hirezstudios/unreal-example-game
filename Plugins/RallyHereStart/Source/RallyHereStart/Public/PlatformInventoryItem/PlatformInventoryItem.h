@@ -8,6 +8,7 @@
 #include "RH_PlayerInfoSubsystem.h"
 #include "RH_PlayerInventory.h"
 #include "RH_Properties.h"
+#include "GameplayTags.h"
 #include "PlatformInventoryItem.generated.h"
 
 struct FGameplayTagContainer;
@@ -66,6 +67,12 @@ public:
 	// Returns the Item Name as Text
 	UFUNCTION(BlueprintPure, Category = "Item")
 	const FRH_ItemId& GetItemId() const { return ItemId; }
+
+	//$$ KAB - BEGIN - Move Loot Id from StoreAsset to InventoryItem
+	// Returns the lood id for purchasing the item
+	UFUNCTION(BlueprintPure, Category = "Item")
+	const FRH_LootId& GetLootId() const { return PurchaseLootId; }
+	//$$ KAB - END - Move Loot Id from StoreAsset to InventoryItem
 
 	// Returns the Item Name as Text
 	UFUNCTION(BlueprintPure, Category = "Item")
@@ -205,6 +212,12 @@ protected:
 	// Item Id wrapper for the Rally Here system, with the legacy and guid versions of item id.
 	UPROPERTY(EditDefaultsOnly, AssetRegistrySearchable, DuplicateTransient, Category = "Configuration Deep Link", meta = (ShowOnlyInnerProperties))
 	FRH_ItemId ItemId;
+
+	//$$ KAB - BEGIN - Move Loot Id from StoreAsset to InventoryItem
+	// The loot id associated with the item, this is used on Store Assets because Bundles and other assets that these represent don't have physical item IDs, they only exist as a loot id
+	UPROPERTY(EditDefaultsOnly, AssetRegistrySearchable, DuplicateTransient, Category = "Item")
+	FRH_LootId PurchaseLootId;
+	//$$ KAB - END - Move Loot Id from StoreAsset to InventoryItem
 
     // This dictates if a given item type is something we physically want to reveal to the user as a reward/order
     UPROPERTY(AssetRegistrySearchable)

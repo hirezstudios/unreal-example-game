@@ -34,5 +34,5 @@ void URHGameWidget::NativeConstruct()
 
 void URHGameWidget::HandleScoreboardPressed()
 {
-	AddViewRoute(FName("Scoreboard"));
+	AddViewRoute(ScorboardViewTag); //$$ KAB - Route names changed to Gameplay Tags
 }

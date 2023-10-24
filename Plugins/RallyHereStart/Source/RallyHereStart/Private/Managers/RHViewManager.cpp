@@ -6,6 +6,8 @@
 #include "Shared/HUD/RHHUDCommon.h"
 #include "DataFactories/RHLoginDataFactory.h"
 
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
+
 // Tracks the next to be viewed route in the each route redirection phase
 static TMap<EViewRouteRedirectionPhase, int32> ViewRedirectionDisplayCounter;
 
@@ -21,13 +23,24 @@ URHViewManager::URHViewManager() : Super()
     }
 }
 
-void URHViewManager::SetMembersOnConstruct(ARHHUDCommon* InHudRef, TArray<UCanvasPanel*> InCanvasPanels, TArray<FStickyWidgetData> InStickyWidgetData, UDataTable* InRouteTable, bool InCanBaseLayerBeEmpty)
+void URHViewManager::SetMembersOnConstruct(ARHHUDCommon* InHudRef, const TArray<UCanvasPanel*>& InCanvasPanels, const TArray<FStickyWidgetData>& InStickyWidgetData, UDataTable* InRouteTable, bool InCanBaseLayerBeEmpty)
 {
 	HudRef = InHudRef;
 	CanvasPanels = InCanvasPanels;
 	StickyWidgets = InStickyWidgetData;
-	Routes = InRouteTable;
 	bCanBaseLayerBeEmpty = InCanBaseLayerBeEmpty;
+
+	// Pull Data Table into internal map
+	if (InRouteTable != nullptr)
+	{
+		for (const FName& rowName : InRouteTable->GetRowNames())
+		{
+			if (FViewRoute* route = InRouteTable->FindRow<FViewRoute>(rowName, "Set Routes lookup."))
+			{
+				Routes.Add(route->RouteTag, *route);
+			}
+		}
+	}
 }
 
 void URHViewManager::Initialize()
@@ -46,7 +59,25 @@ void URHViewManager::Initialize()
             ViewLayers.Add(NewLayer);
         }
     }
-    InitializeRoutes(Routes);
+
+	if (!InitializationDataTableSoftPtr.IsNull())
+	{
+		// We load this synchronously because there may be code after this that needs it immediately and expects it setup
+		const UDataTable* InitializationDataTable = InitializationDataTableSoftPtr.IsValid() ? InitializationDataTableSoftPtr.Get() : InitializationDataTableSoftPtr.LoadSynchronous();
+
+		if (InitializationDataTable != nullptr)
+		{
+			for (const FName& rowName : InitializationDataTable->GetRowNames())
+			{
+				if (FViewRoute* route = InitializationDataTable->FindRow<FViewRoute>(rowName, "Set Routes lookup."))
+				{
+					Routes.Add(route->RouteTag, *route);
+				}
+			}
+		}
+	}
+
+	InitializeRoutes();
 }
 
 void URHViewManager::Uninitialize()
@@ -78,60 +109,49 @@ void URHViewManager::PostLogoff()
     ViewRedirectionDisplayCounter[EViewRouteRedirectionPhase::VIEW_ROUTE_REDIRECT_AccountLogin] = 0;
 }
 
-void URHViewManager::InitializeRoutes(UDataTable* RouteTable)
+void URHViewManager::InitializeRoutes()
 {
-    // On creation, set up the first default route we find
-    if (RouteTable != nullptr)
-    {
-        Routes = RouteTable;
+	for (const TPair<FGameplayTag, FViewRoute>& pair : Routes)
+	{
+		// to do Preload rows and add those widgets already
+		if (URHViewLayer* viewLayer = GetLayerForRoute(pair.Key))
+		{
+			viewLayer->AddRouteToLayer(pair.Key, pair.Value);
 
-        // to do Preload rows and add those widgets already
-        for (FName RouteName : Routes->GetRowNames())
-        {
-            // check if we should pre-load the route
-            FViewRoute* Route = Routes->FindRow<FViewRoute>(RouteName, "Set Routes lookup.");
-            if (Route != nullptr)
-            {
-                if (URHViewLayer* ViewLayer = GetLayerForRoute(Route))
-                {
-                    ViewLayer->AddRouteToLayer(RouteName, Route);
+			if (pair.Value.ShouldPreload)
+			{
+				if (URHWidget* TargetRouteWidget = CreateWidget<URHWidget>(GetWorld(), pair.Value.ViewWidget))
+				{
+					TargetRouteWidget->SetRouteTag(pair.Key);
+					viewLayer->StoreViewWidget(pair.Key, TargetRouteWidget);
+				}
+			}
 
-                    if (Route->ShouldPreload)
-                    {
-                        if (URHWidget* TargetRouteWidget = CreateWidget<URHWidget>(GetWorld(), Route->ViewWidget))
-                        {
-							TargetRouteWidget->SetRouteName(RouteName);
-                            ViewLayer->StoreViewWidget(RouteName, TargetRouteWidget);
-                        }
-                    }
+			if (pair.Value.IsDefaultRoute)
+			{
+				viewLayer->SetDefaultRoute(pair.Value.RouteTag);
+			}
+		}
 
-                    if (Route->IsDefaultRoute)
-                    {
-                        ViewLayer->SetDefaultRoute(RouteName);
-                    }
-                }
+		if (pair.Value.RedirectionPhase == EViewRouteRedirectionPhase::VIEW_ROUTE_REDIRECT_AlwaysCheck)
+		{
+			FViewRouteRedirectData RedirectData;
 
-                if (Route->RedirectionPhase == EViewRouteRedirectionPhase::VIEW_ROUTE_REDIRECT_AlwaysCheck)
-                {
-                    FViewRouteRedirectData RedirectData;
+			RedirectData.CheckOrder = pair.Value.RedirectionPhaseOrder;
+			RedirectData.OpenOverOriginal = pair.Value.OpenOverOriginal;
+			RedirectData.Route = pair.Value.RouteTag;
+			RedirectData.Redirector = pair.Value.ViewRedirector ? NewObject<URHViewRedirecter>(this, pair.Value.ViewRedirector) : nullptr;
 
-                    RedirectData.CheckOrder = Route->RedirectionPhaseOrder;
-                    RedirectData.OpenOverOriginal = Route->OpenOverOriginal;
-                    RedirectData.RouteName = RouteName;
-                    RedirectData.Redirector = Route->ViewRedirector ? NewObject<URHViewRedirecter>(this, Route->ViewRedirector) : nullptr;
+			AlwaysCheckRouteData.Add(RedirectData);
+		}
+	}
 
-                    AlwaysCheckRouteData.Add(RedirectData);
-                }
-            }
-        }
-
-        AlwaysCheckRouteData.Sort([](const FViewRouteRedirectData& A, const FViewRouteRedirectData& B) { return A.CheckOrder < B.CheckOrder; });
-    }
+    AlwaysCheckRouteData.Sort([](const FViewRouteRedirectData& A, const FViewRouteRedirectData& B) { return A.CheckOrder < B.CheckOrder; });
 }
 
-URHViewLayer* URHViewManager::GetLayerForRoute(FName Route)
+URHViewLayer* URHViewManager::GetLayerForRoute(const FGameplayTag& RouteTag)
 {
-    return GetLayerForRoute(Routes->FindRow<FViewRoute>(Route, ""));
+	return GetLayerForRoute(Routes.Find(RouteTag));
 }
 
 URHViewLayer* URHViewManager::GetLayerForRoute(FViewRoute* Route)
@@ -154,61 +174,61 @@ URHViewLayer* URHViewManager::GetLayerByType(EViewManagerLayer LayerType) const
 	return nullptr;
 }
 
-bool URHViewManager::GetViewRoute(FName RouteName, FViewRoute& ViewRoute)
+bool URHViewManager::GetViewRoute(FGameplayTag Route, FViewRoute& ViewRoute)
 {
-	if (FViewRoute* Route = Routes->FindRow<FViewRoute>(RouteName, TEXT("URHViewManager::GetViewRoute")))
+	if (const FViewRoute* findRoute = Routes.Find(Route))
 	{
-		ViewRoute = *Route;
+		ViewRoute = *findRoute;
 		return true;
 	}
 
 	return false;
 }
 
-bool URHViewManager::ReplaceRoute(FName RouteName, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
+bool URHViewManager::ReplaceRoute(FGameplayTag RouteTag, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
 {
 	UObject* InData = Data;
 	bool OpenOriginalScene = false;
-    FName ReplacementRoute = ReplaceTargetRoute(RouteName, Data, OpenOriginalScene);
-	TArray<FName> AdditionalRoutes;
+	const FGameplayTag ReplacementRouteTag = ReplaceTargetRoute(RouteTag, Data, OpenOriginalScene);
+	TArray<FGameplayTag> AdditionalRoutes;
 
-    if (ReplacementRoute != NAME_None)
+    if (ReplacementRouteTag.IsValid())
     {
-		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRoute);
+		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRouteTag);
 
 		if (OpenOriginalScene)
 		{
-			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteName);
+			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteTag);
 			
 			// If we are opening something on the same layer, slide it under the current open, otherwise open both
 			if (ViewLayerOriginal == ViewLayerTarget)
 			{
-				AdditionalRoutes.Add(RouteName);
+				AdditionalRoutes.Add(RouteTag);
 			}
 			else
 			{
-				ViewLayerOriginal->ReplaceRoute(RouteName, AdditionalRoutes, ForceTransition, InData);
+				ViewLayerOriginal->ReplaceRoute(RouteTag, AdditionalRoutes, ForceTransition, InData);
 			}
 		}
 
-		return ViewLayerTarget->ReplaceRoute(ReplacementRoute, AdditionalRoutes, ForceTransition, Data);
+		return ViewLayerTarget->ReplaceRoute(ReplacementRouteTag, AdditionalRoutes, ForceTransition, Data);
     }
 
-    if (URHViewLayer* ViewLayerTarget = GetLayerForRoute(RouteName))
+    if (URHViewLayer* ViewLayerTarget = GetLayerForRoute(RouteTag))
     {
-        return ViewLayerTarget->ReplaceRoute(RouteName, AdditionalRoutes, ForceTransition, InData);
+        return ViewLayerTarget->ReplaceRoute(RouteTag, AdditionalRoutes, ForceTransition, InData);
     }
 
     return false;
 }
 
-bool URHViewManager::PushRoute(FName RouteName, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
+bool URHViewManager::PushRoute(FGameplayTag RouteTag, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
 {
 	// If we're pushing a non-Base route, but the Base layer is currently changing, ignore this route change
 	// This rule currently only applies to pushes
 	if (URHViewLayer* BaseLayer = GetLayerByType(EViewManagerLayer::Base))
 	{
-		if (URHViewLayer* ModifiedLayer = GetLayerForRoute(RouteName))
+		if (URHViewLayer* ModifiedLayer = GetLayerForRoute(RouteTag))
 		{
 			if (ModifiedLayer->GetLayerType() != EViewManagerLayer::Base && BaseLayer->GetCurrentTransitionState() != EViewManagerTransitionState::Idle)
 			{
@@ -219,34 +239,34 @@ bool URHViewManager::PushRoute(FName RouteName, bool ForceTransition/* = false*/
 
 	UObject* InData = Data;
 	bool OpenOriginalScene = false;
-    FName ReplacementRoute = ReplaceTargetRoute(RouteName, Data, OpenOriginalScene);
-	TArray<FName> AdditionalRoutes;
+	const FGameplayTag ReplacementRouteTag = ReplaceTargetRoute(RouteTag, Data, OpenOriginalScene);
+	TArray<FGameplayTag> AdditionalRoutes;
 
-	if (ReplacementRoute != NAME_None)
+	if (ReplacementRouteTag.IsValid())
 	{
-		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRoute);
+		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRouteTag);
 
 		if (OpenOriginalScene)
 		{
-			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteName);
+			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteTag);
 
 			// If we are opening something on the same layer, slide it under the current open, otherwise open both
 			if (ViewLayerOriginal == ViewLayerTarget)
 			{
-				AdditionalRoutes.Add(RouteName);
+				AdditionalRoutes.Add(RouteTag);
 			}
 			else
 			{
-				ViewLayerOriginal->PushRoute(RouteName, AdditionalRoutes, ForceTransition, InData);
+				ViewLayerOriginal->PushRoute(RouteTag, AdditionalRoutes, ForceTransition, InData);
 			}
 		}
 
-		return ViewLayerTarget->PushRoute(ReplacementRoute, AdditionalRoutes, ForceTransition, Data);
+		return ViewLayerTarget->PushRoute(ReplacementRouteTag, AdditionalRoutes, ForceTransition, Data);
 	}
 
-	if (URHViewLayer* ViewLayerTarget = GetLayerForRoute(RouteName))
+	if (URHViewLayer* ViewLayerTarget = GetLayerForRoute(RouteTag))
 	{
-		return ViewLayerTarget->PushRoute(RouteName, AdditionalRoutes, ForceTransition, InData);
+		return ViewLayerTarget->PushRoute(RouteTag, AdditionalRoutes, ForceTransition, InData);
 	}
 
     return false;
@@ -284,7 +304,7 @@ bool URHViewManager::ShouldUseAccountLoginPhase() const
 	return false;
 }
 
-FName URHViewManager::ReplaceTargetRoute(FName Route, UObject*& Data, bool& bOpenOriginal)
+const FGameplayTag URHViewManager::ReplaceTargetRoute(const FGameplayTag& RouteTag, UObject*& Data, bool& bOpenOriginal)
 {
     ViewRedirectionDisplayCounter[EViewRouteRedirectionPhase::VIEW_ROUTE_REDIRECT_AlwaysCheck] = 0;
 	bOpenOriginal = false;
@@ -303,45 +323,44 @@ FName URHViewManager::ReplaceTargetRoute(FName Route, UObject*& Data, bool& bOpe
     // Check if we should search routes for this phase
     if (ViewRedirectionDisplayCounter[CurrentRedirectPhase] > INDEX_NONE)
     {
-        TMap<int32, TMap<FName, uint8*>::TConstIterator> PossibleRoutes;
+        TMap<int32, TPair<FGameplayTag, FViewRoute>> PossibleRoutes;
 
-        FName RedirectRoute = NAME_None;
+		FGameplayTag RedirectRouteTag = FGameplayTag::EmptyTag;
         UObject* PopupSceneData = nullptr;
 
-        for (TMap<FName, uint8*>::TConstIterator RowMapIter(Routes->GetRowMap().CreateConstIterator()); RowMapIter; ++RowMapIter)
-        {
-            if (FViewRoute* Entry = reinterpret_cast<FViewRoute*>(RowMapIter.Value()))
-            {
-                // If we are the next route to try and redirect to, check if we should be loaded
-                if (Entry->RedirectionPhase == CurrentRedirectPhase)
-                {
-                    if (Entry->RedirectionPhaseOrder == ViewRedirectionDisplayCounter[CurrentRedirectPhase])
-                    {
-                        ViewRedirectionDisplayCounter[CurrentRedirectPhase]++;
-                        if (!Entry->ViewRedirector)
-                        {
-                            RedirectRoute = RowMapIter.Key();
-                        }
-                        else
-                        {
-                            URHViewRedirecter* ViewRedirector = NewObject<URHViewRedirecter>(this, Entry->ViewRedirector);
-                            if (ViewRedirector && ViewRedirector->ShouldRedirect(GetHudRef(), Route, Data))
-                            {
-                                RedirectRoute = RowMapIter.Key();
-                            }
-                        }
-                    }
-                    else if (Entry->RedirectionPhaseOrder > ViewRedirectionDisplayCounter[CurrentRedirectPhase])
-                    {
-                        // Build out the route list of possible things we things we need to redirect to, in case we fail to find the current number
-                        PossibleRoutes.Add(Entry->RedirectionPhaseOrder, RowMapIter);
-                    }
+		for (const TPair<FGameplayTag, FViewRoute>& pair : Routes)
+		{
+			const FViewRoute& viewRoute = pair.Value;
 
-                    if (RedirectRoute != NAME_None)
+            // If we are the next route to try and redirect to, check if we should be loaded
+            if (viewRoute.RedirectionPhase == CurrentRedirectPhase)
+            {
+                if (viewRoute.RedirectionPhaseOrder == ViewRedirectionDisplayCounter[CurrentRedirectPhase])
+                {
+                    ViewRedirectionDisplayCounter[CurrentRedirectPhase]++;
+                    if (!viewRoute.ViewRedirector)
                     {
-						bOpenOriginal = Entry->OpenOverOriginal;
-                        return RedirectRoute;
+                        RedirectRouteTag = pair.Key;
                     }
+                    else
+                    {
+                        URHViewRedirecter* ViewRedirector = NewObject<URHViewRedirecter>(this, viewRoute.ViewRedirector);
+                        if (ViewRedirector && ViewRedirector->ShouldRedirect(GetHudRef(), RouteTag, Data))
+                        {
+                            RedirectRouteTag = pair.Key;
+                        }
+                    }
+                }
+                else if (viewRoute.RedirectionPhaseOrder > ViewRedirectionDisplayCounter[CurrentRedirectPhase])
+                {
+                    // Build out the route list of possible things we things we need to redirect to, in case we fail to find the current number
+                    PossibleRoutes.Add(viewRoute.RedirectionPhaseOrder, pair);
+                }
+
+                if (RedirectRouteTag.IsValid())
+                {
+					bOpenOriginal = viewRoute.OpenOverOriginal;
+                    return RedirectRouteTag;
                 }
             }
         }
@@ -350,34 +369,32 @@ FName URHViewManager::ReplaceTargetRoute(FName Route, UObject*& Data, bool& bOpe
         if (PossibleRoutes.Num())
         {
             PossibleRoutes.KeySort([](int32 A, int32 B) { return A < B; });
-            TArray<TMap<FName, uint8*>::TConstIterator> PossibleRouteRows;
+            TArray<TPair<FGameplayTag, FViewRoute>> PossibleRouteRows;
             PossibleRoutes.GenerateValueArray(PossibleRouteRows);
 
-            for (int32 i = 0; i < PossibleRouteRows.Num(); i++)
+            for (const auto& pair : PossibleRouteRows)
             {
-                if (FViewRoute* Entry = reinterpret_cast<FViewRoute*>(PossibleRouteRows[i].Value()))
+				const FViewRoute& viewRoute = pair.Value;
+                if (!viewRoute.ViewRedirector)
                 {
-                    if (!Entry->ViewRedirector)
-                    {
-                        RedirectRoute = PossibleRouteRows[i].Key();
-                        ViewRedirectionDisplayCounter[CurrentRedirectPhase] = Entry->RedirectionPhaseOrder+1;
-                    }
-                    else
-                    {
-                        URHViewRedirecter* ViewRedirector = NewObject<URHViewRedirecter>(this, Entry->ViewRedirector);
-                        if (ViewRedirector && ViewRedirector->ShouldRedirect(GetHudRef(), Route, Data))
-                        {
-                            RedirectRoute = PossibleRouteRows[i].Key();
-                            ViewRedirectionDisplayCounter[CurrentRedirectPhase] = Entry->RedirectionPhaseOrder+1;
-                        }
-                    }
-
-					if (RedirectRoute != NAME_None)
-					{
-						bOpenOriginal = Entry->OpenOverOriginal;
-						return RedirectRoute;
-					}
+                    RedirectRouteTag = pair.Key;
+                    ViewRedirectionDisplayCounter[CurrentRedirectPhase] = viewRoute.RedirectionPhaseOrder + 1;
                 }
+                else
+                {
+                    URHViewRedirecter* ViewRedirector = NewObject<URHViewRedirecter>(this, viewRoute.ViewRedirector);
+                    if (ViewRedirector && ViewRedirector->ShouldRedirect(GetHudRef(), RouteTag, Data))
+                    {
+						RedirectRouteTag = pair.Key;
+                        ViewRedirectionDisplayCounter[CurrentRedirectPhase] = viewRoute.RedirectionPhaseOrder + 1;
+                    }
+                }
+
+				if (RedirectRouteTag.IsValid())
+				{
+					bOpenOriginal = viewRoute.OpenOverOriginal;
+					return RedirectRouteTag;
+				}
             }
         }
 
@@ -389,25 +406,25 @@ FName URHViewManager::ReplaceTargetRoute(FName Route, UObject*& Data, bool& bOpe
     {
         for (int32 i = 0; i < AlwaysCheckRouteData.Num(); ++i)
         {
-			if (AlwaysCheckRouteData[i].RouteName != Route)
+			if (AlwaysCheckRouteData[i].Route != RouteTag)
 			{
-				if (AlwaysCheckRouteData[i].Redirector && AlwaysCheckRouteData[i].Redirector->ShouldRedirect(GetHudRef(), Route, Data))
+				if (AlwaysCheckRouteData[i].Redirector && AlwaysCheckRouteData[i].Redirector->ShouldRedirect(GetHudRef(), RouteTag, Data))
 				{
 					bOpenOriginal = AlwaysCheckRouteData[i].OpenOverOriginal;
-					return AlwaysCheckRouteData[i].RouteName;
+					return AlwaysCheckRouteData[i].Route;
 				}
 			}
         }
     }
 
-    return NAME_None;
+    return FGameplayTag::EmptyTag;
 }
 
-bool URHViewManager::RemoveRoute(FName RouteName, bool ForceTransition/* = false*/)
+bool URHViewManager::RemoveRoute(FGameplayTag RouteTag, bool ForceTransition/* = false*/)
 {
-    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteName))
+    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteTag))
     {
-        return ViewLayer->RemoveRoute(RouteName, ForceTransition);
+        return ViewLayer->RemoveRoute(RouteTag, ForceTransition);
     }
 
     return false;
@@ -429,38 +446,38 @@ bool URHViewManager::PopRoute(bool ForceTransition/* = false*/)
     return false;
 }
 
-bool URHViewManager::SwapRoute(FName RouteName, FName SwapTargetRoute/* = NAME_None*/, bool ForceTransition/* = false*/)
+bool URHViewManager::SwapRoute(FGameplayTag RouteTag, FGameplayTag SwapTargetRouteTag, bool ForceTransition/* = false*/)
 {
 	UObject* Data = nullptr;
 	bool OpenOriginalScene = false;
-	FName ReplacementRoute = ReplaceTargetRoute(RouteName, Data, OpenOriginalScene);
-	TArray<FName> AdditionalRoutes;
+	const FGameplayTag ReplacementRouteTag = ReplaceTargetRoute(RouteTag, Data, OpenOriginalScene);
+	TArray<FGameplayTag> AdditionalRouteTags;
 
-	if (ReplacementRoute != NAME_None)
+	if (ReplacementRouteTag.IsValid())
 	{
-		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRoute);
+		URHViewLayer* ViewLayerTarget = GetLayerForRoute(ReplacementRouteTag);
 
 		if (OpenOriginalScene)
 		{
-			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteName);
+			URHViewLayer* ViewLayerOriginal = GetLayerForRoute(RouteTag);
 
 			// If we are opening something on the same layer, slide it under the current open, otherwise open both
 			if (ViewLayerOriginal == ViewLayerTarget)
 			{
-				AdditionalRoutes.Add(RouteName);
+				AdditionalRouteTags.Add(RouteTag);
 			}
 			else
 			{
-				return ViewLayerTarget->SwapRoute(RouteName, SwapTargetRoute, ForceTransition);
+				return ViewLayerTarget->SwapRoute(RouteTag, SwapTargetRouteTag, ForceTransition);
 			}
 		}
 
-		return ViewLayerTarget->PushRoute(ReplacementRoute, AdditionalRoutes, ForceTransition, Data);
+		return ViewLayerTarget->PushRoute(ReplacementRouteTag, AdditionalRouteTags, ForceTransition, Data);
 	}
 
-    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteName))
+    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteTag))
     {
-        return ViewLayer->SwapRoute(RouteName, SwapTargetRoute, ForceTransition);
+        return ViewLayer->SwapRoute(RouteTag, SwapTargetRouteTag, ForceTransition);
     }
 
     return false;
@@ -474,52 +491,52 @@ void URHViewManager::RegisterStickyWidget(FStickyWidgetData* WidgetData)
     }
 }
 
-bool URHViewManager::GetPendingRouteData(FName RouteName, UObject*& Data)
+bool URHViewManager::GetPendingRouteData(FGameplayTag RouteTag, UObject*& Data)
 {
-    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteName))
+    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteTag))
     {
-        return ViewLayer->GetPendingRouteData(RouteName, Data);
+        return ViewLayer->GetPendingRouteData(RouteTag, Data);
     }
 
     return false;
 }
 
-void URHViewManager::SetPendingRouteData(FName RouteName, UObject* Data)
+void URHViewManager::SetPendingRouteData(FGameplayTag RouteTag, UObject* Data)
 {
-    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteName))
+    if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteTag))
     {
-        ViewLayer->SetPendingRouteData(RouteName, Data);
+        ViewLayer->SetPendingRouteData(RouteTag, Data);
     }
 }
 
-bool URHViewManager::ContainsRoute(FName RouteName)
+bool URHViewManager::ContainsRoute(FGameplayTag RouteTag)
 {
-	if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteName))
+	if (URHViewLayer* ViewLayer = GetLayerForRoute(RouteTag))
 	{
-		return ViewLayer->ContainsRoute(RouteName);
+		return ViewLayer->ContainsRoute(RouteTag);
 	}
 
 	return false;
 }
 
-FName URHViewManager::GetTopViewRoute() const
+const FGameplayTag URHViewManager::GetTopViewRoute() const
 {
-    FName RouteName = FName();
+    FGameplayTag RouteTag = FGameplayTag::EmptyTag;
 
     for (int32 i = ViewLayers.Num() - 1; i >= 0; i--)
     {
         if (ViewLayers[i])
         {
-            RouteName = ViewLayers[i]->GetCurrentRoute();
+            RouteTag = ViewLayers[i]->GetCurrentRoute();
         }
 
-        if (!RouteName.IsNone())
+        if (RouteTag.IsValid())
         {
             break;
         }
     }
 
-    return RouteName;
+    return RouteTag;
 }
 
 URHWidget* URHViewManager::GetTopViewRouteWidget() const
@@ -563,24 +580,24 @@ int32 URHViewManager::GetViewRouteCount() const
     return Count;
 }
 
-FName URHViewManager::GetCurrentRoute(EViewManagerLayer Layer) const
+const FGameplayTag URHViewManager::GetCurrentRoute(EViewManagerLayer Layer) const
 {
     if ((int32)Layer < ViewLayers.Num())
     {
         return ViewLayers[(int32)Layer]->GetCurrentRoute();
     }
 
-    return NAME_None;
+    return FGameplayTag::EmptyTag;
 }
 
-FName URHViewManager::GetCurrentTransitionRoute(EViewManagerLayer Layer) const
+const FGameplayTag URHViewManager::GetCurrentTransitionRoute(EViewManagerLayer Layer) const
 {
     if ((int32)Layer < ViewLayers.Num())
     {
         return ViewLayers[(int32)Layer]->GetCurrentTransitionRoute();
     }
 
-    return NAME_None;
+    return FGameplayTag::EmptyTag;
 }
 
 EViewManagerLayer URHViewManager::GetTopLayer() const
@@ -591,7 +608,7 @@ EViewManagerLayer URHViewManager::GetTopLayer() const
 		{
 			// since we assume that layers at higher index are on top,
 			// backward iteration means the first layer we find with a CurrentRoute is topmost
-			if (ViewLayers[i]->GetCurrentRoute() != NAME_None)
+			if (ViewLayers[i]->GetCurrentRoute().IsValid())
 			{
 				return ViewLayers[i]->GetLayerType();
 			}
@@ -600,7 +617,7 @@ EViewManagerLayer URHViewManager::GetTopLayer() const
 	return EViewManagerLayer::Base; // assumption is this is not reachable
 }
 
-FName URHViewManager::GetDefaultRouteForLayer(EViewManagerLayer LayerType) const
+const FGameplayTag URHViewManager::GetDefaultRouteForLayer(EViewManagerLayer LayerType) const
 {
 	for (int32 i = ViewLayers.Num() - 1; i >= 0; i--)
 	{
@@ -612,7 +629,7 @@ FName URHViewManager::GetDefaultRouteForLayer(EViewManagerLayer LayerType) const
 			}
 		}
 	}
-	return NAME_None;
+	return FGameplayTag::EmptyTag;
 }
 
 bool URHViewManager::HasCompletedRedirectFlow(EViewRouteRedirectionPhase RedirectPhase) const
@@ -624,7 +641,7 @@ bool URHViewManager::IsBlockingOrders() const
 {
 	for (auto* Layer : ViewLayers)
 	{
-		auto* Data = Routes->FindRow<FViewRoute>(Layer->GetCurrentRoute(), TEXT("Check blocking order"));
+		auto* Data = Routes.Find(Layer->GetCurrentRoute());
 		if (Data != nullptr && Data->BlockOrders)
 		{
 			return true;
@@ -668,18 +685,17 @@ void URHViewLayer::Initialize(UCanvasPanel* ViewTarget, URHViewManager* ViewMana
     DisplayTarget = ViewTarget;
     MyManager = ViewManager;
     LayerType = Type;
-    Routes = NewObject<UDataTable>();
-    Routes->RowStruct = FViewRoute::StaticStruct();
 }
 
-void URHViewLayer::StoreViewWidget(FName RouteName, URHWidget* Widget)
+void URHViewLayer::StoreViewWidget(const FGameplayTag& RouteTag, URHWidget* Widget)
 {
-    RouteWidgetMap.Add(RouteName, Widget);
+    RouteWidgetMap.Add(RouteTag, Widget);
 
+    //$$ DLF - TODO: Figure out why RH was overriding IsFocusable to true here.
 #if RH_FROM_ENGINE_VERSION(5,2)
-	Widget->SetIsFocusable(true);
+    //Widget->SetIsFocusable(true);
 #else
-    Widget->bIsFocusable = true;
+    //Widget->bIsFocusable = true;
 #endif
     Widget->InitializeWidget();
     Widget->SetVisibility(ESlateVisibility::Collapsed);
@@ -691,33 +707,33 @@ void URHViewLayer::StoreViewWidget(FName RouteName, URHWidget* Widget)
     }
 }
 
-bool URHViewLayer::ReplaceRoute(FName RouteName, TArray<FName> AdditionalRoutes, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
+bool URHViewLayer::ReplaceRoute(const FGameplayTag& RouteTag, const TArray<FGameplayTag>& AdditionalRouteTags, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
 {
     if (Data != nullptr)
     {
-        PendingRouteData.Add(RouteName, Data);
+        PendingRouteData.Add(RouteTag, Data);
     }
     else
     {
-        PendingRouteData.Remove(RouteName);
+        PendingRouteData.Remove(RouteTag);
     }
 
-    TArray<FName> RouteStack;
-	RouteStack.Append(AdditionalRoutes);
-	RouteStack.Add(RouteName);
+    TArray<FGameplayTag> RouteTagStack;
+	RouteTagStack.Append(AdditionalRouteTags);
+	RouteTagStack.Add(RouteTag);
 
-    return RequestRouteStackChange(RouteStack, ForceTransition);
+    return RequestRouteStackChange(RouteTagStack, ForceTransition);
 }
 
-bool URHViewLayer::PushRoute(FName RouteName, TArray<FName> AdditionalRoutes, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
+bool URHViewLayer::PushRoute(const FGameplayTag& RouteTag, const TArray<FGameplayTag>& AdditionalRouteTags, bool ForceTransition/* = false*/, UObject* Data /*= nullptr*/)
 {
     if (Data != nullptr)
     {
-        PendingRouteData.Add(RouteName, Data);
+        PendingRouteData.Add(RouteTag, Data);
     }
     else
     {
-        PendingRouteData.Remove(RouteName);
+        PendingRouteData.Remove(RouteTag);
     }
 
     // if we're forcing this, we should clear out pending transitions before using the RouteStack
@@ -726,21 +742,21 @@ bool URHViewLayer::PushRoute(FName RouteName, TArray<FName> AdditionalRoutes, bo
         ClearPendingTransition();
     }
 
-    TArray<FName> RouteStack;
-    RouteStack.Append(CurrentRouteStack);
-	RouteStack.Append(AdditionalRoutes);
-    RouteStack.Add(RouteName);
+    TArray<FGameplayTag> RouteTagStack;
+    RouteTagStack.Append(CurrentRouteStack);
+	RouteTagStack.Append(AdditionalRouteTags);
+    RouteTagStack.Add(RouteTag);
 
-    return RequestRouteStackChange(RouteStack, ForceTransition);
+    return RequestRouteStackChange(RouteTagStack, ForceTransition);
 }
 
 void URHViewLayer::ClearRoutes()
 {
-	TArray<FName> RouteStack;
+	TArray<FGameplayTag> RouteStack;
 	RequestRouteStackChange(RouteStack, true);
 }
 
-bool URHViewLayer::RemoveRoute(FName RouteName, bool ForceTransition/* = false*/)
+bool URHViewLayer::RemoveRoute(const FGameplayTag& RouteTag, bool ForceTransition/* = false*/)
 {
     if (CurrentRouteStack.Num() == 0)
     {
@@ -748,7 +764,7 @@ bool URHViewLayer::RemoveRoute(FName RouteName, bool ForceTransition/* = false*/
     }
 
     // If we are the top view, pop us
-    if (RouteName == CurrentRouteStack[CurrentRouteStack.Num() - 1])
+    if (RouteTag == CurrentRouteStack[CurrentRouteStack.Num() - 1])
     {
         return PopRoute();
     }
@@ -758,9 +774,9 @@ bool URHViewLayer::RemoveRoute(FName RouteName, bool ForceTransition/* = false*/
     // Find ourselves in the route stack to remove
     for (int32 i = 0; i < CurrentRouteStack.Num(); ++i)
     {
-        if (RouteName == CurrentRouteStack[i])
+        if (RouteTag == CurrentRouteStack[i])
 		{
-			TArray<FName> RouteStack = CurrentRouteStack;
+			TArray<FGameplayTag> RouteStack = CurrentRouteStack;
             RouteStack.RemoveAt(i);
 
 			// Allow for the only view to be removed on non-base layers
@@ -785,7 +801,7 @@ bool URHViewLayer::PopRoute(bool ForceTransition/* = false*/)
             ClearPendingTransition();
         }
 
-        TArray<FName> RouteStack = CurrentRouteStack;
+        TArray<FGameplayTag> RouteStack = CurrentRouteStack;
         RouteStack.Pop();
 
         // Only allow for the only view to be removed on non-base layers unless specified otherwise by ViewManager
@@ -805,10 +821,10 @@ bool URHViewLayer::PopRoute(bool ForceTransition/* = false*/)
     return false;
 }
 
-bool URHViewLayer::SwapRoute(FName RouteName, FName SwapTargetRoute/* = NAME_None*/, bool ForceTransition/* = false*/)
+bool URHViewLayer::SwapRoute(const FGameplayTag& RouteTag, const FGameplayTag& SwapTargetRoute/* = FGameplayTag::EmptyTag*/, bool ForceTransition/* = false*/)
 {
-    TArray<FName> RouteStack;
-    RouteStack.Add(RouteName);
+    TArray<FGameplayTag> RouteStack;
+    RouteStack.Add(RouteTag);
 
     bool bShouldAdd = false;
     for (int i = CurrentRouteStack.Num() - 1; i >= 0; i--)
@@ -818,7 +834,7 @@ bool URHViewLayer::SwapRoute(FName RouteName, FName SwapTargetRoute/* = NAME_Non
             RouteStack.Insert(CurrentRouteStack[i], 0);
         }
 
-        if (SwapTargetRoute.IsNone() ||
+        if (!SwapTargetRoute.IsValid() ||
             CurrentRouteStack[i] == SwapTargetRoute)
         {
             bShouldAdd = true;
@@ -828,12 +844,12 @@ bool URHViewLayer::SwapRoute(FName RouteName, FName SwapTargetRoute/* = NAME_Non
     return RequestRouteStackChange(RouteStack, ForceTransition);
 }
 
-bool URHViewLayer::ContainsRoute(FName RouteName)
+bool URHViewLayer::ContainsRoute(const FGameplayTag& RouteTag)
 {
-	return CurrentRouteStack.Contains(RouteName);
+	return CurrentRouteStack.Contains(RouteTag);
 }
 
-bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool ForceTransition)
+bool URHViewLayer::RequestRouteStackChange(const TArray<FGameplayTag>& RouteStack, bool ForceTransition)
 {
     // if we're forcing this, we need to tidy up the state
     if (ForceTransition && CurrentTransitionState != EViewManagerTransitionState::Locked)
@@ -851,7 +867,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
 
 			if (MyManager)
 			{
-				MyManager->OnViewStateChangeStarted.Broadcast(GetCurrentRoute(), FName(), LayerType); // other layers may care
+				MyManager->OnViewStateChangeStarted.Broadcast(GetCurrentRoute(), FGameplayTag::EmptyTag, LayerType); // other layers may care
 			}
 
 			// Get our old widget and hide it
@@ -862,6 +878,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
 					HidingWidget->OnHideSequenceFinished.AddUniqueDynamic(this, &URHViewLayer::GoToRoute_HandleHideFinished);
 					CurrentTransitionState = EViewManagerTransitionState::AnimatingHide;
 					HidingWidget->StartHideSequence(GetCurrentRoute(), GetCurrentTransitionRoute());
+					HidingWidget->DeactivateWidget(); //$$ JJJT: Addition - CommonUI call
 				}
 			}
 
@@ -871,7 +888,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
     }
 
     bool bFoundValidRoute = RouteStack.Num() > 0;
-    for (const FName& Route : RouteStack)
+    for (const FGameplayTag& Route : RouteStack)
     {
         if (!IsRouteValid(Route))
         {
@@ -890,7 +907,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
         }
 
         // Route is looked up in the data table, and found
-        FViewRoute* Route = Routes->FindRow<FViewRoute>(RouteStack.Top(), "Get route for GoTo");
+        FViewRoute* Route = Routes.Find(RouteStack.Top());
 
         if (MyManager)
         {
@@ -916,7 +933,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
             TargetRouteWidget = CreateWidget<URHWidget>(MyManager->GetWorld(), Route->ViewWidget);
             if (TargetRouteWidget != nullptr)
             {
-				TargetRouteWidget->SetRouteName(RouteStack.Top());
+				TargetRouteWidget->SetRouteTag(RouteStack.Top());
                 StoreViewWidget(RouteStack.Top(), TargetRouteWidget);
             }
         }
@@ -939,6 +956,7 @@ bool URHViewLayer::RequestRouteStackChange(const TArray<FName>& RouteStack, bool
                     HidingWidget->OnHideSequenceFinished.AddUniqueDynamic(this, &URHViewLayer::GoToRoute_HandleHideFinished);
                     CurrentTransitionState = EViewManagerTransitionState::AnimatingHide;
                     HidingWidget->StartHideSequence(GetCurrentRoute(), GetCurrentTransitionRoute());
+                    HidingWidget->DeactivateWidget(); //$$ JJJT: Addition - CommonUI call
                     return true;
                 }
             }
@@ -994,7 +1012,7 @@ void URHViewLayer::ClearPendingTransition()
         }
 
 		// Get old route before FinalizeTransition wipes it
-		FName PreviousRoute = GetCurrentRoute();
+		FGameplayTag PreviousRoute = GetCurrentRoute();
 
         FinalizeTransition();
 
@@ -1036,7 +1054,7 @@ void URHViewLayer::GoToRoute_InternalShowStep()
         if (LayerType != EViewManagerLayer::Base)
         {
 			// Get old route before FinalizeTransition wipes it
-			FName PreviousRoute = GetCurrentRoute();
+			FGameplayTag PreviousRoute = GetCurrentRoute();
 
             FinalizeTransition();
 
@@ -1050,9 +1068,9 @@ void URHViewLayer::GoToRoute_InternalShowStep()
         return;
     }
 
-    if (Routes && MyManager && LayerType == EViewManagerLayer::Base)
+    if (MyManager && LayerType == EViewManagerLayer::Base)
     {
-        FViewRoute* Route = Routes->FindRow<FViewRoute>(GetCurrentTransitionRoute(), "");
+        FViewRoute* Route = Routes.Find(GetCurrentTransitionRoute());
 
         // Only manage changing sticky widgets on base screens
         if (Route)
@@ -1101,9 +1119,11 @@ void URHViewLayer::GoToRoute_HandleShowFinished(URHWidget* Widget)
     {
         Widget->OnShowSequenceFinished.RemoveDynamic(this, &URHViewLayer::GoToRoute_HandleShowFinished);
     }
+	
+	Widget->ActivateWidget(); //$$ JJJT: Addition - CommonUI call
 
 	// Get old route before FinalizeTransition wipes it
-	FName PreviousRoute = GetCurrentRoute();
+	FGameplayTag PreviousRoute = GetCurrentRoute();
 
     FinalizeTransition();
  
@@ -1119,14 +1139,14 @@ void URHViewLayer::GoToRoute_HandleShowFinished(URHWidget* Widget)
     }
 }
 
-bool URHViewLayer::IsRouteValid(FName RouteName)
+bool URHViewLayer::IsRouteValid(FGameplayTag RouteTag)
 {
-    return Routes ? Routes->FindRow<FViewRoute>(RouteName, "Is route valid?") != nullptr : false;
+    return Routes.Find(RouteTag) != nullptr;
 }
 
-bool URHViewLayer::GetPendingRouteData(FName RouteName, UObject*& Data)
+bool URHViewLayer::GetPendingRouteData(const FGameplayTag& RouteTag, UObject*& Data)
 {
-    UObject** PendingData = PendingRouteData.Find(RouteName);
+    UObject** PendingData = PendingRouteData.Find(RouteTag);
 
     if (PendingData)
     {
@@ -1137,7 +1157,7 @@ bool URHViewLayer::GetPendingRouteData(FName RouteName, UObject*& Data)
     return false;
 }
 
-void URHViewLayer::SetPendingRouteData(FName RouteName, UObject* Data)
+void URHViewLayer::SetPendingRouteData(const FGameplayTag& RouteTag, UObject* Data)
 {
-    PendingRouteData.Add(RouteName, Data);
+    PendingRouteData.Add(RouteTag, Data);
 }

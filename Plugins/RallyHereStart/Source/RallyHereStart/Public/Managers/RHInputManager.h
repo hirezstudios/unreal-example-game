@@ -4,7 +4,13 @@
 #include "GameFramework/RHPlayerInput.h"
 #include "Framework/Application/NavigationConfig.h"
 #include "InputActionValue.h"
+#include "GameplayTagContainer.h"
+#include "NativeGameplayTags.h"
 #include "RHInputManager.generated.h"
+
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
+
+RALLYHERESTART_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_View_Global);
 
 UENUM()
 enum class ERHLastInputType : uint8
@@ -270,7 +276,12 @@ class RALLYHERESTART_API URHInputManager : public UObject
     GENERATED_UCLASS_BODY()
 
 public:
-    void Initialize(class ARHHUDCommon* Hud);
+    void Initialize(class ARHHUDCommon* Hud, bool bUseRHNavigation); //$$ JJJT: Modification - added parameter
+    //$$ JJJT: Begin Addition - navigation config adjustments
+    void Uninitialize(bool bUseRHNavigation);
+    void SetNavigationConfig();
+    void ClearNavigationConfig();
+    //$$ JJJT: End Addition
 
     void BindParentWidget(URHWidget* ParentWidget, int32 DefaultFocusGroup);
     void UnbindParentWidget(URHWidget* ParentWidget);
@@ -388,42 +399,42 @@ public:
 	// Route used for storing global context action data
 	// TODO: Evaluate if we want to hide this entirely behind function calls.
 	UPROPERTY(BlueprintReadOnly, Category="Context Action")
-	FName GlobalRouteName;
+	FGameplayTag GlobalRouteTag;
 
 	// Clears a specific context for a given route
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void ClearContextAction(FName Route, FName ContextName);
+	void ClearContextAction(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FName ContextName);
 
 	// Clears all of the contexts for a given route
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void ClearAllContextActions(FName Route);
+	void ClearAllContextActions(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 
 	// Adds a given context for a given route
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void AddContextAction(FName Route, FName ContextName, FText FormatAdditive = FText());
+	void AddContextAction(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FName ContextName, FText FormatAdditive = FText());
 
 	// Adds multiple contexts for a given route
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void AddContextActions(FName Route, TArray<FName> ContextNames);
+	void AddContextActions(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, TArray<FName> ContextNames);
 
 	// Sets the new active route and updates active contexts
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void SetActiveRoute(FName Route);
+	void SetActiveRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 
 	// Gets the new active route
 	UFUNCTION(BlueprintPure, Category="Context Action")
-	FName GetCurrentRoute() const { return OverrideRouteStack.Num() > 0 ? OverrideRouteStack.Last() : ActiveRoute; }
+	const FGameplayTag& GetCurrentRoute() const { return OverrideRouteStack.Num() > 0 ? OverrideRouteStack.Last() : ActiveRouteTag; }
 
 	// Sets an override route that displays on top of the active route, used for non-route popups (Popup Manager, etc.)
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void PushOverrideRoute(FName Route);
+	void PushOverrideRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	FName PopOverrideRoute();
+	const FGameplayTag PopOverrideRoute();
 
 	// Removed a specified Override Route if it exists
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	bool RemoveOverrideRoute(FName Route);
+	bool RemoveOverrideRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 
 	// Clears the override route, returning the active route contexts to being active
 	UFUNCTION(BlueprintCallable, Category="Context Action")
@@ -431,18 +442,18 @@ public:
 
 	// Sets an event callback for a given context being activated
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void SetContextAction(FName Route, FName ContextName, const FOnContextAction& EventCallback);
+	void SetContextAction(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FName ContextName, const FOnContextAction& EventCallback);
 
 	// Sets an event callback for a given cycle context being activated
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void SetContextCycleAction(FName Route, FName ContextName, const FOnContextCycleAction& EventCallback);
+	void SetContextCycleAction(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FName ContextName, const FOnContextCycleAction& EventCallback);
 
 	// Sets an event callback for a given hold and release context being activated
 	UFUNCTION(BlueprintCallable, Category="Context Action")
-	void SetContextHoldReleaseAction(FName Route, FName ContextName, const FOnContextHoldActionUpdate& UpdateCallback, const FOnContextHoldAction& EventCallback);
+	void SetContextHoldReleaseAction(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FName ContextName, const FOnContextHoldActionUpdate& UpdateCallback, const FOnContextHoldAction& EventCallback);
 
 	// Gets the Active context actions
-	bool GetActiveContextActions(TArray<UContextActionData*>& TopRouteActions, TArray<UContextActionData*>& GlobalActions, FName& CurrentRoute);
+	bool GetActiveContextActions(TArray<UContextActionData*>& TopRouteActions, TArray<UContextActionData*>& GlobalActions, FGameplayTag& CurrentRouteTag);
 
 protected:
 
@@ -460,20 +471,20 @@ protected:
 
 	// Stores the given context actions by route
 	UPROPERTY()
-	TMap<FName, FRouteContextInfo> RouteContextInfoMap;
+	TMap<FGameplayTag, FRouteContextInfo> RouteContextInfoMap;
 
 	// The routes whose context actions are currently valid
 	UPROPERTY()
-	FName ActiveRoute;
+	FGameplayTag ActiveRouteTag;
 
 	// If routes are present here, the topmost route's context options show on the context bar instead of ActiveRoute's context options.
 	// We currently support setting ActiveRoute "underneath" an override route, so ActiveRoute remains separate.
 	UPROPERTY(BlueprintReadOnly, Category="Context Action")
-	TArray<FName> OverrideRouteStack;
+	TArray<FGameplayTag> OverrideRouteStack;
 
 	// Returns the currently displayed route (Override or Active)
 	UFUNCTION()
-	FName GetCurrentContextRoute() const;
+	const FGameplayTag& GetCurrentContextRoute() const;
 
 	// Sets up Input Bindings for the given Action Data
 	UFUNCTION()

@@ -4,7 +4,7 @@
 #include "Lobby/Widgets/RHViewRedirector_LocalSetting.h"
 #include "GameFramework/RHGameUserSettings.h"
 
-bool URHViewRedirector_LocalSetting::ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData)
+bool URHViewRedirector_LocalSetting::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData) //$$ KAB - Route names changed to Gameplay Tags
 {
 	if (URHGameUserSettings* const pGameSettings = Cast<URHGameUserSettings>(GEngine->GetGameUserSettings()))
 	{

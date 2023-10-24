@@ -25,7 +25,8 @@ void URHMediaPlayerWidget::InitializeWidget_Implementation()
 	Super::InitializeWidget_Implementation();
 }
 
-void URHMediaPlayerWidget::ShowWidget()
+//$$ LDP - Added Visibility param
+void URHMediaPlayerWidget::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
 	UE_LOG(RallyHereStart, Verbose, TEXT("URHMediaPlayerWidget::ShowWidget()"));
 	CleanUp();
@@ -33,7 +34,7 @@ void URHMediaPlayerWidget::ShowWidget()
 	// queue the next entry up
 	PlayNextPlaylistEntry();
 
-	Super::ShowWidget();
+	Super::ShowWidget(InVisibility);
 }
 
 void URHMediaPlayerWidget::CleanUp()
@@ -49,7 +50,7 @@ void URHMediaPlayerWidget::CleanUp()
 void URHMediaPlayerWidget::CloseMediaPlayerWidget()
 {
 	UE_LOG(RallyHereStart, Verbose, TEXT("URHMediaPlayerWidget::CloseMediaPlayerWidget()"));
-	RemoveViewRoute(MyRouteName);
+	RemoveViewRoute(MyRouteTag); //$$ KAB - Route names changed to Gameplay Tags
 	CleanUp();
 }
 

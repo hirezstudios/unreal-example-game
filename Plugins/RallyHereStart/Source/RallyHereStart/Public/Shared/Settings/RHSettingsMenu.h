@@ -19,7 +19,7 @@ public:
     URHSettingsMenu(const FObjectInitializer& ObjectInitializer);
     virtual void InitializeWidget_Implementation() override;
 
-	virtual void ShowWidget() override;
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible) override; //$$ LDP - Added visibility param
 
 protected:
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

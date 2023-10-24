@@ -72,8 +72,18 @@ void ARHHUDCommon::CreateInputManager()
 {
 	//override if you need to use a game-specific PlayerInput class, or set InputManagerClass
 	InputManager = NewObject<URHInputManager>(this, InputManagerClass);
-	InputManager->Initialize(this);
+	InputManager->Initialize(this, bUseRHNavigation); //$$ JJJT: Modification - added parameter
 }
+
+//$$ JJJT: Begin Addition - adding cleanup of input navigation
+void ARHHUDCommon::ShutdownInputManager()
+{
+	if (InputManager)
+	{
+		InputManager->Uninitialize(bUseRHNavigation);
+	}
+}
+//$$ JJJT: End Addition
 
 void ARHHUDCommon::SetNavigationEnabled(bool Enabled)
 {
@@ -106,6 +116,9 @@ void ARHHUDCommon::EndPlay(const EEndPlayReason::Type EndPlayReason)
 #endif
 
 	UninitializeDataFactories();
+
+	//$$ JJJT: Addition - Cleanup navigation
+	ShutdownInputManager();
 
 	if (PlayerInput.IsValid())
 	{
@@ -235,6 +248,7 @@ bool ARHHUDCommon::GetPreferredRegionId(FString& OutRegionId) const
 	if (class URHSettingsDataFactory* const pRHSettingsDataFactory = GetSettingsDataFactory())
 	{
 		OutRegionId = pRHSettingsDataFactory->GetSelectedRegion();
+		UE_LOG(RallyHereStart, VeryVerbose, TEXT("ARHHUDCommon::GetPreferredRegionId - OutRegionId.IsEmpty? %i (%s)"), OutRegionId.IsEmpty(), *OutRegionId);
 		return !OutRegionId.IsEmpty();
 	}
 	return false;
@@ -242,6 +256,7 @@ bool ARHHUDCommon::GetPreferredRegionId(FString& OutRegionId) const
 
 void ARHHUDCommon::SetPreferredRegionId(const FString& RegionId)
 {
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("ARHHUDCommon::SetPreferredRegionId %s)"), *RegionId);
 	if (class URHSettingsDataFactory* const pRHSettingsDataFactory = GetSettingsDataFactory())
 	{
 		pRHSettingsDataFactory->SetSelectedRegion(RegionId);
@@ -726,6 +741,15 @@ URH_LocalPlayerSubsystem* ARHHUDCommon::GetLocalPlayerSubsystem() const
 	if (PC != nullptr)
 	{
 		auto* LP = PC->GetLocalPlayer();
+//$$ JAM: Begin - Fixed issue with Player controller not having the local player in time
+		if (!IsValid(LP))
+		{
+			UWorld* world = GetWorld();
+			UGameInstance* gameInstance = world ? world->GetGameInstance() : nullptr;
+			LP = gameInstance ? gameInstance->GetFirstGamePlayer() : nullptr;
+		}
+//$$ JAM: END - Fixed issue with Player controller not having the local player in time
+
 		if (LP != nullptr)
 		{
 			auto* RHLP = LP->GetSubsystem<URH_LocalPlayerSubsystem>();

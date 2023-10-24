@@ -85,7 +85,6 @@ public:
 	};
 };
 
-// we're currently mapping Match Queue State enums so that we can expose them on Blueprint-- is there a better way to do this?
 UENUM(BlueprintType)
 enum class ERH_MatchStatus : uint8
 {
@@ -391,7 +390,7 @@ protected:
 
 	void							SendMatchStatusUpdateNotify(ERH_MatchStatus MatchStatus);
 
-	void							HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult, const FRH_ErrorInfo& ErrorInfo);
+	void							HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult);
 
 	void							OnMatchStatusError(FText ErrorMsg) { }
 
@@ -409,6 +408,14 @@ protected:
 
 	UPROPERTY()
 	FTimerHandle                    QueueUpdateTimerHandle;
+
+//$$ DLF BEGIN - Make CustomLobby settings configurable
+	UPROPERTY(Config)
+	FString							CustomLobbyMap;
+
+	UPROPERTY(Config)
+	FString							CustomLobbyGameMode;
+//$$ DLF END - Make CustomLobby settings configurable
 
 	FDateTime QueuedStartTime;
 

@@ -9,7 +9,7 @@
 URHQueueDataFactory::URHQueueDataFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
 	bInitialized(false),
-	RHSessionType(FString(TEXT("game"))),
+	RHSessionType(FString(TEXT("browser_game"))),
 	SessionLeaderNameFieldName(FString(TEXT("leader_name"))),
 	CustomMatchMembers(),
 	SelectedCustomMatchMapRowName(FName(TEXT("Map1"))),
@@ -71,6 +71,16 @@ void URHQueueDataFactory::Uninitialize()
 {
 	UE_LOG(RallyHereStart, Log, TEXT("URHQueueDataFactory::Uninitialize()."));
 
+	//$$ DLF BEGIN - Leave Custom Lobby when exiting the game
+	const bool bIsGameClosing = !MyHud || !MyHud->GetPlayerControllerOwner() || !MyHud->GetPlayerControllerOwner()->GetLocalPlayer() ||
+		!MyHud->GetPlayerControllerOwner()->GetLocalPlayer()->ViewportClient || !MyHud->GetPlayerControllerOwner()->GetLocalPlayer()->ViewportClient->Viewport;
+	if (bIsGameClosing)
+	{
+		UE_LOG(RallyHereStart, Log, TEXT("URHQueueDataFactory::Uninitialize() during shutdown!"));
+		HandleConfirmLeaveCustomLobby();
+	}
+	//$$ DLF END - Leave Custom Lobby when exiting the game
+
 	// clear the timer for checking queue data
 	StopQueueUpdatePollTimer();
 
@@ -85,10 +95,19 @@ void URHQueueDataFactory::Uninitialize()
 
 void URHQueueDataFactory::PostLogin()
 {
-	bCheckForAutoRejoin = true; // only check for autorejoin once after attempting a login
-
 	// set the timer for checking queue data
 	StartQueueUpdatePollTimer();
+
+	//$$ DLF BEGIN - Added prompting to rejoin previous match
+	if (const auto* SessionSS = GetLocalPlayerSessionSubsystem())
+	{
+		// If we already have existing sessions, OnLoginPollSessionsCompleteDelegate has already been run for this player
+		if (SessionSS->GetFirstSessionByType(RHSessionType))
+		{
+			LastLoginPlayerGuid = MyHud != nullptr ? MyHud->GetLocalPlayerUuid() : FGuid();
+		}
+	}
+	//$$ DLF END - Added prompting to rejoin previous match
 }
 
 void URHQueueDataFactory::PostLogoff()
@@ -434,7 +453,7 @@ void URHQueueDataFactory::SendMatchStatusUpdateNotify(ERH_MatchStatus MatchStatu
 	OnQueueStatusChange.Broadcast(MatchStatus);
 }
 
-void URHQueueDataFactory::HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult, const FRH_ErrorInfo& ErrorInfo)
+void URHQueueDataFactory::HandleQueuesPopulated(bool bSuccess, const FRH_QueueSearchResult& SearchResult)
 {
 	if (bSuccess)
 	{
@@ -529,13 +548,6 @@ void URHQueueDataFactory::HandleCustomMatchSessionCreated(bool bSuccess, URH_Joi
 	if (bSuccess)
 	{
 		CustomMatchSession = JoinedSession;
-
-		// mark the custom session as publicly joinable
-		{
-			auto UpdateRequest = CustomMatchSession->GetSessionUpdateInfoDefaults();
-			UpdateRequest.SetJoinable(true);
-			CustomMatchSession->UpdateSessionInfo(UpdateRequest);
-		}
 
 		// Set leader's name in session custom data
 		UpdateCustomSessionBrowserInfo();
@@ -641,7 +653,12 @@ bool URHQueueDataFactory::JoinCustomMatchSession(const URH_SessionView* InSessio
 			{
 				if (pLPSessionSubsystem->GetSessionById(SessionWrapper.Data.SessionId) == nullptr)
 				{
-					pLPSessionSubsystem->JoinSessionById(SessionWrapper.Data.SessionId);
+					pLPSessionSubsystem->JoinSessionById(SessionWrapper.Data.SessionId, FRH_OnSessionUpdatedDelegate::CreateWeakLambda(this, [this, SessionWrapper, pLPSessionSubsystem] (bool bSuccess, URH_JoinedSession* pSession)
+						{
+							FRHAPI_SelfSessionPlayerUpdateRequest JoinDetails = URH_OnlineSession::GetJoinDetailDefaults(pLPSessionSubsystem);
+							JoinDetails.SetTeamId(1);
+							URH_OnlineSession::JoinByIdEx(SessionWrapper.Data.SessionId, JoinDetails, pLPSessionSubsystem);
+						}));
 					return true;
 				}
 			}
@@ -659,25 +676,20 @@ void URHQueueDataFactory::InviteToCustomMatch(const FGuid& PlayerId, int32 TeamN
 
 	if (CustomMatchSession)
 	{
+		//$$ DLF BEGIN - Invite players into a team with an available slot when the specified team is full
 		const auto& Teams = CustomMatchSession->GetSessionData().Teams;
-		if ((TeamNum < Teams.Num() && Teams[TeamNum].GetPlayers().Num() >= Teams[TeamNum].MaxSize) || TeamNum >= Teams.Num())
+		if (TeamNum < Teams.Num() && Teams[TeamNum].GetPlayers().Num() >= Teams[TeamNum].MaxSize)
 		{
-			if (URHPopupManager* popupManager = MyHud->GetPopupManager())
+			for (int32 i = 0; i < Teams.Num(); i++)
 			{
-				FRHPopupConfig CustomInviteFailedParams;
-				CustomInviteFailedParams.Header = NSLOCTEXT("RHCustomGames", "InviteInvalid", "Invite Failed");
-				CustomInviteFailedParams.Description = NSLOCTEXT("RHCustomGames", "InviteInvalidDesc", "The team you are inviting the player to is either invalid or full.");
-				CustomInviteFailedParams.CancelAction.AddDynamic(popupManager, &URHPopupManager::OnPopupCanceled);
-
-				FRHPopupButtonConfig& OkayBtn = (CustomInviteFailedParams.Buttons[CustomInviteFailedParams.Buttons.AddDefaulted()]);
-				OkayBtn.Label = NSLOCTEXT("General", "Ok", "Ok");
-				OkayBtn.Type = ERHPopupButtonType::Cancel;
-				OkayBtn.Action.AddDynamic(popupManager, &URHPopupManager::OnPopupCanceled);
-
-				popupManager->AddPopup(CustomInviteFailedParams);
+				if (Teams[i].GetPlayers().Num() < Teams[i].MaxSize)
+				{
+					TeamNum = i;
+					break;
+				}
 			}
-			return;
 		}
+		//$$ DLF END - Invite players into a team with an available slot when the specified team is full
 
 		CustomMatchSession->InvitePlayer(PlayerId, TeamNum, TMap<FString, FString>(), FRH_OnSessionUpdatedDelegate::CreateWeakLambda(this, [this](bool bSuccess, URH_SessionView* pUpdatedSession)
 			{
@@ -878,12 +890,12 @@ void URHQueueDataFactory::StartCustomMatch(bool bDedicatedInstance /*= false*/)
 		}
 		else
 		{
-			MapNameString = FString(TEXT("/Game/Maps/Internal/TestMap/mymultiplayertest"));
+			MapNameString = CustomLobbyMap; //$$ DLF - Make CustomLobby settings configurable
 		}
 
 		// Request an instance
 		FRHAPI_InstanceStartupParams InstanceStartupParams;
-		FString GameModeNameString = FString(TEXT("/Game/RHExampleGameMode"));
+		FString GameModeNameString = CustomLobbyGameMode; //$$ DLF - Make CustomLobby settings configurable
 		InstanceStartupParams.Map = MapNameString;
 		InstanceStartupParams.SetMode(GameModeNameString);
 
@@ -1220,6 +1232,8 @@ void URHQueueDataFactory::HandleLoginPollSessionsComplete(bool bSuccess)
 				}
 			}
 		}
+		
+		LastLoginPlayerGuid = MyHud != nullptr ? MyHud->GetLocalPlayerUuid() : FGuid();
 	}
 
 	LastLoginPlayerGuid = MyHud != nullptr ? MyHud->GetLocalPlayerUuid() : FGuid();

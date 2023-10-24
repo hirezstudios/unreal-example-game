@@ -3,6 +3,7 @@
 #include "RallyHereStart.h"
 #include "DataFactories/RHSettingsDataFactory.h"
 #include "DataPipeline/DataPiplinePushRequest.h"
+#include "EventClient/RallyHereEventClientIntegration.h"
 #if WITH_EDITOR
 #include "ISettingsModule.h"
 #endif
@@ -28,6 +29,7 @@ void FRallyHereStartModule::StartupModule()
     }
 #endif
 
+	FRallyHereEventClientIntegration::InitSingleton();
 	FDataPipelinePushRequestManager::StaticInit();
 
 	UE_LOG(RallyHereStart, Log, TEXT("RallyHere Start Module - StartupModule END"));
@@ -44,6 +46,7 @@ void FRallyHereStartModule::ShutdownModule()
     }
 #endif
 
+	FRallyHereEventClientIntegration::CleanupSingleton();
 	FDataPipelinePushRequestManager::StaticShutdown();
 
 	UE_LOG(RallyHereStart, Log, TEXT("RallyHere Start Module - ShutdownModule END"));

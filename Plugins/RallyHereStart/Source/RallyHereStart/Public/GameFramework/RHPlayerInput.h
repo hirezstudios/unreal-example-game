@@ -507,6 +507,8 @@ protected:
 	bool CanChangeToInputState(RH_INPUT_STATE NewState, bool bAxis, float Delta);
 	void UpdateInputState(RH_INPUT_STATE NewState, bool bAxis, float Delta);
 
+	virtual void NotifyInputStateChanged();	//$$ LDP - New virtual method to allow hooks of derived classes before broadcasting a change
+
 private:
 	UPROPERTY(Transient)
 	URHAnalogStickFilter* LeftAnalogStickFilter;

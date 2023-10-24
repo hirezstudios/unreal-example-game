@@ -6,7 +6,7 @@
 #include "Managers/RHViewManager.h"
 #include "Lobby/Widgets/RHLoginExistingBase.h"
 
-bool URHRedirectToLoginViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData)
+bool URHRedirectToLoginViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData)  //$$ KAB - Route names changed to Gameplay Tags
 {
 	if (URHLoginDataFactory* LoginDataFactory = HUD->GetLoginDataFactory())
 	{
@@ -15,7 +15,7 @@ bool URHRedirectToLoginViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, FName R
 			if (URHViewManager* ViewManager = HUD->GetViewManager())
 			{
 				FViewRoute ViewRoute;
-				if (ViewManager->GetViewRoute(Route, ViewRoute))
+				if (ViewManager->GetViewRoute(RouteTag, ViewRoute))  //$$ KAB - Route names changed to Gameplay Tags
 				{
 					if (ViewRoute.RequiresLoggedIn)
 					{

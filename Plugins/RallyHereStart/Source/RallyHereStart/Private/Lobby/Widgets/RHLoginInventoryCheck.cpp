@@ -6,7 +6,7 @@
 #include "Lobby/Widgets/RHLoginInventoryCheck.h"
 #include "Managers/RHStoreItemHelper.h"
 
-bool URHLoginInventoryCheckViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData)
+bool URHLoginInventoryCheckViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData)  //$$ KAB - Route names changed to Gameplay Tags
 {
     // Always return true at this point in the login, having this redirector have duplicate logic would lead to error prone updates
     return true;
@@ -19,9 +19,10 @@ void URHLoginInventoryCheck::InitializeWidget_Implementation()
 	bHasRequiredVendors = false;
 }
 
-void URHLoginInventoryCheck::ShowWidget()
+//$$ LDP - Added Visibility param
+void URHLoginInventoryCheck::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
-    Super::ShowWidget();
+    Super::ShowWidget(InVisibility);
 
 	UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::ShowWidget()"));
 
@@ -93,7 +94,7 @@ bool URHLoginInventoryCheck::CheckRequiredInventory()
     // If we have everything we need, proceed
     if (HasRequiredInventory())
     {
-		RemoveViewRoute(MyRouteName);
+		RemoveViewRoute(MyRouteTag); //$$ KAB - Route names changed to Gameplay Tags
 		return true;
     }
 

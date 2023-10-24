@@ -2,8 +2,11 @@
 #include "CoreMinimal.h"
 #include "Components/CanvasPanel.h"
 #include "Engine/DataTable.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 #include "Shared/Widgets/RHWidget.h"
 #include "RHViewManager.generated.h"
+
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
 
 // These assume that the further the layer, the higher the layer is in the view
 UENUM(BlueprintType)
@@ -32,6 +35,15 @@ enum class EViewRouteRedirectionPhase : uint8
     VIEW_ROUTE_REDIRECT_AlwaysCheck         UMETA(DisplayName="Always Check")
 };
 
+//$$ JJJT: Begin Addition - Navigation type
+UENUM(BlueprintType)
+enum class EViewRouteNavigationType : uint8
+{
+	CommonUI,
+	RallyHere
+};
+//$$ JJJT: End Addition
+
 USTRUCT()
 struct FViewRouteRedirectData
 {
@@ -39,7 +51,7 @@ struct FViewRouteRedirectData
 
     // Route Name that this redirector will send the user to
     UPROPERTY()
-    FName RouteName;
+    FGameplayTag Route;
 
     // Order this route is checked to load
     UPROPERTY()
@@ -81,7 +93,9 @@ struct FViewRoute : public FTableRowBase
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, Category="View Route")
+	UPROPERTY(EditAnywhere, Category = "View Route", meta = (Categories = "View"))
+	FGameplayTag RouteTag;
+	UPROPERTY(EditAnywhere, Category="View Route")
     TSubclassOf<URHWidget> ViewWidget;
     UPROPERTY(EditAnywhere, Category="View Route")
     TArray<FName> ViewStickyWidgets;
@@ -112,6 +126,13 @@ struct FViewRoute : public FTableRowBase
     UPROPERTY(EditAnywhere, Category="View Route")
     bool BlockOrders;
 
+	//$$ JJJT: Begin Addition - input mode selection
+	/// Does this screen use CommonUI navigation, or only allow RallyHere?
+    UPROPERTY(EditAnywhere, Category="View Route")
+    EViewRouteNavigationType NavigationType = EViewRouteNavigationType::RallyHere;
+	//$$ JJJT:End Addition
+
+
     FViewRoute()
     : ViewLayer(EViewManagerLayer::Base)
     , IsDefaultRoute(false)
@@ -140,7 +161,7 @@ public:
     int32 IntValue;
 
     UPROPERTY(BlueprintReadWrite, Category="Route Data")
-    FName NameValue;
+    FGameplayTag NameValue;
 };
 
 UCLASS()
@@ -150,7 +171,7 @@ class RALLYHERESTART_API URHViewRedirecter : public UObject
 
 public:
     UFUNCTION()
-    virtual bool ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData) { return true; };
+    virtual bool ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData) { return true; };
 };
 
 UCLASS()
@@ -171,39 +192,39 @@ public:
     void Initialize(UCanvasPanel* ViewTarget, URHViewManager* ViewManager, EViewManagerLayer Type);
 
     // Replaces the current view route with a new one
-    bool ReplaceRoute(FName RouteName, TArray<FName> AdditionalRoutes, bool ForceTransition = false, UObject* Data = nullptr);
-    bool PushRoute(FName RouteName, TArray<FName> AdditionalRoutes, bool ForceTransition = false, UObject* Data = nullptr);
+    bool ReplaceRoute(const FGameplayTag& RouteTag, const TArray<FGameplayTag>& AdditionalRouteTags, bool ForceTransition = false, UObject* Data = nullptr);
+    bool PushRoute(const FGameplayTag& RouteTag, const TArray<FGameplayTag>& AdditionalRouteTags, bool ForceTransition = false, UObject* Data = nullptr);
     bool PopRoute(bool ForceTransition = false); //this should not remove the last element in the current stack
     // Remove the given route from the stack
-    bool RemoveRoute(FName RouteName, bool ForceTransition = false);
-    bool SwapRoute(FName RouteName, FName SwapTargetRoute = NAME_None, bool ForceTransition = false);
+    bool RemoveRoute(const FGameplayTag& RouteTag, bool ForceTransition = false);
+    bool SwapRoute(const FGameplayTag& RouteTag, const FGameplayTag& SwapTargetRouteTag = FGameplayTag::EmptyTag, bool ForceTransition = false);
 	void ClearRoutes();
 
 	// Returns if the stack has this route at any level
-	bool ContainsRoute(FName RouteName);
+	bool ContainsRoute(const FGameplayTag& RouteTag);
 
     // Adds a view widget to the given layer
-    void StoreViewWidget(FName RouteName, URHWidget* Widget);
+    void StoreViewWidget(const FGameplayTag& RouteTag, URHWidget* Widget);
 
     // Returns and pending data for a given transition route
-    bool GetPendingRouteData(FName RouteName, UObject*& Data);
+    bool GetPendingRouteData(const FGameplayTag& RouteTag, UObject*& Data);
 
     // Sets the pending route data for a route, used when transitioning back and not using a AddViewRoute call
-    void SetPendingRouteData(FName RouteName, UObject* Data);
+    void SetPendingRouteData(const FGameplayTag& RouteTag, UObject* Data);
 
-    FORCEINLINE EViewManagerTransitionState GetCurrentTransitionState() const { return CurrentTransitionState; };
-    FORCEINLINE FName GetCurrentRoute() const { return CurrentRouteStack.Num() > 0 ? CurrentRouteStack.Top() : NAME_None; };
+    FORCEINLINE EViewManagerTransitionState GetCurrentTransitionState() const { return CurrentTransitionState; }
+    FORCEINLINE FGameplayTag GetCurrentRoute() const { return CurrentRouteStack.Num() > 0 ? CurrentRouteStack.Top() : FGameplayTag::EmptyTag; }
     FORCEINLINE URHWidget* GetCurrentRouteWidget() const { return CurrentRouteStack.Num() > 0 ? RouteWidgetMap[CurrentRouteStack.Top()] : nullptr; }
-    FORCEINLINE TArray<FName> GetCurrentRouteStack() const { return CurrentRouteStack; };
-    FORCEINLINE FName GetCurrentTransitionRoute() const { return CurrentTransitionRouteStack.Num() > 0 ? CurrentTransitionRouteStack.Top() : NAME_None; };
-    FORCEINLINE URHWidget* GetCurrentTransitionRouteWidget() const { return CurrentTransitionRouteStack.Num() > 0 ? RouteWidgetMap[CurrentTransitionRouteStack.Top()] : nullptr; };
-    FORCEINLINE TArray<FName> GetCurrentTransitionRouteStack() const { return CurrentTransitionRouteStack; };
+    FORCEINLINE TArray<FGameplayTag> GetCurrentRouteStack() const { return CurrentRouteStack; }
+    FORCEINLINE FGameplayTag GetCurrentTransitionRoute() const { return CurrentTransitionRouteStack.Num() > 0 ? CurrentTransitionRouteStack.Top() : FGameplayTag::EmptyTag; }
+    FORCEINLINE URHWidget* GetCurrentTransitionRouteWidget() const { return CurrentTransitionRouteStack.Num() > 0 ? RouteWidgetMap[CurrentTransitionRouteStack.Top()] : nullptr; }
+    FORCEINLINE TArray<FGameplayTag> GetCurrentTransitionRouteStack() const { return CurrentTransitionRouteStack; }
     FORCEINLINE EViewManagerLayer GetLayerType() const { return LayerType; }
-    const TMap<FName, URHWidget*>& GetWidgetMap() { return RouteWidgetMap; }
+    const TMap<FGameplayTag, URHWidget*>& GetWidgetMap() { return RouteWidgetMap; }
 
-    void SetDefaultRoute(FName Route) { DefaultRoute = Route; };
-	FORCEINLINE FName GetDefaultRoute() const { return DefaultRoute; };
-    void AddRouteToLayer(FName RouteName, FViewRoute* Route) { if (Routes) { Routes->AddRow(RouteName, *Route); } };
+    void SetDefaultRoute(const FGameplayTag& RouteTag) { DefaultRoute = RouteTag; }
+	FORCEINLINE FGameplayTag GetDefaultRoute() const { return DefaultRoute; }
+    void AddRouteToLayer(const FGameplayTag& RouteTag, const FViewRoute& Route) { Routes.Add(RouteTag, Route); }
 
 protected:
     // The state we are in of the transition
@@ -212,29 +233,29 @@ protected:
 
     // The current route stack
     UPROPERTY()
-    TArray<FName> CurrentRouteStack;
+    TArray<FGameplayTag> CurrentRouteStack;
 
     // The new route stack we are transitioning to
     UPROPERTY()
-    TArray<FName> CurrentTransitionRouteStack;
+    TArray<FGameplayTag> CurrentTransitionRouteStack;
 
     // Map of every Route to the widget it creates
-    UPROPERTY()
-    TMap<FName, URHWidget*> RouteWidgetMap;
+    UPROPERTY(Transient)
+    TMap<FGameplayTag, URHWidget*> RouteWidgetMap;
 
     // The default route for a given scene stack
     UPROPERTY()
-    FName DefaultRoute;
+    FGameplayTag DefaultRoute;
 
     // Type of view layer
     EViewManagerLayer LayerType;
 
     // Map of route data for pending routes
     UPROPERTY(Transient)
-    TMap<FName, UObject*> PendingRouteData;
+    TMap<FGameplayTag, UObject*> PendingRouteData;
 
-    UPROPERTY()
-    UDataTable* Routes;
+    UPROPERTY(Transient)
+	TMap<FGameplayTag, FViewRoute> Routes;
 
     // Clears out the pending transition
     void ClearPendingTransition();
@@ -246,7 +267,7 @@ protected:
     bool IsAtDefaultRoute() const { return GetCurrentRoute() == DefaultRoute; }
 
     // Starts an actual route change on the layer
-    bool RequestRouteStackChange(const TArray<FName>& RouteStack, bool ForceTransition);
+    bool RequestRouteStackChange(const TArray<FGameplayTag>& RouteStack, bool ForceTransition);
 
     // Called when the old route has finished animating out
     UFUNCTION()
@@ -262,11 +283,11 @@ protected:
 
     // Returns whether or not the route exists in the route table.
     UFUNCTION(BlueprintCallable, Category="View Layer")
-    bool IsRouteValid(FName RouteName);
+    bool IsRouteValid(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FViewStateChanged, FName, CurrentRoute, FName, PreviousRoute, EViewManagerLayer, Layer);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FViewStateChangeStarted, FName, CurrentRoute, FName, NextRoute, EViewManagerLayer, Layer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FViewStateChanged, const FGameplayTag&, CurrentRoute, const FGameplayTag&, PreviousRoute, EViewManagerLayer, Layer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FViewStateChangeStarted, const FGameplayTag&, CurrentRoute, const FGameplayTag&, NextRoute, EViewManagerLayer, Layer);
 
 /**
 * 
@@ -280,7 +301,7 @@ public:
     URHViewManager();
 
 	/* These members are ExposedOnSpawn in BP, need this to set them manually in native. */
-	void SetMembersOnConstruct(ARHHUDCommon* InHudRef, TArray<UCanvasPanel*> InCanvasPanels, TArray<FStickyWidgetData> InStickyWidgetData, UDataTable* InRouteTable, bool InCanBaseLayerBeEmpty);
+	void SetMembersOnConstruct(ARHHUDCommon* InHudRef, const TArray<UCanvasPanel*>& InCanvasPanels, const TArray<FStickyWidgetData>& InStickyWidgetData, UDataTable* InRouteTable, bool InCanBaseLayerBeEmpty);
 
     // Initialized all of the view layers, sticky widgets, etc that were passed in on construction
     UFUNCTION(BlueprintCallable, Category="View State Manager")
@@ -299,29 +320,29 @@ public:
     UPROPERTY()
     TMap<FName, URHWidget*> StickyWidgetMap;
 
-	UFUNCTION()
-	bool GetViewRoute(FName RouteName, FViewRoute& ViewRoute);
+	UFUNCTION(BlueprintCallable, Category = "View State Manager")
+	bool GetViewRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, FViewRoute& ViewRoute);
 
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool ReplaceRoute(FName RouteName, bool ForceTransition = false, UObject* Data = nullptr);
+    virtual bool ReplaceRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, bool ForceTransition = false, UObject* Data = nullptr);  //$$ JJJT - Made virtual
 
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool PushRoute(FName RouteName, bool ForceTransition = false, UObject* Data = nullptr);
+    virtual bool PushRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, bool ForceTransition = false, UObject* Data = nullptr); //$$ JJJT - Made virtual
 
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool PopRoute(bool ForceTransition = false); //this should not remove the last element in the current stack
+    virtual bool PopRoute(bool ForceTransition = false); //this should not remove the last element in the current stack	//$$ JJJT - Made virtual
 
     // Remove the given route from the stack
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool RemoveRoute(FName RouteName, bool ForceTransition = false);
+    virtual bool RemoveRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, bool ForceTransition = false); //$$ JJJT - Made virtual
 
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool SwapRoute(FName RouteName, FName SwapTargetRoute = NAME_None, bool ForceTransition = false);
+    bool SwapRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UPARAM(meta = (Categories = "View")) FGameplayTag SwapTargetRouteTag, bool ForceTransition = false);
 
 	void ClearRoutes();
 
     UFUNCTION(BlueprintPure, Category="View State Manager")
-    FName GetTopViewRoute() const;
+	const FGameplayTag GetTopViewRoute() const;
 
     UFUNCTION(BlueprintPure, Category="View State Manager")
     URHWidget* GetTopViewRouteWidget() const;
@@ -330,21 +351,21 @@ public:
     int32 GetViewRouteCount() const;
 
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    bool GetPendingRouteData(FName RouteName, UObject*& Data);
+    bool GetPendingRouteData(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UObject*& Data);
 
 	// Returns whether the given route name is identifiable and is currently anywhere in its view layer's stack
 	UFUNCTION(BlueprintPure, Category="View State Manager")
-	bool ContainsRoute(FName RouteName);
+	bool ContainsRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag);
 
     // Sets the pending route data for a route, used when transitioning back and not using a AddViewRoute call
     UFUNCTION(BlueprintCallable, Category="View State Manager")
-    void SetPendingRouteData(FName RouteName, UObject* Data);
+    void SetPendingRouteData(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UObject* Data);
 
     UFUNCTION(BlueprintPure, Category="View State Manager")
-    FName GetCurrentRoute(EViewManagerLayer Layer) const;
+	const FGameplayTag GetCurrentRoute(EViewManagerLayer Layer) const;
 
     UFUNCTION(BlueprintPure, Category="View State Manager")
-    FName GetCurrentTransitionRoute(EViewManagerLayer Layer) const;
+	const FGameplayTag GetCurrentTransitionRoute(EViewManagerLayer Layer) const;
 
     ARHHUDCommon* GetHudRef() const { return HudRef; };
 
@@ -358,7 +379,7 @@ public:
 	EViewManagerLayer GetTopLayer() const;
 
 	UFUNCTION(BlueprintPure, Category = "View State Manager")
-	FName GetDefaultRouteForLayer(EViewManagerLayer LayerType) const;
+	const FGameplayTag GetDefaultRouteForLayer(EViewManagerLayer LayerType) const;
 
     UFUNCTION(BlueprintPure, Category = "View State Manager")
     bool HasCompletedRedirectFlow(EViewRouteRedirectionPhase RedirectPhase) const;
@@ -386,13 +407,17 @@ protected:
     UPROPERTY(BlueprintReadOnly, Category = "View State Manager", meta = (ExposeOnSpawn = "true"))
     TArray<FStickyWidgetData> StickyWidgets;
 
-    // Table of all route information used to build out the layers
-    UPROPERTY(BlueprintReadOnly, Category = "View State Manager", meta = (ExposeOnSpawn = "true"))
-    UDataTable* Routes;
+	// If set load routes off this table during initialization
+	UPROPERTY(BlueprintReadOnly, Category = "View State Manager", meta = (ExposeOnSpawn = "true", RequiredAssetDataTags = "RowStructure=/Script/RallyHereStart.FViewRoute"))
+	TSoftObjectPtr<UDataTable> InitializationDataTableSoftPtr;
 
 	// Can the base layer's stack ever be empty? E.g. no for lobby, yes for gameplay
-	UPROPERTY(BlueprintReadOnly, Category = "View State Manager", meta = (ExposedOnSpawn = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "View State Manager", meta = (ExposeOnSpawn = "true"))
 	bool bCanBaseLayerBeEmpty;
+
+	// Map of all route information used to build out the layers
+	UPROPERTY(BlueprintReadOnly, Category = "View State Manager")
+	TMap<FGameplayTag, FViewRoute> Routes;
 
     // List of always check routes and their redirect checkers
     UPROPERTY(Transient)
@@ -400,16 +425,16 @@ protected:
 
     // Sets up the routes in the route Data Table
     UFUNCTION()
-    void InitializeRoutes(UDataTable* RouteTable);
+    void InitializeRoutes();
 
     // Map a name to a Widget reference so that ViewRoutes can reference sticky widgets by these names
     void RegisterStickyWidget(FStickyWidgetData* WidgetData);
 
     // Checks if there is a different route to direct the player to, and if so swap it in
-    FName ReplaceTargetRoute(FName Route, UObject*& Data, bool& bOpenOriginal);
+	const FGameplayTag ReplaceTargetRoute(const FGameplayTag& RouteTag, UObject*& Data, bool& bOpenOriginal);
 
     // Gets the layer object for where the given route lives
-    URHViewLayer* GetLayerForRoute(FName Route);
+    URHViewLayer* GetLayerForRoute(const FGameplayTag& RouteTag);
     URHViewLayer* GetLayerForRoute(FViewRoute* Route);
 
 	// Gets the layer object by enum type

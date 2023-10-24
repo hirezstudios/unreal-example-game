@@ -19,7 +19,7 @@ void URHTabScreenWidget::NativeConstruct()
 
 void URHTabScreenWidget::HandleScoreboardReleased()
 {
-	RemoveViewRoute(FName("Scoreboard"));
+	RemoveViewRoute(ScoreboardViewTag); //$$ KAB - Route names changed to Gameplay Tags
 }
 
 void URHTabScreenWidget::InitializeWidget_Implementation()

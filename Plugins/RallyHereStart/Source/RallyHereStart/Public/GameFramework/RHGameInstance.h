@@ -155,6 +155,9 @@ public:
 	void HandleCheckPerUserPrivilegeResults(const FBlockedQueryResult& QueryResult, int32 MessageId);
 
 protected:
+	FDelegateHandle AppResumeDelegateHandle;
+	FDelegateHandle AppReactivatedDelegateHandle;
+
 	void ChangeMuteStatusOfPlayerHelper(bool bShouldMute, int32 PlayerIndex);
 
 	void RefreshMuteStatusesHelper();

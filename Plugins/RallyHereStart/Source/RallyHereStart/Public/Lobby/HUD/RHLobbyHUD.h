@@ -25,7 +25,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLobbyWidgetReadyEvent);
 // A common refresh pulse, 1 min, for utility if certain UI displays have to refresh on a timer but risk being undesirably out of sync by e.g. ~1 min.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRHMinuteTimerUpdate);
 
-UCLASS(Config=Game)
+UCLASS(Config=Game, meta=(DisplayName="RallyHere Client HUD")) //$$ DLF - Added DisplayName to clarify Client versus Lobby in SMITE 2
 class RALLYHERESTART_API ARHLobbyHUD : public ARHHUDCommon, public IRHHUDInterface
 {
     GENERATED_UCLASS_BODY()

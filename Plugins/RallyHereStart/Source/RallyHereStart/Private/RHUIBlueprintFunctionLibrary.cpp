@@ -83,6 +83,8 @@ bool URHUIBlueprintFunctionLibrary::IsPlatformType(bool IsConsole, bool IsPC, bo
 	}
 	else if (PlatformName == TEXT("Windows") || PlatformName == TEXT("Mac") || PlatformName == TEXT("Linux"))
 	{
+		if (IsSteamDeck()) return IsConsole; //$$ DLF - Added support for Steam Deck detection
+		
 		return IsPC;
 	}
 	else
@@ -90,6 +92,14 @@ bool URHUIBlueprintFunctionLibrary::IsPlatformType(bool IsConsole, bool IsPC, bo
 		return IsConsole;
 	}
 }
+
+//$$ DLF BEGIN - Added support for Steam Deck detection
+bool URHUIBlueprintFunctionLibrary::IsSteamDeck()
+{
+	UE_LOG(RallyHereStart, Log, TEXT("IsSteamDeck returning %i"), FPlatformMisc::GetEnvironmentVariable(TEXT("SteamDeck")).Equals(FString(TEXT("1"))));
+	return FPlatformMisc::GetEnvironmentVariable(TEXT("SteamDeck")).Equals(FString(TEXT("1")));
+}
+//$$ DLF END - Added support for Steam Deck detection
 
 bool URHUIBlueprintFunctionLibrary::IsAnonymousLogin(ARHHUDCommon* pHUD)
 {

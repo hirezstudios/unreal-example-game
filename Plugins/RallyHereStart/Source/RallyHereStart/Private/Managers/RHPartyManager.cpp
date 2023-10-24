@@ -63,6 +63,8 @@ void URHPartyManager::Uninitialize()
 
 void URHPartyManager::PostLogin()
 {
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHPartyManager::PostLogin"));
+
 	PartySession = nullptr;
 	PartyMaxed = false;
 	IsPendingLeave = false;
@@ -83,6 +85,8 @@ void URHPartyManager::PostLogin()
 
 void URHPartyManager::PostLogoff()
 {
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHPartyManager::PostLogoff"));
+
 	ForcePartyCleanUp(true);
 
 	PartySession = nullptr;
@@ -97,14 +101,18 @@ void URHPartyManager::PostLogoff()
 
 void URHPartyManager::HandleFriendUpdate(URH_RHFriendAndPlatformFriend* Friend)
 {
+	//$$ DLF BEGIN - Do not call UpdateParty for every single friend update
 	if (!UpdatePartyTimerHandle.IsValid() && MyHud != nullptr)
 	{
 		UpdatePartyTimerHandle = MyHud->GetWorldTimerManager().SetTimerForNextTick(FSimpleDelegate::CreateWeakLambda(this, [this]() { UpdateParty(PartySession); UpdatePartyTimerHandle.Invalidate(); }));
 	}
+	//$$ DLF END - Do not call UpdateParty for every single friend update
 }
 
 void URHPartyManager::HandleLoginPollSessionsComplete(bool bSuccess)
 {
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("UpdateParty - URHPartyManager::HandleLoginPollSessionsComplete %i"), bSuccess);
+	
 	if (bSuccess)
 	{
 		UpdatePartyFromSubsystem();
@@ -122,6 +130,7 @@ void URHPartyManager::UpdatePartyFromSubsystem()
 
 		if (!pSession)
 		{
+			UE_LOG(RallyHereStart, VeryVerbose, TEXT("UpdateParty - URHPartyManager::UpdatePartyFromSubsystem calling CreateSoloParty"));
 			CreateSoloParty();
 			return;
 		}
@@ -553,11 +562,12 @@ bool URHPartyManager::RemovePartyMemberById(const FGuid& PlayerId)
 
 bool URHPartyManager::PopulatePartyMemberData(const struct FRHAPI_SessionPlayer* RHPartyMember, FRH_PartyMemberData& PartyMemberData)
 {
-	if (RHPartyMember == nullptr || MyHud == nullptr) return false;
+	if (RHPartyMember == nullptr || MyHud == nullptr || !RHPartyMember->PlayerUuid.IsValid()) return false;
 
 	if (PartySession)
 	{
 		PartyMemberData.PlayerData = MyHud->GetOrCreatePlayerInfo(RHPartyMember->PlayerUuid);
+		check(PartyMemberData.PlayerData);
 		PartyMemberData.IsLeader = RHPartyMember->Status == ERHAPI_SessionPlayerStatus::Leader;
 		PartyMemberData.IsPending = RHPartyMember->Status == ERHAPI_SessionPlayerStatus::Invited;
 		if (PartyMemberData.PlayerData->GetPresence() != nullptr)
@@ -1167,6 +1177,10 @@ void URHPartyManager::HandlePreferredRegionUpdated()
 					PartySession->UpdateSessionInfo(UpdateInfo, FRH_OnSessionUpdatedDelegate::CreateUObject(this, &URHPartyManager::HandleUpdateSessionRegionIdResponse));
 				}
 			}
+			else
+			{
+				UE_LOG(RallyHereStart, Warning, TEXT("URHPartyManager::HandlePreferredRegionUpdated failed to get preferred region"));
+			}
 		}
 	}
 	else if (MyHud != nullptr && LastLoginPlayerGuid == MyHud->GetLocalPlayerUuid())
@@ -1190,6 +1204,7 @@ void URHPartyManager::HandleUpdateSessionRegionIdResponse(bool bSuccess, URH_Joi
 			{
 				if (PartySession)
 				{
+					UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHPartyManager::HandleUpdateSessionRegionIdResponse calling SetPreferredRegionId)"));
 					MyHud->SetPreferredRegionId(PartySession->GetSessionData().GetRegionId());
 
 					URHPopupManager* popup = MyHud->GetPopupManager();

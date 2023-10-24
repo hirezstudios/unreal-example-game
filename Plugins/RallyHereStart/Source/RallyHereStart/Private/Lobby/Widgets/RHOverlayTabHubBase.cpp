@@ -271,12 +271,12 @@ URHOverlayTabHubRouteData* URHOverlayTabHubBase::GetLandingInfo()
 {
 	// Check for pending route data of the expected type
 	UObject* RouteData = nullptr;
-	if (GetPendingRouteData(MyRouteName, RouteData))
+	if (GetPendingRouteData(MyRouteTag, RouteData)) //$$ KAB - Route names changed to Gameplay Tags
 	{
 		if (URHOverlayTabHubRouteData* LandingData = Cast<URHOverlayTabHubRouteData>(RouteData))
 		{
 			// Go ahead and consume the data now that it's being used
-			SetPendingRouteData(MyRouteName, nullptr);
+			SetPendingRouteData(MyRouteTag, nullptr); //$$ KAB - Route names changed to Gameplay Tags
 
 			return LandingData;
 		}

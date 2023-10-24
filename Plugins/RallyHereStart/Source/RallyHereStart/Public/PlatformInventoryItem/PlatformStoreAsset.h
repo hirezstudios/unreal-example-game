@@ -48,13 +48,7 @@ public:
 
     static const FName StoreAssetCollectionName;
 
-    // Returns the item id associated with the item that matches the value in the database
-    UFUNCTION(BlueprintPure, Category = "Item")
-    const FRH_LootId& GetLootId() const { return LootId; }
-
-    // The loot id associated with the item, this is used on Store Assets because Bundles and other assets that these represent don't have physical item IDs, they only exist as a loot id
-    UPROPERTY(EditDefaultsOnly, AssetRegistrySearchable, DuplicateTransient, Category = "Item")
-    FRH_LootId LootId;
+	//$$ KAB - REMOVED - Move Loot Id from StoreAsset to InventoryItem
 
 	virtual void IsOwned(const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryStateBlock& Delegate) override;
 	virtual void CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryStateBlock& Delegate) override;

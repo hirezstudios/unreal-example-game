@@ -56,9 +56,10 @@ void URHQueueTimerWidgetBase::UninitializeWidget_Implementation()
 	ClearTimerHandle();
 }
 
-void URHQueueTimerWidgetBase::ShowWidget()
+//$$ LDP - Added Visibility param
+void URHQueueTimerWidgetBase::ShowWidget(ESlateVisibility InVisibility /* = ESlateVisibility::SelfHitTestInvisible */)
 {
-	Super::ShowWidget();
+	Super::ShowWidget(InVisibility);
 	UpdateTimerState();
 }
 

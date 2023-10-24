@@ -7,23 +7,37 @@
 #include "InputCoreTypes.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 #include "Managers/RHInputManager.h"
+#include "Logging/StructuredLog.h"
+
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_View_Global, "View.Global");
 
 URHInputManager::URHInputManager(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    if (FSlateApplication::IsInitialized())
-    {
-		FSlateApplication::Get().SetNavigationConfig(MakeShared<FRHNavigationConfig>());
-    }
-
+	//$$ JJJT: Deleted/Moved to initialize
+	//if (FSlateApplication::IsInitialized())
+	//{
+	//	FSlateApplication::Get().SetNavigationConfig(MakeShared<FRHNavigationConfig>());
+	//}
+	//$$ JJJT: End Delete
     NavFailRecursionGate = false;
 
-	OverrideRouteStack = TArray<FName>();
-	GlobalRouteName = FName("GlobalContextRoute");
+	OverrideRouteStack = TArray<FGameplayTag>();
+	GlobalRouteTag = FGameplayTag(TAG_View_Global);
 }
 
-void URHInputManager::Initialize(ARHHUDCommon* Hud)
+void URHInputManager::Initialize(ARHHUDCommon* Hud, bool bUseRHNavigation) //$$HIREZ: Modification
 {
+//$$ JJJT: Begin Addition - moved out of constructor
+	UE_LOGFMT(RallyHereStart, Warning, "Initializing input with RHNaviation: {0}", bUseRHNavigation);
+	if (bUseRHNavigation)
+	{
+		SetNavigationConfig();
+	}
+//$$ JJJT: End Addition
+
 	if (ContextActionDataTableClassName.ToString().Len() > 0)
 	{
 		ContextActionDT = LoadObject<UDataTable>(nullptr, *ContextActionDataTableClassName.ToString(), nullptr, LOAD_None, nullptr);
@@ -65,6 +79,42 @@ void URHInputManager::Initialize(ARHHUDCommon* Hud)
 		}
     }
 }
+
+//$$ JJJT: Begin Addition - Navigation config settings
+void URHInputManager::Uninitialize(bool bUseRHNavigation)
+{
+	if (const APlayerController* PlayerController = MyHud->GetPlayerControllerOwner())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(MyHud->GetHUDMappingContext());
+			Subsystem->RemoveMappingContext(ContextualMappingContext);
+		}
+	}
+	
+	if (bUseRHNavigation)
+	{
+		ClearNavigationConfig();
+	} 
+}
+
+void URHInputManager::SetNavigationConfig()
+{
+	if(FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().SetNavigationConfig(MakeShared<FRHNavigationConfig>());
+	}
+}
+
+void URHInputManager::ClearNavigationConfig()
+{
+	if(FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().SetNavigationConfig(MakeShared<FNavigationConfig>());
+	}
+}
+//$$ JJJT: End Addition
+
 
 void URHInputManager::BindBaseHUDActions()
 {
@@ -255,8 +305,8 @@ void URHInputManager::InheritFocusGroupFromWidget(URHWidget* TargetWidget, int32
 				break;
 			}
 		}
-
-		if (SourceFocusGroupIndex != INDEX_NONE)
+		//$$ JJJT: Modification - Throw a message to explain why this won't work
+		if (ensureAlwaysMsgf(SourceFocusGroupIndex != INDEX_NONE, TEXT("Unable to find a source group %i from %s!"), SourceFocusGroupNum, *SourceWidget->GetName()))
 		{
 			for (int32 i = 0; i < targetInputDetails->FocusGroups.Num(); i++)
 			{
@@ -267,7 +317,12 @@ void URHInputManager::InheritFocusGroupFromWidget(URHWidget* TargetWidget, int32
 				}
 			}
 		}
-
+		//$$ JJJT: Begin Addition - bail rather than crash if you forgot to hookup a pin
+		else
+		{
+			return;
+		}
+		//$$ JJJT: End Addition
 		if (TargetFocusGroupIndex == INDEX_NONE)
 		{
 			// Create a new group, instead as a copy of source
@@ -1277,13 +1332,13 @@ UWorld* URHInputManager::GetWorld() const
 * Context Actions
 */
 
-void URHInputManager::ClearContextAction(FName Route, FName ContextName)
+void URHInputManager::ClearContextAction(FGameplayTag RouteTag, FName ContextName)
 {
-	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route))
+	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag))
 	{
 		if (ContextInfo->ClearContextAction(ContextName))
 		{
-			if (Route == GetCurrentContextRoute() || Route == GlobalRouteName)
+			if (RouteTag == GetCurrentContextRoute() || RouteTag == GlobalRouteTag)
 			{
 				UpdateActiveContexts();
 			}
@@ -1291,13 +1346,13 @@ void URHInputManager::ClearContextAction(FName Route, FName ContextName)
 	}
 }
 
-void URHInputManager::ClearAllContextActions(FName Route)
+void URHInputManager::ClearAllContextActions(FGameplayTag RouteTag)
 {
-	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route))
+	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag))
 	{
 		if (ContextInfo->ClearAllContextActions())
 		{
-			if (Route == GetCurrentContextRoute() || Route == GlobalRouteName)
+			if (RouteTag == GetCurrentContextRoute() || RouteTag == GlobalRouteTag)
 			{
 				UpdateActiveContexts();
 			}
@@ -1305,14 +1360,14 @@ void URHInputManager::ClearAllContextActions(FName Route)
 	}
 }
 
-void URHInputManager::AddContextAction(FName Route, FName ContextName, FText FormatAdditive /*= FText()*/)
+void URHInputManager::AddContextAction(FGameplayTag RouteTag, FName ContextName, FText FormatAdditive /*= FText()*/)
 {
-	FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route);
+	FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag);
 	bool bUpdated = false;
 
 	if (!ContextInfo)
 	{
-		ContextInfo = &(RouteContextInfoMap.FindOrAdd(Route));
+		ContextInfo = &(RouteContextInfoMap.FindOrAdd(RouteTag));
 	}
 
 	if (ContextInfo)
@@ -1320,21 +1375,21 @@ void URHInputManager::AddContextAction(FName Route, FName ContextName, FText For
 		bUpdated = ContextInfo->AddContextAction(ContextName, ContextActionDT, FormatAdditive);
 	}
 
-	if (bUpdated && (Route == GetCurrentContextRoute() || Route == GlobalRouteName))
+	if (bUpdated && (RouteTag == GetCurrentContextRoute() || RouteTag == GlobalRouteTag))
 	{
 		UpdateActiveContexts();
 	}
 }
 
-void URHInputManager::AddContextActions(FName Route, TArray<FName> ContextNames)
+void URHInputManager::AddContextActions(FGameplayTag RouteTag, TArray<FName> ContextNames)
 {
 	bool ContextAdded = false;
 
-	FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route);
+	FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag);
 
 	if (!ContextInfo)
 	{
-		ContextInfo = &(RouteContextInfoMap.FindOrAdd(Route));
+		ContextInfo = &(RouteContextInfoMap.FindOrAdd(RouteTag));
 	}
 
 	if (ContextInfo)
@@ -1347,7 +1402,7 @@ void URHInputManager::AddContextActions(FName Route, TArray<FName> ContextNames)
 
 	if (ContextAdded)
 	{
-		if (Route == GetCurrentContextRoute() || Route == GlobalRouteName)
+		if (RouteTag == GetCurrentContextRoute() || RouteTag == GlobalRouteTag)
 		{
 			UpdateActiveContexts();
 		}
@@ -1371,7 +1426,7 @@ void URHInputManager::UpdateActiveContexts()
 	//					- Look up the View Layer the Top Route is in
 	//					- Apply all Global Context Actions that are relevant to the routes layer
 
-	FName TopRoute = GetCurrentRoute();
+	FGameplayTag TopRoute = GetCurrentRoute();
 
 	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(TopRoute))
 	{
@@ -1379,7 +1434,7 @@ void URHInputManager::UpdateActiveContexts()
 
 		if (OverrideRouteStack.Num() == 0)
 		{
-			FRouteContextInfo* GlobalContextInfo = RouteContextInfoMap.Find(GlobalRouteName);
+			FRouteContextInfo* GlobalContextInfo = RouteContextInfoMap.Find(GlobalRouteTag);
 
 			if (GlobalContextInfo)
 			{
@@ -1448,11 +1503,11 @@ void URHInputManager::MapContextualAction(UInputAction* Action)
 	}
 }
 
-void URHInputManager::SetActiveRoute(FName Route)
+void URHInputManager::SetActiveRoute(FGameplayTag RouteTag)
 {
-	if (Route != ActiveRoute)
+	if (RouteTag != ActiveRouteTag)
 	{
-		ActiveRoute = Route;
+		ActiveRouteTag = RouteTag;
 
 		// Push the context actions of the new route to our active contexts
 		if (OverrideRouteStack.Num() == 0)
@@ -1462,7 +1517,7 @@ void URHInputManager::SetActiveRoute(FName Route)
 	}
 }
 
-bool URHInputManager::GetActiveContextActions(TArray<UContextActionData*>& TopRouteActions, TArray<UContextActionData*>& GlobalActions, FName& CurrentRoute)
+bool URHInputManager::GetActiveContextActions(TArray<UContextActionData*>& TopRouteActions, TArray<UContextActionData*>& GlobalActions, FGameplayTag& CurrentRouteTag)
 {
 	TopRouteActions.Empty();
 	GlobalActions.Empty();
@@ -1474,17 +1529,17 @@ bool URHInputManager::GetActiveContextActions(TArray<UContextActionData*>& TopRo
 	//					- Apply all Global Context Actions that are relevant to the routes layer
 
 	bool bIsOverrideRoute = OverrideRouteStack.Num() > 0;
-	CurrentRoute = bIsOverrideRoute ? OverrideRouteStack.Last() : ActiveRoute;
+	CurrentRouteTag = bIsOverrideRoute ? OverrideRouteStack.Last() : ActiveRouteTag;
 
-	if (CurrentRoute != NAME_None)
+	if (CurrentRouteTag.IsValid())
 	{
-		if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(CurrentRoute))
+		if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(CurrentRouteTag))
 		{
 			TopRouteActions = (*ContextInfo).ActionData;
 
 			if (!bIsOverrideRoute)
 			{
-				if (FRouteContextInfo* GlobalContextInfo = RouteContextInfoMap.Find(GlobalRouteName))
+				if (FRouteContextInfo* GlobalContextInfo = RouteContextInfoMap.Find(GlobalRouteTag))
 				{
 					GlobalActions = (*GlobalContextInfo).ActionData;
 				}
@@ -1497,48 +1552,48 @@ bool URHInputManager::GetActiveContextActions(TArray<UContextActionData*>& TopRo
 	return false;
 }
 
-void URHInputManager::SetContextAction(FName Route, FName ContextName, const FOnContextAction& EventCallback)
+void URHInputManager::SetContextAction(FGameplayTag RouteTag, FName ContextName, const FOnContextAction& EventCallback)
 {
-	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route))
+	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag))
 	{
 		ContextInfo->SetContextAction(ContextName, EventCallback);
 	}
 }
 
-void URHInputManager::SetContextCycleAction(FName Route, FName ContextName, const FOnContextCycleAction& EventCallback)
+void URHInputManager::SetContextCycleAction(FGameplayTag RouteTag, FName ContextName, const FOnContextCycleAction& EventCallback)
 {
-	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route))
+	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag))
 	{
 		ContextInfo->SetContextCycleAction(ContextName, EventCallback);
 	}
 }
 
-void URHInputManager::SetContextHoldReleaseAction(FName Route, FName ContextName, const FOnContextHoldActionUpdate& UpdateCallback, const FOnContextHoldAction& EventCallback)
+void URHInputManager::SetContextHoldReleaseAction(FGameplayTag RouteTag, FName ContextName, const FOnContextHoldActionUpdate& UpdateCallback, const FOnContextHoldAction& EventCallback)
 {
-	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(Route))
+	if (FRouteContextInfo* ContextInfo = RouteContextInfoMap.Find(RouteTag))
 	{
 		ContextInfo->SetContextHoldReleaseAction(ContextName, UpdateCallback, EventCallback);
 	}
 }
 
-void URHInputManager::PushOverrideRoute(FName Route)
+void URHInputManager::PushOverrideRoute(FGameplayTag RouteTag)
 {
 	// This condition can be modified if we want to allow / disallow duplicates at the top of / throughout the stack.
 	// Currently blocks consecutive pushes of the same route.
-	if (OverrideRouteStack.Num() == 0 || Route != OverrideRouteStack.Last())
+	if (OverrideRouteStack.Num() == 0 || RouteTag != OverrideRouteStack.Last())
 	{
-		OverrideRouteStack.Push(Route);
+		OverrideRouteStack.Push(RouteTag);
 
 		// Push the contexts of the new route to the active contexts
 		UpdateActiveContexts();
 	}
 }
 
-FName URHInputManager::PopOverrideRoute()
+const FGameplayTag URHInputManager::PopOverrideRoute()
 {
 	if (OverrideRouteStack.Num() > 0)
 	{
-		FName RemovedRoute = OverrideRouteStack.Pop();
+		FGameplayTag RemovedRoute = OverrideRouteStack.Pop();
 
 		// Push the contexts of the new route to the active contexts
 		UpdateActiveContexts();
@@ -1546,12 +1601,12 @@ FName URHInputManager::PopOverrideRoute()
 		return RemovedRoute;
 	}
 
-	return NAME_None;
+	return FGameplayTag::EmptyTag;
 }
 
-bool URHInputManager::RemoveOverrideRoute(FName RouteName)
+bool URHInputManager::RemoveOverrideRoute(FGameplayTag RouteTag)
 {
-	if (OverrideRouteStack.Remove(RouteName) > 0)
+	if (OverrideRouteStack.Remove(RouteTag) > 0)
 	{
 		UpdateActiveContexts();
 		return true;
@@ -1569,14 +1624,14 @@ void URHInputManager::ClearOverrideRouteStack()
 	}
 }
 
-FName URHInputManager::GetCurrentContextRoute() const
+const FGameplayTag& URHInputManager::GetCurrentContextRoute() const
 {
 	if (OverrideRouteStack.Num() > 0)
 	{
 		return OverrideRouteStack.Last();
 	}
 
-	return ActiveRoute;
+	return ActiveRouteTag;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

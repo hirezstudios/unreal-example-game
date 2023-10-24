@@ -253,8 +253,12 @@ void URHGameUserSettings::LoadSettings(bool bForceReload /* = false*/)
 {
 	bIsLoading = true;
 
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHGameUserSettings::LoadSettings - SavedSelectedRegion: %s"), *SavedSelectedRegion);
+	
     Super::LoadSettings(bForceReload);
 	LoadSaveGameConfig();   // these act as overrides for the base load, since the base load is static data on some platforms
+
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHGameUserSettings::LoadSettings - After LoadSaveGameConfig SavedSelectedRegion: %s"), *SavedSelectedRegion);
 
 	// Load the default settings from config
 	auto DefaultUserSettings = Cast<URHGameUserSettingsDefault>(URHGameUserSettingsDefault::StaticClass()->GetDefaultObject());
@@ -264,6 +268,7 @@ void URHGameUserSettings::LoadSettings(bool bForceReload /* = false*/)
 	}
 
 	ApplySavedSettings();
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHGameUserSettings::LoadSettings - After ApplySavedSettings SavedSelectedRegion: %s"), *SavedSelectedRegion);
 
 	SetGamepadIconSet(GetGamepadIconSet());
 
@@ -272,6 +277,7 @@ void URHGameUserSettings::LoadSettings(bool bForceReload /* = false*/)
 
 void URHGameUserSettings::SaveSettings()
 {
+	UE_LOG(RallyHereStart, VeryVerbose, TEXT("URHGameUserSettings::SaveSettings - SavedSelectedRegion: %s"), *SavedSelectedRegion);
 	Super::SaveSettings();
 	SaveSaveGameConfig();
 }

@@ -60,7 +60,7 @@ class RALLYHERESTART_API URHMediaPlayerWidget : public URHWidget
 	GENERATED_BODY()
 
 	virtual void InitializeWidget_Implementation() override;
-	virtual void ShowWidget() override;
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible) override; //$$ LDP - Added visibility param
 
 	void CleanUp();
 

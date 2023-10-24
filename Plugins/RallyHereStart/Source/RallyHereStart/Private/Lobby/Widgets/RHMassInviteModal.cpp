@@ -133,7 +133,7 @@ bool URHMassInviteModal::UpdateRouteData()
 	}
 
 	UObject* Data = nullptr;
-	if (ViewManager->GetPendingRouteData("MassInvite", Data))
+	if (ViewManager->GetPendingRouteData(MyRouteTag, Data)) //$$ KAB - Route names changed to Gameplay Tags
 	{
 		RouteData = Cast<URHDataMassInviteBase>(Data);
 	}
@@ -189,7 +189,7 @@ ERHInviteSelectResult URHMassInviteModal::SelectPlayer(URH_RHFriendAndPlatformFr
 
 void URHMassInviteModal::CloseScreen(ERHInviteCloseAction CloseAction)
 {
-	RemoveViewRoute("MassInvite");
+	RemoveViewRoute(MyRouteTag); //$$ KAB - Route names changed to Gameplay Tags
 
 	if (CloseAction == ERHInviteCloseAction::Submit)
 	{

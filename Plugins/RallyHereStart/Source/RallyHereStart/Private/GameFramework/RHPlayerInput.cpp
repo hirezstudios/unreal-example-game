@@ -2107,9 +2107,16 @@ void URHPlayerInput::UpdateInputState(RH_INPUT_STATE NewState, bool bAxis, float
 		CurrentDelta = 0.f;
 		InputState = NewState;
 		LastInputState = NewState;
-		InputStateChangedEvent.Broadcast(InputState);
+		NotifyInputStateChanged(); //$$ LDP - Call the virtual function instead of direct broadcast.
 	}
 }
+
+//$$ LDP - BEGIN - Added method to allow hooks of derived classes
+void URHPlayerInput::NotifyInputStateChanged()
+{
+	InputStateChangedEvent.Broadcast(InputState);
+}
+//$$ LDP - END - Added method to allow hooks of derived classes
 
 FKey URHPlayerInput::GetGamepadConfirmButton()
 {

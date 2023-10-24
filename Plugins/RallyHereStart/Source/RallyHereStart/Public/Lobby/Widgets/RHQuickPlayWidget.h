@@ -39,7 +39,7 @@ class RALLYHERESTART_API URHQuickPlayWidget : public URHQueueWidgetBase
 	GENERATED_UCLASS_BODY()
 
 	virtual void							InitializeWidget_Implementation() override;
-	virtual void                            ShowWidget() override;
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible) override; //$$ LDP - Added visibility param
 
 	virtual void                            UpdateQueueSelection();
 

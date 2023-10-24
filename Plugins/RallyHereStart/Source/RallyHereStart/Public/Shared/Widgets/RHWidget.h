@@ -4,12 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/RHPlayerInput.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/StreamableManager.h"
 #include "TickAnimationManager.h"
 #include "UnrealClient.h"
 #include "Player/Controllers/RHPlayerState.h"
+#include "RHActivatableWidget.h"
 #include "RHWidget.generated.h"
+
+//$$ KAB - Heavily modified to use GameplayTags instead of FNames for Route Management, we are ignoring updates to this file
 
 class URHInputManager;
 
@@ -43,7 +47,8 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnViewportSizeChanged, FIntPoint, ViewportSiz
  *
  */
 UCLASS(Config = Game)
-class RALLYHERESTART_API URHWidget : public UUserWidget
+//$$ JJJT Changing class for CommonUI Integration from UUserWidget
+class RALLYHERESTART_API URHWidget : public URHActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -134,11 +139,13 @@ public:
 	// This will always return the game world.
 	virtual class UWorld* GetNormalWorld() const;
 
+	//$$ LDP: Allow specifying if we want to hide as Collapsed or as Hidden
 	UFUNCTION(BlueprintCallable, Category = "RHWidget")
-	virtual void HideWidget();
+	virtual void HideWidget(ESlateVisibility InVisibility = ESlateVisibility::Collapsed);
 
+	//$$ LDP: Allow specifying if we want to show as Visible or as NotHitTestable
 	UFUNCTION(BlueprintCallable, Category = "RHWidget")
-	virtual void ShowWidget();
+	virtual void ShowWidget(ESlateVisibility InVisibility = ESlateVisibility::SelfHitTestInvisible);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "RHWidget")
 	void OnShown();
@@ -298,10 +305,10 @@ public:
     FRHWidgetTextureLoaded OnTextureLoadComplete;
 
     UFUNCTION(BlueprintNativeEvent, Category = "RHWidget|View Manager")
-    void StartHideSequence(FName FromRoute, FName ToRoute);
+    void StartHideSequence(const FGameplayTag& FromRoute, const FGameplayTag& ToRoute);
 
     UFUNCTION(BlueprintNativeEvent, Category = "RHWidget|View Manager")
-    void StartShowSequence(FName FromRoute, FName ToRoute);
+    void StartShowSequence(const FGameplayTag& FromRoute, const FGameplayTag& ToRoute);
 
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
     void CallOnHideSequenceFinished();
@@ -311,15 +318,15 @@ public:
 
     //This will add a new route to the top of the view route stack, with an param to clear the current stack first.
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
-    bool AddViewRoute(FName RouteName, bool ClearRouteStack = false, bool ForceTransition = false, UObject* Data = nullptr);
+    bool AddViewRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, bool ClearRouteStack = false, bool ForceTransition = false, UObject* Data = nullptr);
 
     //This will remove the view route from the stack, if it is the top view, it will swap the view to the next top view
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
-    bool RemoveViewRoute(FName RouteName, bool ForceTransition = false);
+    bool RemoveViewRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, bool ForceTransition = false);
 
     //This will swap a new route with another given view route.  If SwapTargetRoute is empty, it will swap the top of the view route stack.
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
-    bool SwapViewRoute(FName RouteName, FName SwapTargetRoute = NAME_None, bool ForceTransition = false);
+    bool SwapViewRoute(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UPARAM(meta = (Categories = "View")) FGameplayTag SwapTargetRouteTag, bool ForceTransition = false);
 
     //This will remove the top of the view route stack, and go to the next view route under the top.
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
@@ -330,15 +337,15 @@ public:
 	bool IsTopViewRoute();
 
 	UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
-	void SetRouteName(FName RouteName) { MyRouteName = RouteName; }
+	void SetRouteTag(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag) { MyRouteTag = RouteTag; }
 
     // Grabs any stored data for a given route
     UFUNCTION(BlueprintPure, Category = "RHWidget|View Manager")
-    bool GetPendingRouteData(FName RouteName, UObject*& Data) const;
+    bool GetPendingRouteData(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UObject*& Data) const;
 
     // Sets the pending route data for a route, used when transitioning back and not using a AddViewRoute call
     UFUNCTION(BlueprintCallable, Category = "RHWidget|View Manager")
-    void SetPendingRouteData(FName RouteName, UObject* Data);
+    void SetPendingRouteData(UPARAM(meta = (Categories = "View")) FGameplayTag RouteTag, UObject* Data);
 
     UFUNCTION(BlueprintPure, Category = "RHWidget|View Manager")
     URHViewManager* GetViewManager() const;
@@ -444,7 +451,7 @@ protected:
     TWeakObjectPtr<class ARHHUDCommon> MyHud;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RHWidget")
-	FName MyRouteName;
+	FGameplayTag MyRouteTag;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RHWidget")
     bool CloseOnLogout;

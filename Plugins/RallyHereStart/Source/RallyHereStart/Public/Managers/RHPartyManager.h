@@ -354,7 +354,7 @@ protected:
 	// handle a session update event
 	void								HandleSessionUpdate(bool bSuccess, URH_JoinedSession* pSession);
 
-	FTimerHandle						UpdatePartyTimerHandle;
+	FTimerHandle						UpdatePartyTimerHandle; //$$ DLF - Do not call UpdateParty for every single friend update
 #pragma endregion
 
 #pragma region USER INTERFACE

@@ -33,7 +33,7 @@ public:
 	TArray<ERHOrderType> ValidOrderTypes;
 
 
-	virtual bool ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData);
+	virtual bool ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData); //$$ KAB - Route names changed to Gameplay Tags
 };
 
 /**

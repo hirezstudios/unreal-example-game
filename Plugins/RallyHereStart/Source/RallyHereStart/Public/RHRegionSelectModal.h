@@ -13,7 +13,7 @@ class RALLYHERESTART_API URHRegionSelectModalViewRedirector : public URHViewRedi
 	GENERATED_BODY()
 
 public:
-	virtual bool ShouldRedirect(ARHHUDCommon* HUD, FName Route, UObject*& SceneData) override;
+	virtual bool ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData) override; //$$ KAB - Route names changed to Gameplay Tags
 };
 
 /**
