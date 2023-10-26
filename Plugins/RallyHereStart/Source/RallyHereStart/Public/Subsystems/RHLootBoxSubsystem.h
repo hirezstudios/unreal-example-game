@@ -1,8 +1,9 @@
 #pragma once
 #include "Online/CoreOnline.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "Inventory/RHLootBox.h"
-#include "RHLootBoxManager.generated.h"
+#include "RHLootBoxSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLootBoxOpenStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLootBoxOpenFailed);
@@ -65,16 +66,14 @@ public:
 };
 
 UCLASS(Config = Game)
-class RALLYHERESTART_API URHLootBoxManager : public UObject
+class RALLYHERESTART_API URHLootBoxSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    // Initialize the Loot Box Manager
-    virtual void Initialize(URHGameInstance* InGameInstance, class URHStoreItemHelper* InStoreItemHelper);
-
-    // Clean Up the Loot Box Manager
-    virtual void Uninitialize();
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	// When a player logs on get any data needed for loot boxes
 	void OnLoginPlayerChanged(ULocalPlayer* LocalPlayer);
@@ -139,12 +138,8 @@ protected:
 	// Returns the subcategory for the item based on what it is
 	ELootBoxContentsCategories GetSubCategoryForItem(URHStoreItem* StoreItem) const;
 
-	// Pointer to the Store Item Helper
 	UPROPERTY(Transient)
-	URHStoreItemHelper* StoreItemHelper;
-
-	UPROPERTY(Transient)
-	URHGameInstance* GameInstance;
+	TObjectPtr<URHStoreSubsystem> StoreSubsystem;
 
 	bool HasRequestedVendors;
 

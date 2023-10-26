@@ -2,8 +2,8 @@
 
 #include "RallyHereStart.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
-#include "Managers/RHJsonDataFactory.h"
-#include "Managers/RHUISessionManager.h"
+#include "Subsystems/RHNewsSubsystem.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
 #include "Lobby/Widgets/RHWhatsNewModal.h"
 
 URHWhatsNewModal::URHWhatsNewModal(const FObjectInitializer& ObjectInitializer)
@@ -17,9 +17,9 @@ void URHWhatsNewModal::InitializeWidget_Implementation()
 {
     Super::InitializeWidget_Implementation();
 
-    if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+    if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
     {
-        pJsonDataFactory->JsonPanelUpdated.AddDynamic(this, &URHWhatsNewModal::UpdateWhatsNewPanels);
+        pNewsSubsystem->JsonPanelUpdated.AddDynamic(this, &URHWhatsNewModal::UpdateWhatsNewPanels);
 		// Simulate checking for the proper json
 		UpdateWhatsNewPanels(TEXT("landingpanel"));
 	}
@@ -29,9 +29,9 @@ void URHWhatsNewModal::UninitializeWidget_Implementation()
 {
     Super::UninitializeWidget_Implementation();
 
-    if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+    if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
     {
-        pJsonDataFactory->JsonPanelUpdated.RemoveDynamic(this, &URHWhatsNewModal::UpdateWhatsNewPanels);
+        pNewsSubsystem->JsonPanelUpdated.RemoveDynamic(this, &URHWhatsNewModal::UpdateWhatsNewPanels);
     }
 }
 
@@ -42,9 +42,9 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 		return;
 	}
 
-	if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+	if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
 	{
-		TSharedPtr<FJsonObject> LandingPanelJson = pJsonDataFactory->GetJsonPanelByName(TEXT("landingpanel"));
+		TSharedPtr<FJsonObject> LandingPanelJson = pNewsSubsystem->GetJsonPanelByName(TEXT("landingpanel"));
 
 		if (LandingPanelJson.IsValid())
 		{
@@ -75,11 +75,11 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("header"), ObjectField))
 								{
-									Panel->Header = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									Panel->Header = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 								}
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("subHeader"), ObjectField))
 								{
-									Panel->SubHeader = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									Panel->SubHeader = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 								}
 								if ((*WhatsNewPanelObj)->TryGetNumberField(TEXT("headerAlignment"), NumValue))
 								{
@@ -89,12 +89,12 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 								// first sub-panel
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("desc1"), ObjectField))
 								{
-									FText Desc = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									FText Desc = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 									if (!Desc.IsEmpty())
 									{
 										if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("subHeader1"), ObjectField1))
 										{
-											FText Header = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField1));
+											FText Header = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField1));
 											Panel->SubPanels.Add(FSubPanel(Header, Desc));
 										}
 										else
@@ -107,12 +107,12 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 								// second sub-panel
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("desc2"), ObjectField))
 								{
-									FText Desc = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									FText Desc = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 									if (!Desc.IsEmpty())
 									{
 										if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("subHeader2"), ObjectField1))
 										{
-											FText Header = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField1));
+											FText Header = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField1));
 											Panel->SubPanels.Add(FSubPanel(Header, Desc));
 										}
 										else
@@ -125,12 +125,12 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 								// third sub-panel
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("desc3"), ObjectField))
 								{
-									FText Desc = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									FText Desc = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 									if (!Desc.IsEmpty())
 									{
 										if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("subHeader3"), ObjectField1))
 										{
-											FText Header = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField1));
+											FText Header = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField1));
 											Panel->SubPanels.Add(FSubPanel(Header, Desc));
 										}
 										else
@@ -147,7 +147,7 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 
 								if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("imageUrl"), ObjectField))
 								{
-									Panel->Image = pJsonDataFactory->GetTextureByRemoteURL(ObjectField);
+									Panel->Image = pNewsSubsystem->GetTextureByRemoteURL(ObjectField);
 
 									// If the URL was invalid (404) we didn't save the texture, so skip adding this panel
 									if (!Panel->Image)
@@ -159,7 +159,7 @@ void URHWhatsNewModal::UpdateWhatsNewPanels(const FString& JsonName)
 									Panel->BgBoxOpacity = 0;
 								}
 
-								pJsonDataFactory->LoadData(Panel, WhatsNewPanelObj);
+								pNewsSubsystem->LoadData(Panel, WhatsNewPanelObj);
 								StoredPanels.Push(Panel);
 							}
 						}
@@ -181,27 +181,24 @@ void URHWhatsNewModal::GetPanelDataAsync(FOnGetWhatsNewPanelDataBlock Delegate /
 	{
 		if (ARHLobbyHUD* LobbyHud = Cast<ARHLobbyHUD>(MyHud))
 		{
-			if (URHUISessionManager* SessionManager = LobbyHud->GetUISessionManager())
+			if (URHLocalDataSubsystem* LocalDataSubsystem = LobbyHud->GetLocalDataSubsystem())
 			{
-				TArray<FName> InstanceViewedPanelIds = SessionManager->GetNewsPanelIds(MyHud->GetLocalPlayerInfo());
-				if(InstanceViewedPanelIds.Num() == 0)
+				TArray<FName> InstanceViewedPanelIds = LocalDataSubsystem->GetNewsPanelIds();
+				if (InstanceViewedPanelIds.Num() == 0)
 				{
-					if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+					for (URHWhatsNewPanel* WhatsNewPanel : StoredPanels)
 					{
-						for (URHWhatsNewPanel* WhatsNewPanel : StoredPanels)
+						if (pRHGameSettings)
 						{
-							if (pRHGameSettings)
+							if (!pRHGameSettings->GetSavedViewedNewsPanelIds().Contains(WhatsNewPanel->UniqueId))
 							{
-								if (!pRHGameSettings->GetSavedViewedNewsPanelIds().Contains(WhatsNewPanel->UniqueId))
+								if (count < maxPanelCount)
 								{
-									if (count < maxPanelCount)
-									{
-										PanelsToCheck.Add(WhatsNewPanel);
-										pRHGameSettings->SaveViewedNewPanelId(WhatsNewPanel->UniqueId);
-										pRHGameSettings->SaveSettings();
-										SessionManager->AddNewsPanelId(WhatsNewPanel->UniqueId, MyHud->GetLocalPlayerInfo());
-										count++;
-									}
+									PanelsToCheck.Add(WhatsNewPanel);
+									pRHGameSettings->SaveViewedNewPanelId(WhatsNewPanel->UniqueId);
+									pRHGameSettings->SaveSettings();
+									LocalDataSubsystem->AddNewsPanelId(WhatsNewPanel->UniqueId);
+									count++;
 								}
 							}
 						}
@@ -224,9 +221,9 @@ void URHWhatsNewModal::GetPanelDataAsync(FOnGetWhatsNewPanelDataBlock Delegate /
 		}
 	}
 
-	if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+	if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
 	{
-		pJsonDataFactory->CheckShouldShowForPlayer(PanelsToCheck, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate, count](FRHShouldShowPanelsWrapper Wrapper)
+		pNewsSubsystem->CheckShouldShowForPlayer(PanelsToCheck, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate, count](FRHShouldShowPanelsWrapper Wrapper)
 			{
 				TArray<URHWhatsNewPanel*> PanelData;
 				
@@ -244,7 +241,7 @@ void URHWhatsNewModal::GetPanelDataAsync(FOnGetWhatsNewPanelDataBlock Delegate /
 					int32 PanelLength = StoredPanels.Num();
 
 					// check if should show stored panel
-					if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+					if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
 					{
 						int32 PanelCount = 0;
 						int32 CurrentCount = count;
@@ -260,7 +257,7 @@ void URHWhatsNewModal::GetPanelDataAsync(FOnGetWhatsNewPanelDataBlock Delegate /
 						}
 
 						TArray<URHJsonData*> JsonPanelData(PanelData);
-						pJsonDataFactory->CheckShouldShowForPlayer(JsonPanelData, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
+						pNewsSubsystem->CheckShouldShowForPlayer(JsonPanelData, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
 							{
 								TArray<URHWhatsNewPanel*> PanelData;
 
@@ -284,23 +281,16 @@ void URHWhatsNewModal::GetPanelDataAsync(FOnGetWhatsNewPanelDataBlock Delegate /
 	}
 }
 
-URHJsonDataFactory* URHWhatsNewModal::GetJsonDataFactory()
+URHNewsSubsystem* URHWhatsNewModal::GetNewsSubsystem()
 {
-    if (MyHud.IsValid())
-    {
-        if (ARHLobbyHUD* LobbyHud = Cast<ARHLobbyHUD>(MyHud))
-        {
-            return Cast<URHJsonDataFactory>(LobbyHud->GetJsonDataFactory());
-        }
-        else
-        {
-            UE_LOG(RallyHereStart, Warning, TEXT("URHWhatsNewModal::GetJsonDataFactory Warning: MyHud failed to cast to ARHLobbyHUD."));
-        }
-    }
-    else
-    {
-        UE_LOG(RallyHereStart, Warning, TEXT("URHWhatsNewModal::GetJsonDataFactory Warning: MyHud is not currently valid."));
-    }
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		return GameInstance->GetSubsystem<URHNewsSubsystem>();
+	}
+	else
+	{
+		UE_LOG(RallyHereStart, Warning, TEXT("URHWhatsNewModal::GetNewsSubsystem Warning: GameInstance  is not currently valid."));
+	}
     return nullptr;
 }
 

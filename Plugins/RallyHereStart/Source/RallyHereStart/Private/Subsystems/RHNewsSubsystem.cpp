@@ -1,16 +1,17 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "RallyHereStart.h"
-#include "Managers/RHJsonDataFactory.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHLandingPanelJSONHandler.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "RH_LocalPlayerSubsystem.h"
+#include "RH_ConfigSubsystem.h"
 #include "IImageWrapper.h"
 #include "RenderingThread.h"
 
 // ripped from async task DownloadImage
-static void RHJsonFactory_WriteRawToTexture_RenderThread(FTexture2DDynamicResource* TextureResource, const TArray<uint8>& RawData, bool bUseSRGB = true)
+static void RHNewsSubsystem_WriteRawToTexture_RenderThread(FTexture2DDynamicResource* TextureResource, const TArray<uint8>& RawData, bool bUseSRGB = true)
 {
     check(IsInRenderingThread());
 
@@ -40,25 +41,16 @@ static void RHJsonFactory_WriteRawToTexture_RenderThread(FTexture2DDynamicResour
     RHIUnlockTexture2D(TextureRHI, 0, false, false);
 }
 
-URHStoreItemHelper* GetStoreHelper(const UObject* WorldContextObject)
+bool URHNewsSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	if (WorldContextObject != nullptr)
-	{
-		if (UWorld* const World = WorldContextObject->GetWorld())
-		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
-			{
-				return GameInstance->GetStoreItemHelper();
-			}
-		}
-	}
-
-	return nullptr;
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
 }
 
-void URHJsonDataFactory::Initialize(ARHHUDCommon* InHud)
+void URHNewsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    Super::Initialize(InHud);
+	Collection.InitializeDependency<URH_GameInstanceSubsystem>();
+
+	Super::Initialize(Collection);
 
 	if (PlayerProgressionXpClass.IsValid())
 	{
@@ -70,64 +62,33 @@ void URHJsonDataFactory::Initialize(ARHHUDCommon* InHud)
 		}
 	}
 
-	if (IsLoggedIn())
-	{
-		TryLoadLandingPanels();
-	}
-	else if (GameInstance.IsValid())
-	{
-		GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHJsonDataFactory::OnLocalPlayerLoginChanged);
-	}
+	TryLoadLandingPanels();
 }
 
-void URHJsonDataFactory::Uninitialize()
-{
-    Super::Uninitialize();
-}
-
-bool URHJsonDataFactory::IsLoggedIn()
-{
-	if (GameInstance.IsValid())
-	{
-		for (const auto& LocalPlayer : GameInstance->GetLocalPlayers())
-		{
-			if (URH_LocalPlayerSubsystem* LPSS = LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>())
-			{
-				if (LPSS->IsLoggedIn())
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return Super::IsLoggedIn();
-}
-
-void URHJsonDataFactory::HandleJsonReady(URHLandingPanelJSONHandler* pHandler)
+void URHNewsSubsystem::HandleJsonReady(URHLandingPanelJSONHandler* pHandler)
 {
     if (pHandler)
     {
         JsonPanels.Add(pHandler->GetName(), pHandler->GetJsonObject());
 
-    	pHandler->OnJsonReady.RemoveDynamic(this, &URHJsonDataFactory::HandleJsonReady);
+    	pHandler->OnJsonReady.RemoveDynamic(this, &URHNewsSubsystem::HandleJsonReady);
     	JsonPanelUpdated.Broadcast(pHandler->GetName());
     }
 }
 
-void URHJsonDataFactory::HandleImagesReady(URHLandingPanelJSONHandler* pHandler)
+void URHNewsSubsystem::HandleImagesReady(URHLandingPanelJSONHandler* pHandler)
 {
     if (pHandler)
     {
 		MapFilePathToTexture.Append(pHandler->GetFilePathToTextureMap());
 		MapRemoteUrlToFilePath.Append(pHandler->GetRemoteUrlToFilePathMap());
 
-    	pHandler->OnImagesDownloaded.RemoveDynamic(this, &URHJsonDataFactory::HandleImagesReady);
+    	pHandler->OnImagesDownloaded.RemoveDynamic(this, &URHNewsSubsystem::HandleImagesReady);
     	JsonPanelUpdated.Broadcast(pHandler->GetName());
     }
 }
 
-TSharedPtr<FJsonObject> URHJsonDataFactory::GetJsonPanelByName(const FString& name)
+TSharedPtr<FJsonObject> URHNewsSubsystem::GetJsonPanelByName(const FString& name)
 {
     if (auto findItem = JsonPanels.Find(name))
     {
@@ -137,7 +98,7 @@ TSharedPtr<FJsonObject> URHJsonDataFactory::GetJsonPanelByName(const FString& na
     return nullptr;
 }
 
-FString URHJsonDataFactory::GetLocalizedStringFromObject(const TSharedPtr<FJsonObject>* StringObject)
+FString URHNewsSubsystem::GetLocalizedStringFromObject(const TSharedPtr<FJsonObject>* StringObject)
 {
     FString OutString = "";
 
@@ -154,7 +115,7 @@ FString URHJsonDataFactory::GetLocalizedStringFromObject(const TSharedPtr<FJsonO
     return OutString;
 }
 
-FName URHJsonDataFactory::GetNameFromObject(const TSharedPtr<FJsonObject>* NameObject)
+FName URHNewsSubsystem::GetNameFromObject(const TSharedPtr<FJsonObject>* NameObject)
 {
 	FName OutName = NAME_None;
 	FString StringName = "";
@@ -167,7 +128,7 @@ FName URHJsonDataFactory::GetNameFromObject(const TSharedPtr<FJsonObject>* NameO
 	return OutName;
 }
 
-UTexture2DDynamic* URHJsonDataFactory::GetTextureByRemoteURL(const TSharedPtr<FJsonObject>* ImageUrlJson)
+UTexture2DDynamic* URHNewsSubsystem::GetTextureByRemoteURL(const TSharedPtr<FJsonObject>* ImageUrlJson)
 {
     if (ImageUrlJson)
     {
@@ -212,7 +173,7 @@ UTexture2DDynamic* URHJsonDataFactory::GetTextureByRemoteURL(const TSharedPtr<FJ
     return nullptr;
 }
 
-UTexture2DDynamic* URHJsonDataFactory::LoadTexture(const uint8* contentData, int32 contentLength, FString strSaveFilePath)
+UTexture2DDynamic* URHNewsSubsystem::LoadTexture(const uint8* contentData, int32 contentLength, FString strSaveFilePath)
 {
     // see if we can create a texture out of this
     IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
@@ -247,7 +208,7 @@ UTexture2DDynamic* URHJsonDataFactory::LoadTexture(const uint8* contentData, int
                     ENQUEUE_RENDER_COMMAND(FWriteRawDataToTexture)(
                         [TextureResource, RawDataCopy](FRHICommandListImmediate& RHICmdList)
                     {
-                        RHJsonFactory_WriteRawToTexture_RenderThread(TextureResource, RawDataCopy);
+                        RHNewsSubsystem_WriteRawToTexture_RenderThread(TextureResource, RawDataCopy);
                     });
 
 					FilePathToWeakTexture.Add(strSaveFilePath, Texture);
@@ -261,7 +222,7 @@ UTexture2DDynamic* URHJsonDataFactory::LoadTexture(const uint8* contentData, int
     return nullptr;
 }
 
-void URHJsonDataFactory::LoadData(URHJsonData* JsonData, const TSharedPtr<FJsonObject>* JsonObject)
+void URHNewsSubsystem::LoadData(URHJsonData* JsonData, const TSharedPtr<FJsonObject>* JsonObject)
 {
 	FString UniqueIdString = "";
 	if ((*JsonObject)->TryGetStringField(TEXT("id"), UniqueIdString))
@@ -327,9 +288,9 @@ void URHJsonDataFactory::LoadData(URHJsonData* JsonData, const TSharedPtr<FJsonO
 	(*JsonObject)->TryGetBoolField(TEXT("showAndroid"), JsonData->showAndroid);
 }
 
-void URHJsonDataFactory::OnInventoryItemsUpdated(const TArray<int32>& UpdatedInventoryIds, URH_PlayerInfo* PlayerInfo)
+void URHNewsSubsystem::OnInventoryItemsUpdated(const TArray<int32>& UpdatedInventoryIds, URH_PlayerInfo* PlayerInfo)
 {
-    UE_LOG(RallyHereStart, Log, TEXT("URHJsonDataFactory::OnInventoryItemsUpdated"));
+    UE_LOG(RallyHereStart, Log, TEXT("URHNewsSubsystem::OnInventoryItemsUpdated"));
 
 	TSet<int32> RelevantItemIds;
 	if (const auto& FoundJsonDataWrapper = CachedJsonDataByPlayer.Find(PlayerInfo))
@@ -368,7 +329,7 @@ void URHJsonDataFactory::OnInventoryItemsUpdated(const TArray<int32>& UpdatedInv
 	}	
 }
 
-void URHJsonDataFactory::CheckShouldShowForPlayer(URHJsonData* JsonData, URH_PlayerInfo* PlayerInfo, FOnShouldShow Delegate, bool bCheckPlatform)
+void URHNewsSubsystem::CheckShouldShowForPlayer(URHJsonData* JsonData, URH_PlayerInfo* PlayerInfo, FOnShouldShow Delegate, bool bCheckPlatform)
 {
 	// null check
 	if (JsonData == nullptr)
@@ -387,7 +348,7 @@ void URHJsonDataFactory::CheckShouldShowForPlayer(URHJsonData* JsonData, URH_Pla
 	{
 		if (!CachedJsonDataByPlayer.Contains(PlayerInfo))
 		{
-			PlayerInventory->OnInventoryCacheUpdated.BindUObject(this, &URHJsonDataFactory::OnInventoryItemsUpdated);
+			PlayerInventory->OnInventoryCacheUpdated.BindUObject(this, &URHNewsSubsystem::OnInventoryItemsUpdated);
 		}
 
 		CachedJsonDataByPlayer.FindOrAdd(PlayerInfo).JsonDataSet.Add(JsonData);
@@ -419,7 +380,7 @@ void URHJsonDataFactory::CheckShouldShowForPlayer(URHJsonData* JsonData, URH_Pla
 		bool isSteam = false;
 		bool isEpic = false;
 
-		if (GameInstance.IsValid())
+		if (UGameInstance* GameInstance = GetGameInstance())
 		{
 			for (const auto& LocalPlayer : GameInstance->GetLocalPlayers())
 			{
@@ -581,26 +542,27 @@ void URHJsonDataFactory::CheckShouldShowForPlayer(URHJsonData* JsonData, URH_Pla
 	Helper->StartCheck();
 }
 
-void URHJsonDataFactory::CheckShouldShowForPlayer(TArray<URHJsonData*> pData, URH_PlayerInfo* PlayerInfo, FOnGetShouldShowPanels Delegate, bool bCheckPlatform /*= true*/)
+void URHNewsSubsystem::CheckShouldShowForPlayer(TArray<URHJsonData*> pData, URH_PlayerInfo* PlayerInfo, FOnGetShouldShowPanels Delegate, bool bCheckPlatform /*= true*/)
 {
 	URH_PlayerShouldShowPanelsHelper* Helper = NewObject<URH_PlayerShouldShowPanelsHelper>();
 	Helper->PlayerInfo = PlayerInfo;
-	Helper->JsonDataFactory = this;
+	Helper->NewsSubsystem = this;
 	Helper->Event = Delegate;
 	Helper->PanelsToCheck = pData;
 	Helper->StartCheck();
 }
 
-void URHJsonDataFactory::TryLoadLandingPanels()
+void URHNewsSubsystem::TryLoadLandingPanels()
 {
 	// #RHTODO - PLAT-4578 - NEEDS API - Update this to use the News Endpoint through the News Integration API
 
-	if (!GameInstance.IsValid())
+	URHGameInstance* pGameInstance = Cast<URHGameInstance>(GetGameInstance());
+	if (pGameInstance != nullptr)
 	{
 		return;
 	}
 
-	auto* pGISS = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>();
+	auto* pGISS = pGameInstance->GetSubsystem<URH_GameInstanceSubsystem>();
 	if (pGISS == nullptr)
 	{
 		return;
@@ -622,13 +584,13 @@ void URHJsonDataFactory::TryLoadLandingPanels()
 
 	for (const FString& uniqueName : ConfigFilesArray)
 	{
-		GameInstance->NameToURLJsonMapping.Add(uniqueName, url);
+		pGameInstance->NameToURLJsonMapping.Add(uniqueName, url);
 
 		// create a json handler instance for this json url
 		URHLandingPanelJSONHandler* jsonLPHandler = NewObject<URHLandingPanelJSONHandler>();
 		jsonLPHandler->Initialize(uniqueName);
-		jsonLPHandler->OnJsonReady.AddDynamic(this, &URHJsonDataFactory::HandleJsonReady);
-		jsonLPHandler->OnImagesDownloaded.AddDynamic(this, &URHJsonDataFactory::HandleImagesReady);
+		jsonLPHandler->OnJsonReady.AddDynamic(this, &URHNewsSubsystem::HandleJsonReady);
+		jsonLPHandler->OnImagesDownloaded.AddDynamic(this, &URHNewsSubsystem::HandleImagesReady);
 
 		// now that we have the url and we've subscribed to the callback, let's load it
 		FString fullUrl = url + uniqueName + TEXT(".json");
@@ -636,24 +598,13 @@ void URHJsonDataFactory::TryLoadLandingPanels()
 	}
 }
 
-void URHJsonDataFactory::OnLocalPlayerLoginChanged(ULocalPlayer* LocalPlayer)
-{
-	if (URH_LocalPlayerSubsystem* LPSS = LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>())
-	{
-		if (LPSS->IsLoggedIn())
-		{
-			TryLoadLandingPanels();
-		}
-	}
-}
-
 void URH_PlayerShouldShowPanelsHelper::StartCheck()
 {
-	if (PanelsToCheck.Num() > 0)
+	if (PanelsToCheck.Num() > 0 && NewsSubsystem.IsValid())
 	{
 		for (URHJsonData* Panel : PanelsToCheck)
 		{
-			JsonDataFactory->CheckShouldShowForPlayer(Panel, PlayerInfo, FOnShouldShow::CreateUObject(this, &URH_PlayerShouldShowPanelsHelper::OnGetShouldShowResponse, Panel));
+			NewsSubsystem->CheckShouldShowForPlayer(Panel, PlayerInfo, FOnShouldShow::CreateUObject(this, &URH_PlayerShouldShowPanelsHelper::OnGetShouldShowResponse, Panel));
 		}
 	}
 	else

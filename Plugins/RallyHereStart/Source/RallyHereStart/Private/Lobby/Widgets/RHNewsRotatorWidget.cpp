@@ -2,7 +2,7 @@
 
 #include "RallyHereStart.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
-#include "Managers/RHJsonDataFactory.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 #include "Lobby/Widgets/RHNewsRotatorWidget.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
@@ -11,9 +11,9 @@ void URHNewsRotatorWidget::InitializeWidget_Implementation()
 {
     Super::InitializeWidget_Implementation();
 
-    if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+    if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
     {
-        pJsonDataFactory->JsonPanelUpdated.AddDynamic(this, &URHNewsRotatorWidget::OnJsonChanged);
+        pNewsSubsystem->JsonPanelUpdated.AddDynamic(this, &URHNewsRotatorWidget::OnJsonChanged);
     }
 }
 
@@ -21,9 +21,9 @@ void URHNewsRotatorWidget::UninitializeWidget_Implementation()
 {
     Super::UninitializeWidget_Implementation();
 
-    if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+    if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
     {
-        pJsonDataFactory->JsonPanelUpdated.RemoveDynamic(this, &URHNewsRotatorWidget::OnJsonChanged);
+        pNewsSubsystem->JsonPanelUpdated.RemoveDynamic(this, &URHNewsRotatorWidget::OnJsonChanged);
     }
 }
 
@@ -31,9 +31,9 @@ void URHNewsRotatorWidget::GetPanelDataAsync(FOnGetNewsRotatorPanelsBlock Delega
 {
     TArray<URHNewsRotatorData*> Panels;
 
-    if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+    if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
     {
-        TSharedPtr<FJsonObject> LandingPanelJson = pJsonDataFactory->GetJsonPanelByName(TEXT("landingpanel"));
+        TSharedPtr<FJsonObject> LandingPanelJson = pNewsSubsystem->GetJsonPanelByName(TEXT("landingpanel"));
 
         if (LandingPanelJson.IsValid())
         {
@@ -63,22 +63,22 @@ void URHNewsRotatorWidget::GetPanelDataAsync(FOnGetNewsRotatorPanelsBlock Delega
 
                                 if ((*JsonRotatorObj)->TryGetObjectField(TEXT("actionDetails"), ObjectField))
                                 {
-                                    Panel->ActionDetails = URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField);
+                                    Panel->ActionDetails = URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField);
                                 }
 
 								if ((*JsonRotatorObj)->TryGetObjectField(TEXT("headerText"), ObjectField))
 								{
-									Panel->Header = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									Panel->Header = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 								}
 
 								if ((*JsonRotatorObj)->TryGetObjectField(TEXT("bodyText"), ObjectField))
 								{
-									Panel->Body = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+									Panel->Body = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 								}
 
                                 if ((*JsonRotatorObj)->TryGetObjectField(TEXT("imageUrl"), ObjectField))
                                 {
-                                    Panel->Image = pJsonDataFactory->GetTextureByRemoteURL(ObjectField);
+                                    Panel->Image = pNewsSubsystem->GetTextureByRemoteURL(ObjectField);
 
 									// If the URL was invalid (404) we didn't save the texture, so skip adding this panel
 									if (!Panel->Image)
@@ -97,7 +97,7 @@ void URHNewsRotatorWidget::GetPanelDataAsync(FOnGetNewsRotatorPanelsBlock Delega
 									Panel->GroupToShowFor = INDEX_NONE;
 								}
 
-                                pJsonDataFactory->LoadData(Panel, JsonRotatorObj);
+                                pNewsSubsystem->LoadData(Panel, JsonRotatorObj);
 
                                 Panels.Push(Panel);
                             }
@@ -109,7 +109,7 @@ void URHNewsRotatorWidget::GetPanelDataAsync(FOnGetNewsRotatorPanelsBlock Delega
     }
     else
     {
-        UE_LOG(RallyHereStart, Warning, TEXT("URHNewsRotatorWidget::GetPanelData failed to get JsonDataFactory -- delegates will not be bound."));
+        UE_LOG(RallyHereStart, Warning, TEXT("URHNewsRotatorWidget::GetPanelData failed to get RHNewsSubsystem -- delegates will not be bound."));
     }
 
 	CheckShouldShowPanels(Panels, Delegate);
@@ -119,7 +119,7 @@ void URHNewsRotatorWidget::CheckShouldShowPanels(TArray<URHNewsRotatorData*> Pan
 {
 	if (URH_PlayerInfo* LocalPlayerInfo = MyHud->GetLocalPlayerInfo())
 	{
-		if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+		if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
 		{
 			TArray<URHJsonData*> PanelsToCheck;
 
@@ -145,7 +145,7 @@ void URHNewsRotatorWidget::CheckShouldShowPanels(TArray<URHNewsRotatorData*> Pan
 				}
 			}
 
-			pJsonDataFactory->CheckShouldShowForPlayer(PanelsToCheck, LocalPlayerInfo, FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
+			pNewsSubsystem->CheckShouldShowForPlayer(PanelsToCheck, LocalPlayerInfo, FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
 				{
 					TArray<URHNewsRotatorData*> DataToShow;
 					for (const auto& pair : Wrapper.ShouldShowByPanel)
@@ -193,23 +193,15 @@ void URHNewsRotatorWidget::OnNewsPanelClicked(URHNewsRotatorData* Panel)
 	}
 }
 
-URHJsonDataFactory* URHNewsRotatorWidget::GetJsonDataFactory()
+URHNewsSubsystem* URHNewsRotatorWidget::GetNewsSubsystem()
 {
-    if (MyHud.IsValid())
-    {
-        if (ARHLobbyHUD* LobbyHud = Cast<ARHLobbyHUD>(MyHud))
-        {
-            return Cast<URHJsonDataFactory>(LobbyHud->GetJsonDataFactory());
-        }
-        else
-        {
-            UE_LOG(RallyHereStart, Warning, TEXT("URHNewsRotatorWidget::GetJsonDataFactory Warning: MyHud failed to cast to ARHLobbyHUD."));
-        }
-    }
-    else
-    {
-        UE_LOG(RallyHereStart, Warning, TEXT("URHNewsRotatorWidget::GetJsonDataFactory Warning: MyHud is not currently valid."));
-    }
-
-    return nullptr;
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		return GameInstance->GetSubsystem<URHNewsSubsystem>();
+	}
+	else
+	{
+		UE_LOG(RallyHereStart, Warning, TEXT("URHNewsRotatorWidget::GetNewsSubsystem Warning: GameInstance  is not currently valid."));
+	}
+	return nullptr;
 }

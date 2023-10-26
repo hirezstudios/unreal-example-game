@@ -3,8 +3,9 @@
 #include "RallyHereStart.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
 #include "GameFramework/RHGameInstance.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
 #include "Lobby/Widgets/RHLoginInventoryCheck.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 
 bool URHLoginInventoryCheckViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTag& RouteTag, UObject*& SceneData)  //$$ KAB - Route names changed to Gameplay Tags
 {
@@ -26,20 +27,14 @@ void URHLoginInventoryCheck::ShowWidget(ESlateVisibility InVisibility /* = ESlat
 
 	UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::ShowWidget()"));
 
-	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	if (URHLocalDataSubsystem* LocalDataSubsystem = MyHud->GetLocalDataSubsystem())
 	{
-		if (URHUISessionManager* SessionManager = GameInstance->GetUISessionManager())
-		{
-			if (URHUISessionData* SessionData = SessionManager->SessionDataPerPlayer.FindRef(MyHud->GetLocalPlayerInfo()))
-			{
-				SessionData->OnPlayerInventoryReady.AddUObject(this, &URHLoginInventoryCheck::OnPlayerInventoryReceived);
-			}
-		}
+		LocalDataSubsystem->OnPlayerInventoryReady.AddUObject(this, &URHLoginInventoryCheck::OnPlayerInventoryReceived);
 	}
 
-	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	if (UGameInstance* GameInstance = GetGameInstance())
 	{
-		if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+		if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 		{
 			TArray<int32> VendorIds;
 
@@ -47,7 +42,7 @@ void URHLoginInventoryCheck::ShowWidget(ESlateVisibility InVisibility /* = ESlat
 
 			if (VendorIds.Num())
 			{
-				StoreItemHelper->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateLambda([this](bool bSuccess)
+				StoreSubsystem->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateLambda([this](bool bSuccess)
 					{
 						bHasRequiredVendors = true;
 						UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::OnStoreVendorsLoaded()"));
@@ -111,20 +106,17 @@ bool URHLoginInventoryCheck::HasRequiredInventory()
 		return false;
 	}
 
-	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	if (URHLocalDataSubsystem* LocalDataSubsystem = MyHud->GetLocalDataSubsystem())
 	{
-		if (URHUISessionManager* SessionManager = GameInstance->GetUISessionManager())
+		if (!LocalDataSubsystem->HasFullInventory())
 		{
-			if (!SessionManager->HasFullInventory(MyHud->GetLocalPlayerInfo()))
-			{
-				UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::HasRequiredInventory() STILL WAITING: Player Inventory Missing"));
-				return false;
-			}
-
-			UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::HasRequiredInventory() SUCCESS"));
-			return true;
+			UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::HasRequiredInventory() STILL WAITING: Player Inventory Missing"));
+			return false;
 		}
-    }
+
+		UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::HasRequiredInventory() SUCCESS"));
+		return true;
+	}
 
 	UE_LOG(RallyHereStart, Log, TEXT("URHLoginInventoryCheck::HasRequiredInventory() ERROR: Game Instance or UI Session Manager Missing"));
     return false;

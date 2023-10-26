@@ -1,6 +1,8 @@
 #pragma once
-#include "Managers/RHJsonDataFactory.h"
-#include "RHPushNotificationManager.generated.h"
+
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/RHNewsSubsystem.h"
+#include "RHPushNotificationSubsystem.generated.h"
 
 UCLASS(BlueprintType)
 class RALLYHERESTART_API URHJsonPushNotification : public URHJsonData
@@ -33,14 +35,14 @@ enum class ERHPushNotificationState : uint8
 };
 
 UCLASS(Config = Game)
-class RALLYHERESTART_API URHPushNotificationManager : public UObject
+class RALLYHERESTART_API URHPushNotificationSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-	URHPushNotificationManager(const FObjectInitializer& ObjectInitializer);
-
-	void Initialize(class URHJsonDataFactory* InJsonDataFactory);
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	void CheckNotificationState();
 
@@ -56,9 +58,6 @@ public:
 
 	UFUNCTION()
 	void HandleJsonReady(const FString& JsonName);
-
-	UPROPERTY(Transient)
-	class URHJsonDataFactory* JsonDataFactory;
 
 	UPROPERTY(config)
 	FString JsonPanel;

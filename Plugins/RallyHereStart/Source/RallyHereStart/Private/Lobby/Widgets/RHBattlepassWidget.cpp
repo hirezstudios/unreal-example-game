@@ -1,8 +1,8 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "RallyHereStart.h"
-#include "Managers/RHEventManager.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHEventSubsystem.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Lobby/Widgets/RHPurchaseConfirmationWidget.h"
@@ -33,11 +33,11 @@ void URHBattlepassWidget::OnShown_Implementation()
 	// If we don't have passed in battlepass data, lets find the first active battlepass
 	if (DisplayedBattlepass == nullptr)
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+		if (UGameInstance* GameInstance = GetGameInstance())
 		{
-			if (URHEventManager* EventManager = GameInstance->GetEventManager())
+			if (URHEventSubsystem* EventSubsystem = GameInstance->GetSubsystem<URHEventSubsystem>())
 			{
-				DisplayedBattlepass = EventManager->GetActiveEvent<URHBattlepass>();
+				DisplayedBattlepass = EventSubsystem->GetActiveEvent<URHBattlepass>();
 			}
 		}
 
@@ -52,13 +52,13 @@ void URHBattlepassWidget::OnShown_Implementation()
 
 void URHBattlepassWidget::ShowPurchaseBattlepass()
 {
-	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	if (UGameInstance* GameInstance = GetGameInstance())
 	{
-		if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+		if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 		{
 			if (URHPurchaseData* PurchaseData = NewObject<URHPurchaseData>())
 			{
-				PurchaseData->StoreItem = StoreItemHelper->GetStoreItem(DisplayedBattlepass->PassPurchaseLootId);
+				PurchaseData->StoreItem = StoreSubsystem->GetStoreItem(DisplayedBattlepass->PassPurchaseLootId);
 
 				if (PurchaseData->StoreItem != nullptr)
 				{
@@ -78,13 +78,13 @@ void URHBattlepassWidget::ShowPurchaseBattlepass()
 
 void URHBattlepassWidget::ShowPurchaseBattlepassTiers(int32 TierCount)
 {
-	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	if (UGameInstance* GameInstance = GetGameInstance())
 	{
-		if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+		if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 		{
 			if (URHStoreItemWithBattlepassData* PurchaseData = NewObject<URHStoreItemWithBattlepassData>())
 			{
-				PurchaseData->StoreItem = StoreItemHelper->GetStoreItem(DisplayedBattlepass->LevelPurchaseLootId);
+				PurchaseData->StoreItem = StoreSubsystem->GetStoreItem(DisplayedBattlepass->LevelPurchaseLootId);
 
 				if (PurchaseData->StoreItem != nullptr)
 				{

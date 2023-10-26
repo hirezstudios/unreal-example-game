@@ -4,7 +4,7 @@
 #include "Managers/RHInputManager.h"
 #include "Managers/RHPartyManager.h"
 #include "Managers/RHPopupManager.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "GameFramework/RHGameInstance.h"
@@ -159,18 +159,18 @@ void ARHHUDCommon::InitializeDataFactories()
 		PartyManager->Initialize(this);
     }
     
-    if (URHOrderManager* acqMgr = GetOrderManager())
+    if (URHOrderSubsystem* orderSubsystem = GetOrderSubsystem())
     {
         if (IsLobbyHUD())
         {
-            acqMgr->OnOrderFailed.AddDynamic(this, &ARHHUDCommon::ShowErrorPopup);
+			orderSubsystem->OnOrderFailed.AddDynamic(this, &ARHHUDCommon::ShowErrorPopup);
         }
         else
         {
-            acqMgr->OnOrderFailed.AddDynamic(this, &ARHHUDCommon::LogErrorMessage);
+			orderSubsystem->OnOrderFailed.AddDynamic(this, &ARHHUDCommon::LogErrorMessage);
         }
 
-		acqMgr->OnInvalidVoucherObtained.AddDynamic(this, &ARHHUDCommon::OnInvalidVoucherOrder);
+		orderSubsystem->OnInvalidVoucherObtained.AddDynamic(this, &ARHHUDCommon::OnInvalidVoucherOrder);
     }
 
 	// handle things that hinge on Login States
@@ -200,10 +200,10 @@ void ARHHUDCommon::UninitializeDataFactories()
 		PartyManager->Uninitialize();
     }
     
-    if (URHOrderManager* acqMgr = GetOrderManager())
+    if (URHOrderSubsystem* orderSubsystem = GetOrderSubsystem())
     {
-        acqMgr->OnOrderFailed.RemoveAll(this);
-		acqMgr->OnInvalidVoucherObtained.RemoveDynamic(this, &ARHHUDCommon::OnInvalidVoucherOrder);
+		orderSubsystem->OnOrderFailed.RemoveAll(this);
+		orderSubsystem->OnInvalidVoucherObtained.RemoveDynamic(this, &ARHHUDCommon::OnInvalidVoucherOrder);
     }
 
     if (LoginDataFactory != nullptr)
@@ -463,47 +463,38 @@ void ARHHUDCommon::OnInvalidVoucherOrder(URHStoreItem* StoreItem)
 
 }
 
-URHOrderManager* ARHHUDCommon::GetOrderManager() const
+URHOrderSubsystem* ARHHUDCommon::GetOrderSubsystem() const
 {
-    if (URHGameInstance* gameInstance = Cast<URHGameInstance>(GetGameInstance()))
+    if (UGameInstance* gameInstance = GetGameInstance())
     {
-        return gameInstance->GetOrderManager();
+        return gameInstance->GetSubsystem<URHOrderSubsystem>();
     }
 
     return nullptr;
 }
 
-class URHLoadoutDataFactory* ARHHUDCommon::GetLoadoutDataFactory() const
+URHLocalDataSubsystem* ARHHUDCommon::GetLocalDataSubsystem() const
 {
-	if (URHGameInstance* gameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	auto* PC = GetOwningPlayerController();
+	if (PC != nullptr)
 	{
-		return gameInstance->GetLoadoutDataFactory();
+		auto* LP = PC->GetLocalPlayer();
+		//$$ JAM: Begin - Fixed issue with Player controller not having the local player in time
+		if (!IsValid(LP))
+		{
+			UWorld* world = GetWorld();
+			UGameInstance* gameInstance = world ? world->GetGameInstance() : nullptr;
+			LP = gameInstance ? gameInstance->GetFirstGamePlayer() : nullptr;
+		}
+		//$$ JAM: END - Fixed issue with Player controller not having the local player in time
+
+		if (LP != nullptr)
+		{
+			return LP->GetSubsystem<URHLocalDataSubsystem>();
+		}
 	}
 
 	return nullptr;
-}
-
-URHStoreItemHelper* ARHHUDCommon::GetItemHelper() const
-{
-    if (URHGameInstance* gameInstance = Cast<URHGameInstance>(GetGameInstance()))
-    {
-        if (URHStoreItemHelper* pStoreHelper = gameInstance->GetStoreItemHelper())
-        {
-            return Cast<URHStoreItemHelper>(pStoreHelper);
-        }
-    }
-
-    return nullptr;
-}
-
-URHUISessionManager* ARHHUDCommon::GetUISessionManager() const
-{
-    if (URHGameInstance* gameInstance = Cast<URHGameInstance>(GetGameInstance()))
-    {
-        return gameInstance->GetUISessionManager();
-    }
-
-    return nullptr;
 }
 
 /**

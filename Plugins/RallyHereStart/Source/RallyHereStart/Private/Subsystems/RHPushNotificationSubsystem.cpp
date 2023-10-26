@@ -3,45 +3,65 @@
 #include "RallyHereStart.h"
 #include "Kismet/BlueprintPlatformLibrary.h"
 #include "Misc/ScopeExit.h"
-#include "Managers/RHPushNotificationManager.h"
+#include "Subsystems/RHPushNotificationSubsystem.h"
 
-URHPushNotificationManager::URHPushNotificationManager(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+bool URHPushNotificationSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	JsonPanel = TEXT("landingpanel");
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
 }
 
-void URHPushNotificationManager::Initialize(class URHJsonDataFactory* InJsonDataFactory)
+void URHPushNotificationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	JsonDataFactory = InJsonDataFactory;
-	if (JsonDataFactory)
+	Collection.InitializeDependency<URHNewsSubsystem>();
+
+	Super::Initialize(Collection);
+
+	JsonPanel = TEXT("landingpanel");
+
+	UGameInstance* GameInstance = GetGameInstance();
+	URHNewsSubsystem* NewsSubsystem = GameInstance != nullptr ? GameInstance->GetSubsystem<URHNewsSubsystem>() : nullptr;
+
+	if (NewsSubsystem)
 	{
-		JsonDataFactory->JsonPanelUpdated.AddDynamic(this, &URHPushNotificationManager::HandleJsonReady);
+		NewsSubsystem->JsonPanelUpdated.AddDynamic(this, &URHPushNotificationSubsystem::HandleJsonReady);
 	}
 
-	FCoreDelegates::ApplicationRegisteredForUserNotificationsDelegate.AddUObject(this, &URHPushNotificationManager::HandleRegisteredForUserNotifications);
-	FCoreDelegates::ApplicationRegisteredForRemoteNotificationsDelegate.AddUObject(this, &URHPushNotificationManager::HandleRegisteredForRemoteNotifications);
+	FCoreDelegates::ApplicationRegisteredForUserNotificationsDelegate.AddUObject(this, &URHPushNotificationSubsystem::HandleRegisteredForUserNotifications);
+	FCoreDelegates::ApplicationRegisteredForRemoteNotificationsDelegate.AddUObject(this, &URHPushNotificationSubsystem::HandleRegisteredForRemoteNotifications);
 }
 
-void URHPushNotificationManager::HandleRegisteredForUserNotifications(int32 Types)
+void URHPushNotificationSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	UGameInstance* GameInstance = GetGameInstance();
+	URHNewsSubsystem* NewsSubsystem = GameInstance != nullptr ? GameInstance->GetSubsystem<URHNewsSubsystem>() : nullptr;
+
+	if (NewsSubsystem)
+	{
+		NewsSubsystem->JsonPanelUpdated.RemoveAll(this);
+	}
+}
+
+void URHPushNotificationSubsystem::HandleRegisteredForUserNotifications(int32 Types)
 {
 	bNotificationPermissionGranted = true;
 	CheckNotificationState();
 }
 
-void URHPushNotificationManager::HandleRegisteredForRemoteNotifications(TArray<uint8> InToken)
+void URHPushNotificationSubsystem::HandleRegisteredForRemoteNotifications(TArray<uint8> InToken)
 {
 	bNotificationPermissionGranted = true;
 	CheckNotificationState();
 }
 
-void URHPushNotificationManager::SetState(ERHPushNotificationState NewState)
+void URHPushNotificationSubsystem::SetState(ERHPushNotificationState NewState)
 {
 	State = NewState;
 	CheckNotificationState();
 }
 
-void URHPushNotificationManager::CheckNotificationState()
+void URHPushNotificationSubsystem::CheckNotificationState()
 {
 #if !UE_BUILD_SHIPPING
 	// Allow a command line argument to test push notification system logic
@@ -93,7 +113,7 @@ void URHPushNotificationManager::CheckNotificationState()
 	}
 }
 
-void URHPushNotificationManager::ScheduleNotifications()
+void URHPushNotificationSubsystem::ScheduleNotifications()
 {
 	UBlueprintPlatformLibrary::ClearAllLocalNotifications();
 
@@ -122,14 +142,17 @@ void URHPushNotificationManager::ScheduleNotifications()
 	}
 }
 
-void URHPushNotificationManager::HandleJsonReady(const FString& JsonName)
+void URHPushNotificationSubsystem::HandleJsonReady(const FString& JsonName)
 {
 	ON_SCOPE_EXIT
 	{
 		CheckNotificationState();
 	};
 
-	if (!JsonDataFactory)
+	UGameInstance* GameInstance = GetGameInstance();
+	URHNewsSubsystem* NewsSubsystem = GameInstance != nullptr ? GameInstance->GetSubsystem<URHNewsSubsystem>() : nullptr;
+
+	if (!NewsSubsystem)
 	{
 		return;
 	}
@@ -139,7 +162,7 @@ void URHPushNotificationManager::HandleJsonReady(const FString& JsonName)
 		return;
 	}
 
-	TSharedPtr<FJsonObject> LandingPanelJson = JsonDataFactory->GetJsonPanelByName(JsonPanel);
+	TSharedPtr<FJsonObject> LandingPanelJson = NewsSubsystem->GetJsonPanelByName(JsonPanel);
 	if (!LandingPanelJson.IsValid())
 	{
 		return;
@@ -174,18 +197,19 @@ void URHPushNotificationManager::HandleJsonReady(const FString& JsonName)
 			continue;
 		}
 
-		JsonDataFactory->LoadData(Notification, ContentObj);
+		NewsSubsystem->LoadData(Notification, ContentObj);
 
 		// Switch out the start time and end time.
-		// URHJsonDataFactory::ShouldShow treats the "EndTime" the way we want to handle
+		// URHNewsSubsystem::ShouldShow treats the "EndTime" the way we want to handle
 		// Push Notification start time.
 		Swap(Notification->StartTime, Notification->EndTime);
 
-		JsonDataFactory->CheckShouldShowForPlayer(Notification, JsonDataFactory->GetLocalPlayerInfo(), FOnShouldShow::CreateUObject(this, &URHPushNotificationManager::OnCheckShouldShowResponse, Notification, ContentObj));
+		// #RHTODO: This is based on a local player, but this is from Game Instance, this might need some re-thinking
+		NewsSubsystem->CheckShouldShowForPlayer(Notification, nullptr, FOnShouldShow::CreateUObject(this, &URHPushNotificationSubsystem::OnCheckShouldShowResponse, Notification, ContentObj));
 	}
 }
 
-void URHPushNotificationManager::OnCheckShouldShowResponse(bool bShouldShow, URHJsonPushNotification* Notification, const TSharedPtr<FJsonObject>* ContentObj)
+void URHPushNotificationSubsystem::OnCheckShouldShowResponse(bool bShouldShow, URHJsonPushNotification* Notification, const TSharedPtr<FJsonObject>* ContentObj)
 {
 	if (bShouldShow)
 	{
@@ -194,11 +218,11 @@ void URHPushNotificationManager::OnCheckShouldShowResponse(bool bShouldShow, URH
 		const TSharedPtr<FJsonObject>* ObjectField;
 		if ((*ContentObj)->TryGetObjectField(TEXT("headerText"), ObjectField))
 		{
-			Notification->Header = URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField);
+			Notification->Header = URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField);
 		}
 		if ((*ContentObj)->TryGetObjectField(TEXT("bodyText"), ObjectField))
 		{
-			Notification->Body = URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField);
+			Notification->Body = URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField);
 		}
 
 		(*ContentObj)->TryGetStringField(TEXT("activationEvent"), Notification->ActivationEvent);

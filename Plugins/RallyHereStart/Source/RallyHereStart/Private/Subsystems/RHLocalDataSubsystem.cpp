@@ -2,78 +2,88 @@
 #include "OnlineSubsystemUtils.h"
 #include "GameFramework/RHGameInstance.h"
 #include "Interfaces/OnlineAchievementsInterface.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "RH_CatalogSubsystem.h"
 #include "RH_LocalPlayerSubsystem.h"
+#include "RH_PlayerInfoSubsystem.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "RH_MatchmakingBrowser.h"
 #include "RH_EntitlementSubsystem.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHUISessionManager.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
 
-void URHUISessionManager::Initialize(URHGameInstance* InGameInstance)
+bool URHLocalDataSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	GameInstance = InGameInstance;
+	// Local Players should always have this subsystem?
+	return true;
+}
 
-	if (GameInstance)
+void URHLocalDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
-		GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHUISessionManager::OnLoginPlayerChanged);
+		if (URH_LocalPlayerSubsystem* RHSS = LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>())
+		{
+			if (RHSS->GetAuthContext().IsValid())
+			{
+				RHSS->GetAuthContext()->OnLoginUserChanged().AddUObject(this, &URHLocalDataSubsystem::OnLoginPlayerChanged);
+			}
+		}
 	}
 }
 
-void URHUISessionManager::Uninitialize()
+void URHLocalDataSubsystem::Deinitialize()
 {
-	if (GameInstance)
+	Super::Deinitialize();
+
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
-		GameInstance->OnLocalPlayerLoginChanged.RemoveAll(this);
+		if (URH_LocalPlayerSubsystem* RHSS = LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>())
+		{
+			if (RHSS->GetAuthContext().IsValid())
+			{
+				RHSS->GetAuthContext()->OnLoginUserChanged().RemoveAll(this);
+			}
+		}
 	}
 }
 
-void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
+void URHLocalDataSubsystem::OnLoginPlayerChanged()
 {
-	URHUISessionData* SessionData = nullptr;
-	URH_LocalPlayerSubsystem* RHSS = LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>();
+	ULocalPlayer* LocalPlayer = GetLocalPlayer();
+	URH_LocalPlayerSubsystem* RHSS = LocalPlayer ? LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>() : nullptr;
 	URH_PlayerInfo* PlayerInfo = nullptr;
+	URHGameInstance* GameInstance = LocalPlayer ? Cast<URHGameInstance>(LocalPlayer->GetGameInstance()) : nullptr;
 
-	if (RHSS != nullptr)
+	if (RHSS != nullptr && GameInstance != nullptr)
 	{
 		PlayerInfo = RHSS->GetLocalPlayerInfo();
-		SessionData = SessionDataPerPlayer.FindRef(PlayerInfo);
-
-		if (SessionData == nullptr)
-		{
-			SessionData = NewObject<URHUISessionData>();
-			SessionDataPerPlayer.Add(PlayerInfo, SessionData);
-		}
-
+		
 		if (PlayerInfo != nullptr)
 		{
 			if (URH_PlayerInventory* PlayerInventory = PlayerInfo->GetPlayerInventory())
 			{
-				PlayerInventory->GetInventory(TArray<int32>(), FRH_OnInventoryUpdateDelegate::CreateWeakLambda(this, [this, PlayerInfo](bool bSuccess)
+				PlayerInventory->GetInventory(TArray<int32>(), FRH_OnInventoryUpdateDelegate::CreateWeakLambda(this, [this, GameInstance](bool bSuccess)
 					{
 						if (bSuccess)
 						{
-							if (URHUISessionData* SessionData = SessionDataPerPlayer.FindRef(PlayerInfo))
-							{
-								SessionData->bHasFullPlayerInventory = true;
-								SessionData->OnPlayerInventoryReady.Broadcast();
-							}
-
+							bHasFullPlayerInventory = true;
+							OnPlayerInventoryReady.Broadcast();
+							
 							if (RewardRedemptionVendorId > 0)
 							{
-								if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+								if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 								{
 									TArray<int32> VendorIds;
 									VendorIds.Push(RewardRedemptionVendorId);
 
 									if (VendorIds.Num())
 									{
-										StoreItemHelper->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateLambda([this, PlayerInfo](bool bSuccess)
+										StoreSubsystem->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateLambda([this](bool bSuccess)
 											{
-												if (PlayerInfo != nullptr)
-												{
-													ProcessRedemptionRewards(PlayerInfo);
-												}
+												ProcessRedemptionRewards();
 											}));
 									}
 								}
@@ -91,7 +101,7 @@ void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 
 		if (PlayerInfo != nullptr)
 		{
-			PlayerInfo->GetLinkedPlatformInfo(FTimespan(), false, FRH_PlayerInfoGetPlatformsDelegate::CreateWeakLambda(this, [this, RHSS, PlayerInfo](bool bSuccess, const TArray<URH_PlayerPlatformInfo*>& Platforms)
+			PlayerInfo->GetLinkedPlatformInfo(FTimespan(), false, FRH_PlayerInfoGetPlatformsDelegate::CreateWeakLambda(this, [this, RHSS](bool bSuccess, const TArray<URH_PlayerPlatformInfo*>& Platforms)
 				{
 					for (const auto& Platform : Platforms)
 					{
@@ -110,8 +120,8 @@ void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 									//	FOnQueryAchievementsCompleteDelegate QueryAchievementsDel;
 									//	FOnQueryAchievementsCompleteDelegate QueryAchievementDescriptionsDel;
 
-									//	QueryAchievementsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementsComplete, PlayerInfo);
-									//	QueryAchievementDescriptionsDel.BindUObject(this, &URHUISessionManager::OnQueryAchievementDescriptionsComplete, PlayerInfo);
+									//	QueryAchievementsDel.BindUObject(this, &URHLocalDataSubsystem::OnQueryAchievementsComplete);
+									//	QueryAchievementDescriptionsDel.BindUObject(this, &URHLocalDataSubsystem::OnQueryAchievementDescriptionsComplete);
 
 									//	Achievements->QueryAchievements(*PlayerUniqueNetId.Get(), QueryAchievementsDel);
 									//	Achievements->QueryAchievementDescriptions(*PlayerUniqueNetId.Get(), QueryAchievementDescriptionsDel);
@@ -124,13 +134,10 @@ void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 		}
 	}
 
-	if (SessionData != nullptr)
-	{
-		SessionData->Clear();
-		SessionData->LoggedInTime = FDateTime::UtcNow(); // #RHTODO - PLAT-4591 - We need to actual server timestamp not players local time
-	}
-
-	if (GameInstance != nullptr)
+	Clear();
+	LoggedInTime = FDateTime::UtcNow(); // #RHTODO - PLAT-4591 - We need to actual server timestamp not players local time
+	
+	if (GameInstance)
 	{
 		// Fetch region settings on login
 		if (URH_GameInstanceSubsystem* pGISS = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
@@ -143,40 +150,36 @@ void URHUISessionManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 	}
 }
 
-void URHUISessionManager::OnQueryAchievementsComplete(const FUniqueNetId& UserId, const bool bSuccess, URH_PlayerInfo* PlayerInfo)
+void URHLocalDataSubsystem::OnQueryAchievementsComplete(const FUniqueNetId& UserId, const bool bSuccess)
 {
-	if (URHUISessionData* SessionData = SessionDataPerPlayer.FindRef(PlayerInfo))
-	{
-		SessionData->bHasPlatformAchievements = bSuccess;
-		SessionData->OnPlatformActivitiesReceived.Broadcast();
+	bHasPlatformAchievements = bSuccess;
+	OnPlatformActivitiesReceived.Broadcast();
 
-		if (HasPlatformAchievements(PlayerInfo))
-		{
-			SessionData->OnPlatformActivitiesReady.Broadcast();
-		}
+	if (HasPlatformAchievements())
+	{
+		OnPlatformActivitiesReady.Broadcast();
 	}
 }
 
-void URHUISessionManager::OnQueryAchievementDescriptionsComplete(const FUniqueNetId& UserId, const bool bSuccess, URH_PlayerInfo* PlayerInfo)
+void URHLocalDataSubsystem::OnQueryAchievementDescriptionsComplete(const FUniqueNetId& UserId, const bool bSuccess)
 {
-	if (URHUISessionData* SessionData = SessionDataPerPlayer.FindRef(PlayerInfo))
-	{
-		SessionData->bHasPlatformAchievementDescriptions = bSuccess;
-		SessionData->OnPlatformActivityDescriptionsReceived.Broadcast();
+	bHasPlatformAchievementDescriptions = bSuccess;
+	OnPlatformActivityDescriptionsReceived.Broadcast();
 
-		if (HasPlatformAchievements(PlayerInfo))
-		{
-			SessionData->OnPlatformActivitiesReady.Broadcast();
-		}
+	if (HasPlatformAchievements())
+	{
+		OnPlatformActivitiesReady.Broadcast();
 	}
 }
 
-void URHUISessionManager::ProcessRedemptionRewards(URH_PlayerInfo* PlayerInfo)
+void URHLocalDataSubsystem::ProcessRedemptionRewards()
 {
 	// Traverse the redemption vendor to check for payouts from it
 	URH_CatalogSubsystem* CatalogSubsystem = nullptr;
+	ULocalPlayer* LocalPlayer = GetLocalPlayer();
+	URHGameInstance* GameInstance = LocalPlayer ? Cast<URHGameInstance>(LocalPlayer->GetGameInstance()) : nullptr;
 
-	if (GameInstance != nullptr)
+	if (GameInstance)
 	{
 		if (auto pGISubsystem = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
 		{
@@ -184,7 +187,10 @@ void URHUISessionManager::ProcessRedemptionRewards(URH_PlayerInfo* PlayerInfo)
 		}
 	}
 
-	if (CatalogSubsystem != nullptr)
+	URH_LocalPlayerSubsystem* RHSS = LocalPlayer ? LocalPlayer->GetSubsystem<URH_LocalPlayerSubsystem>() : nullptr;
+	URH_PlayerInfo* PlayerInfo = RHSS != nullptr ? RHSS->GetLocalPlayerInfo() : nullptr;
+
+	if (CatalogSubsystem != nullptr && PlayerInfo != nullptr)
 	{		
 		FRHAPI_Vendor Vendor;
 		if (CatalogSubsystem->GetVendorById(RewardRedemptionVendorId, Vendor))
@@ -197,7 +203,7 @@ void URHUISessionManager::ProcessRedemptionRewards(URH_PlayerInfo* PlayerInfo)
 					
 					if (LootItem.GetActive(false) && LootItem.GetIsClaimableByClient(false) && LootItem.GetSubVendorId(0) != 0)
 					{
-						GetClaimableQuantity(LootItem, CatalogSubsystem, PlayerInfo, 0, 0, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, LootItem, PlayerInfo](int32 QuantityToRedeem)
+						GetClaimableQuantity(LootItem, CatalogSubsystem, PlayerInfo, 0, 0, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, LootItem, PlayerInfo, GameInstance](int32 QuantityToRedeem)
 							{
 								if (QuantityToRedeem > 0)
 								{
@@ -210,13 +216,13 @@ void URHUISessionManager::ProcessRedemptionRewards(URH_PlayerInfo* PlayerInfo)
 									NewPlayerOrderEntry->ExternalTransactionId = "Reward Redemption During Login";
 									PlayerOrderEntries.Push(NewPlayerOrderEntry);
 
-									PlayerInfo->GetPlayerInventory()->CreateNewPlayerOrder(ERHAPI_Source::Client, false, PlayerOrderEntries, FRH_OrderResultDelegate::CreateLambda([this](const URH_PlayerInfo* PlayerInfo, TArray<URH_PlayerOrderEntry*> OrderEntries, const FRHAPI_PlayerOrder& PlayerOrder)
+									PlayerInfo->GetPlayerInventory()->CreateNewPlayerOrder(ERHAPI_Source::Client, false, PlayerOrderEntries, FRH_OrderResultDelegate::CreateLambda([this, GameInstance](const URH_PlayerInfo* PlayerInfo, TArray<URH_PlayerOrderEntry*> OrderEntries, const FRHAPI_PlayerOrder& PlayerOrder)
 										{
-											if (URHOrderManager* OrderManager = GameInstance->GetOrderManager())
+											if (URHOrderSubsystem* OrderSubsystem = GameInstance->GetSubsystem<URHOrderSubsystem>())
 											{
 												TArray<FRHAPI_PlayerOrder> OrderResults;
 												OrderResults.Push(PlayerOrder);
-												OrderManager->OnPlayerOrder(OrderResults, PlayerInfo);
+												OrderSubsystem->OnPlayerOrder(OrderResults, PlayerInfo);
 											}
 										}));
 								}
@@ -228,7 +234,7 @@ void URHUISessionManager::ProcessRedemptionRewards(URH_PlayerInfo* PlayerInfo)
 	}
 }
 
-void URHUISessionManager::GetClaimableQuantity(FRHAPI_Loot LootItem, URH_CatalogSubsystem* CatalogSubsystem, URH_PlayerInfo* PlayerInfo, int32 LootIndex, int32 Quantity, const FRH_GetInventoryCountBlock& Delegate)
+void URHLocalDataSubsystem::GetClaimableQuantity(FRHAPI_Loot LootItem, URH_CatalogSubsystem* CatalogSubsystem, URH_PlayerInfo* PlayerInfo, int32 LootIndex, int32 Quantity, const FRH_GetInventoryCountBlock& Delegate)
 {
 	int32 QuantityToRedeem = Quantity;
 

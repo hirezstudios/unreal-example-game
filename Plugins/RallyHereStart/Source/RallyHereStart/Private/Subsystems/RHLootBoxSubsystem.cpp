@@ -4,33 +4,41 @@
 #include "RH_GameInstanceSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHLootBoxManager.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/RHLootBoxSubsystem.h"
 
-void URHLootBoxManager::Initialize(URHGameInstance* InGameInstance, class URHStoreItemHelper* InStoreItemHelper)
+bool URHLootBoxSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	HasRequestedVendors = false;
-	GameInstance = InGameInstance;
-
-	if (GameInstance)
-	{
-		GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHLootBoxManager::OnLoginPlayerChanged);
-	}
-
-	StoreItemHelper = InStoreItemHelper;
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
 }
 
-void URHLootBoxManager::Uninitialize()
+void URHLootBoxSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	if (GameInstance)
+	StoreSubsystem = Collection.InitializeDependency<URHStoreSubsystem>();
+
+	Super::Initialize(Collection);
+
+	HasRequestedVendors = false;
+
+	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+	{
+		GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHLootBoxSubsystem::OnLoginPlayerChanged);
+	}
+}
+
+void URHLootBoxSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
 		GameInstance->OnLocalPlayerLoginChanged.RemoveAll(this);
 	}
 }
 
-void URHLootBoxManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
+void URHLootBoxSubsystem::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 {
-	if (StoreItemHelper && !HasRequestedVendors)
+	if (StoreSubsystem && !HasRequestedVendors)
 	{
 		HasRequestedVendors = true;
 
@@ -41,29 +49,29 @@ void URHLootBoxManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 			VendorIds.Push(LootBoxsVendorId);
 			VendorIds.Push(LootBoxsRedemptionVendorId);
 
-			StoreItemHelper->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateUObject(this, &URHLootBoxManager::OnStoreVendorsLoaded));
+			StoreSubsystem->RequestVendorData(VendorIds, FRH_CatalogCallDelegate::CreateUObject(this, &URHLootBoxSubsystem::OnStoreVendorsLoaded));
 		}
 	}
 }
 
-void URHLootBoxManager::OnStoreVendorsLoaded(bool bSuccess)
+void URHLootBoxSubsystem::OnStoreVendorsLoaded(bool bSuccess)
 {
-	if (StoreItemHelper)
+	if (StoreSubsystem)
 	{
 		// Fill out a quick lookup of loot ids that are from loot boxes for efficient order handling in future
 		LootBoxLootIds.Empty();
-		LootBoxLootIds.Append(StoreItemHelper->GetLootIdsForVendor(LootBoxsRedemptionVendorId, false, true));
+		LootBoxLootIds.Append(StoreSubsystem->GetLootIdsForVendor(LootBoxsRedemptionVendorId, false, true));
 
 		// Fill out a contents table of unopened loot boxes for quick grabbing if multiple screens may need this info
 		UnopenedLootBoxIdToContents.Empty();
 
-		if (GameInstance != nullptr)
+		if (UGameInstance* GameInstance = GetGameInstance())
 		{
 			if (auto pGISubsystem = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
 			{
 				if (URH_CatalogSubsystem* CatalogSubsystem = pGISubsystem->GetCatalogSubsystem())
 				{
-					TArray<URHStoreItem*> LootBoxs = StoreItemHelper->GetStoreItemsForVendor(LootBoxsVendorId, false, false);
+					TArray<URHStoreItem*> LootBoxs = StoreSubsystem->GetStoreItemsForVendor(LootBoxsVendorId, false, false);
 
 					FRHAPI_Vendor RedemptionVendor;
 					if (CatalogSubsystem->GetVendorById(LootBoxsRedemptionVendorId, RedemptionVendor))
@@ -105,7 +113,7 @@ void URHLootBoxManager::OnStoreVendorsLoaded(bool bSuccess)
 													if (URHLootBoxContents* Contents = NewObject<URHLootBoxContents>())
 													{
 														Contents->LootTableId = *ContentsVendorId;
-														Contents->BundleContents.Append(StoreItemHelper->GetStoreItemsForVendor(Contents->LootTableId, false, false));
+														Contents->BundleContents.Append(StoreSubsystem->GetStoreItemsForVendor(Contents->LootTableId, false, false));
 
 														for (TSoftObjectPtr<URHStoreItem> ContentItem : Contents->BundleContents)
 														{
@@ -142,7 +150,7 @@ void URHLootBoxManager::OnStoreVendorsLoaded(bool bSuccess)
 	}
 }
 
-ELootBoxContentsCategories URHLootBoxManager::GetSubCategoryForItem(URHStoreItem* StoreItem) const
+ELootBoxContentsCategories URHLootBoxSubsystem::GetSubCategoryForItem(URHStoreItem* StoreItem) const
 {
 	static const FGameplayTag AvatarCollectionTag = FGameplayTag::RequestGameplayTag(CollectionNames::AvatarCollectionName);
 	static const FGameplayTag BannerCollectionTag = FGameplayTag::RequestGameplayTag(CollectionNames::BannerCollectionName);
@@ -178,7 +186,7 @@ ELootBoxContentsCategories URHLootBoxManager::GetSubCategoryForItem(URHStoreItem
 	return ELootBoxContentsCategories::LootBoxContents_Other;
 }
 
-FText URHLootBoxManager::GetContentCategoryName(ELootBoxContentsCategories Category)
+FText URHLootBoxSubsystem::GetContentCategoryName(ELootBoxContentsCategories Category)
 {
 	switch (Category)
 	{
@@ -199,7 +207,7 @@ FText URHLootBoxManager::GetContentCategoryName(ELootBoxContentsCategories Categ
 	return FText::FromString("");
 }
 
-URHLootBoxDetails* URHLootBoxManager::GetLootBoxDetails(URHStoreItem* LootBox)
+URHLootBoxDetails* URHLootBoxSubsystem::GetLootBoxDetails(URHStoreItem* LootBox)
 {
 	if (LootBox)
 	{
@@ -209,42 +217,42 @@ URHLootBoxDetails* URHLootBoxManager::GetLootBoxDetails(URHStoreItem* LootBox)
 	return nullptr;
 }
 
-void URHLootBoxManager::CallOnLootBoxOpenStarted()
+void URHLootBoxSubsystem::CallOnLootBoxOpenStarted()
 {
 	OnLootBoxOpenStarted.Broadcast();
 }
 
-void URHLootBoxManager::CallOnLootBoxOpenFailed()
+void URHLootBoxSubsystem::CallOnLootBoxOpenFailed()
 {
 	OnLootBoxOpenFailed.Broadcast();
 }
 
-void URHLootBoxManager::CallOnLootBoxContentsReceived(TArray<UPlatformInventoryItem*>& Items)
+void URHLootBoxSubsystem::CallOnLootBoxContentsReceived(TArray<UPlatformInventoryItem*>& Items)
 {
 	OnLootBoxContentsReceived.Broadcast(Items);
 }
 
-void URHLootBoxManager::CallOnDisplayLootBoxIntro(URHLootBox* LootBox)
+void URHLootBoxSubsystem::CallOnDisplayLootBoxIntro(URHLootBox* LootBox)
 {
 	OnDisplayLootBoxIntro.Broadcast(LootBox);
 }
 
-void URHLootBoxManager::CallOnDisplayLootBoxIntroAndOpen(URHLootBox* LootBox)
+void URHLootBoxSubsystem::CallOnDisplayLootBoxIntroAndOpen(URHLootBox* LootBox)
 {
 	OnDisplayLootBoxIntroAndOpen.Broadcast(LootBox);
 }
 
-void URHLootBoxManager::CallOnLootBoxLeave()
+void URHLootBoxSubsystem::CallOnLootBoxLeave()
 {
 	OnLootBoxLeave.Broadcast();
 }
 
-void URHLootBoxManager::CallOnLootBoxOpeningSequenceComplete()
+void URHLootBoxSubsystem::CallOnLootBoxOpeningSequenceComplete()
 {
 	OnLootBoxOpenSequenceCompleted.Broadcast();
 }
 
-bool URHLootBoxManager::IsFromLootBox(URHStoreItem* StoreItem)
+bool URHLootBoxSubsystem::IsFromLootBox(URHStoreItem* StoreItem)
 {
 	return StoreItem && LootBoxLootIds.Contains(StoreItem->GetLootId());
 }
@@ -253,7 +261,7 @@ TArray<FText> URHLootBoxContents::GetContentsFilterOptions()
 {
 	TArray<FText> Options;
 
-	FString CategoryName = URHLootBoxManager::GetContentCategoryName(ELootBoxContentsCategories::LootBoxContents_All).ToString();
+	FString CategoryName = URHLootBoxSubsystem::GetContentCategoryName(ELootBoxContentsCategories::LootBoxContents_All).ToString();
 	int32 Count = BundleContents.Num();
 
 	Options.Add(FText::FromString(FString::Printf(L"%s (%d)", *CategoryName, Count)));
@@ -264,7 +272,7 @@ TArray<FText> URHLootBoxContents::GetContentsFilterOptions()
 
 		if (ContentsArray)
 		{
-			CategoryName = URHLootBoxManager::GetContentCategoryName(ELootBoxContentsCategories(i)).ToString();
+			CategoryName = URHLootBoxSubsystem::GetContentCategoryName(ELootBoxContentsCategories(i)).ToString();
 			Count = ContentsArray->Num();
 			Options.Add(FText::FromString(FString::Printf(L"%s (%d)", *CategoryName, Count)));
 		}

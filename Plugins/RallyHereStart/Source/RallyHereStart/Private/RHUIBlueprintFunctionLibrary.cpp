@@ -2,8 +2,7 @@
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHGameUserSettings.h"
 #include "Player/Controllers/RHPlayerController.h"
-#include "Managers/RHEventManager.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHEventSubsystem.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "RHUIBlueprintFunctionLibrary.h"
@@ -144,22 +143,6 @@ void URHUIBlueprintFunctionLibrary::RegisterLinearNavigation(URHWidget* ParentWi
 			ParentWidget->RegisterWidgetToInputManager(NavWidgets[i], FocusGroup, PrevWidget, NextWidget, nullptr, nullptr);
 		}
 	}
-}
-
-URHStoreItemHelper* URHUIBlueprintFunctionLibrary::GetStoreItemHelper(const UObject* WorldContextObject)
-{
-    if (WorldContextObject)
-    {
-        if (UWorld* const World = WorldContextObject->GetWorld())
-        {
-            if (URHGameInstance* gameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
-            {
-                return Cast<URHStoreItemHelper>(gameInstance->GetStoreItemHelper());
-            }
-        }
-    }
-
-    return nullptr;
 }
 
 URH_PlayerInfo* URHUIBlueprintFunctionLibrary::GetLocalPlayerInfo(ARHHUDCommon* HUD)
@@ -404,11 +387,11 @@ URHBattlepass* URHUIBlueprintFunctionLibrary::GetActiveBattlepass(const class UO
 	{
 		if (UWorld* const World = WorldContextObject->GetWorld())
 		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+			if (UGameInstance* GameInstance = World->GetGameInstance())
 			{
-				if (URHEventManager* EventManager = GameInstance->GetEventManager())
+				if (URHEventSubsystem* EventSubsystem = GameInstance->GetSubsystem<URHEventSubsystem>())
 				{
-					return EventManager->GetActiveEvent<URHBattlepass>();
+					return EventSubsystem->GetActiveEvent<URHBattlepass>();
 				}
 			}
 		}

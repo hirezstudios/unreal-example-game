@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHOrderManager.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "Managers/RHViewManager.h"
 #include "RHOrderModal.generated.h"
 
@@ -51,7 +51,7 @@ public:
 protected:
 	// get the order manager
 	UFUNCTION(BlueprintPure)
-	URHOrderManager*	GetOrderManager() const;
+	URHOrderSubsystem*	GetOrderSubsystem() const;
 
 	// Returns the header text for the order
 	UFUNCTION(BlueprintPure)

@@ -5,7 +5,7 @@
 #include "Shared/Widgets/RHWidget.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Engine/Texture2DDynamic.h"
-#include "Managers/RHJsonDataFactory.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "RHNewStartMenu.generated.h"
 
 UCLASS(BlueprintType)
@@ -42,5 +42,5 @@ public:
 
 private:
     UFUNCTION(BlueprintPure)
-    URHJsonDataFactory* GetJsonDataFactory();
+    URHNewsSubsystem* GetNewsSubsystem();
 };

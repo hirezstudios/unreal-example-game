@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "RH_CatalogSubsystem.h"
 #include "Inventory/RHProgression.h"
@@ -25,12 +25,12 @@ int32 URHProgression::GetProgressionLevel(const class UObject* WorldContextObjec
 
 	if (UWorld* World = WorldContextObject->GetWorld())
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+			if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 			{
 				FRHAPI_XpTable XpTable;
-				if (StoreItemHelper->GetXpTable(ProgressionXpTableId, XpTable))
+				if (StoreSubsystem->GetXpTable(ProgressionXpTableId, XpTable))
 				{
 					return URH_CatalogBlueprintLibrary::GetLevelAtXp(XpTable, ProgressAmount);
 				}
@@ -50,12 +50,12 @@ float URHProgression::GetProgressionLevelPercent(const class UObject* WorldConte
 
 	if (UWorld* World = WorldContextObject->GetWorld())
 	{
-		if (URHGameInstance* GameInstance = Cast< URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+			if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 			{
 				FRHAPI_XpTable XpTable;
-				if (StoreItemHelper->GetXpTable(ProgressionXpTableId, XpTable))
+				if (StoreSubsystem->GetXpTable(ProgressionXpTableId, XpTable))
 				{
 					float CurrentXpCount = ProgressAmount;
 					int32 PlayerLevel = URH_CatalogBlueprintLibrary::GetLevelAtXp(XpTable, CurrentXpCount);

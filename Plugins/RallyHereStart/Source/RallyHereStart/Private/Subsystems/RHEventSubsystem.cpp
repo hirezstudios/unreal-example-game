@@ -1,40 +1,43 @@
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 #include "GameFramework/RHGameInstance.h"
 #include "RH_GameInstanceSubsystem.h"
-#include "Managers/RHEventManager.h"
+#include "Subsystems/RHEventSubsystem.h"
 
-void URHEventManager::Initialize()
+bool URHEventSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	if (EventManagerDataTableClassName.ToString().Len() > 0)
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
+}
+
+void URHEventSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (EventSubsystemDataTableClassName.ToString().Len() > 0)
 	{
-		EventsDataDT = LoadObject<UDataTable>(nullptr, *EventManagerDataTableClassName.ToString(), nullptr, LOAD_None, nullptr);
+		EventsDataDT = LoadObject<UDataTable>(nullptr, *EventSubsystemDataTableClassName.ToString(), nullptr, LOAD_None, nullptr);
 	}
 
 	bEventsInitialized = false;
 
-	if (UWorld* World = GetWorld())
+	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
-		{
-			GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHEventManager::OnLoginPlayerChanged);
-		}
+		GameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHEventSubsystem::OnLoginPlayerChanged);
 	}
 }
 
-void URHEventManager::Uninitialize()
+void URHEventSubsystem::Deinitialize()
 {
-	if (UWorld* World = GetWorld())
+	Super::Deinitialize();
+
+	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
-		{
-			GameInstance->OnLocalPlayerLoginChanged.RemoveAll(this);
-		}
+		GameInstance->OnLocalPlayerLoginChanged.RemoveAll(this);
 	}
 }
 
-void URHEventManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
+void URHEventSubsystem::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 {
 	if (!bEventsInitialized)
 	{
@@ -60,9 +63,12 @@ void URHEventManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 
 		if (VendorIdsToRequest.Num() > 0)
 		{
-			if (URHStoreItemHelper* StoreItemHelper = URHUIBlueprintFunctionLibrary::GetStoreItemHelper(this))
+			if (UGameInstance* GameInstance = GetGameInstance())
 			{
-				StoreItemHelper->RequestVendorData(VendorIdsToRequest);
+				if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
+				{
+					StoreSubsystem->RequestVendorData(VendorIdsToRequest);
+				}
 			}
 		}
 
@@ -70,7 +76,7 @@ void URHEventManager::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 	}
 }
 
-URHEvent* URHEventManager::GetEventByTag(FName EventTag) const
+URHEvent* URHEventSubsystem::GetEventByTag(FName EventTag) const
 {
 	if (EventsDataDT != nullptr)
 	{
@@ -89,7 +95,7 @@ URHEvent* URHEventManager::GetEventByTag(FName EventTag) const
 	return nullptr;
 }
 
-bool URHEventManager::IsEventActive(FName EventTag) const
+bool URHEventSubsystem::IsEventActive(FName EventTag) const
 {
 	if (IsEventPastStartDate(EventTag) && IsEventBeforeEndDate(EventTag))
 	{
@@ -99,7 +105,7 @@ bool URHEventManager::IsEventActive(FName EventTag) const
 	return false;
 }
 
-bool URHEventManager::IsEventPastStartDate(FName EventTag) const
+bool URHEventSubsystem::IsEventPastStartDate(FName EventTag) const
 {
 	FDateTime StartTime = GetEventStartTime(EventTag);
 	FDateTime CurrentTime = GetCurrentTime();
@@ -115,7 +121,7 @@ bool URHEventManager::IsEventPastStartDate(FName EventTag) const
 	return false;
 }
 
-bool URHEventManager::IsEventBeforeEndDate(FName EventTag) const
+bool URHEventSubsystem::IsEventBeforeEndDate(FName EventTag) const
 {
 	FDateTime EndTime = GetEventEndTime(EventTag);
 	FDateTime CurrentTime = GetCurrentTime();
@@ -131,12 +137,12 @@ bool URHEventManager::IsEventBeforeEndDate(FName EventTag) const
 	return false;
 }
 
-FDateTime URHEventManager::GetCurrentTime() const
+FDateTime URHEventSubsystem::GetCurrentTime() const
 {
 	return FDateTime::UtcNow();
 }
 
-FDateTime URHEventManager::GetEventStartTime(FName EventTag) const
+FDateTime URHEventSubsystem::GetEventStartTime(FName EventTag) const
 {
 	FDateTime TimeStart;
 	FString TimeStartStr;
@@ -150,7 +156,7 @@ FDateTime URHEventManager::GetEventStartTime(FName EventTag) const
 	return TimeStart;
 }
 
-FDateTime URHEventManager::GetEventEndTime(FName EventTag) const
+FDateTime URHEventSubsystem::GetEventEndTime(FName EventTag) const
 {
 	FDateTime TimeEnd;
 	FString TimeEndStr;
@@ -164,7 +170,7 @@ FDateTime URHEventManager::GetEventEndTime(FName EventTag) const
 	return TimeEnd;
 }
 
-URH_ConfigSubsystem* URHEventManager::GetConfigSubsystem() const
+URH_ConfigSubsystem* URHEventSubsystem::GetConfigSubsystem() const
 {
 	if (UWorld* World = GetWorld())
 	{

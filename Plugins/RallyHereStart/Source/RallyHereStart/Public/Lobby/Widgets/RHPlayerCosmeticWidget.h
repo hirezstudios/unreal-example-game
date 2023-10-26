@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHStoreItemHelper.h"
-
 #include "RHPlayerCosmeticWidget.generated.h"
 
 DECLARE_DELEGATE(FRH_OnOwnershipCheckCompleteDelegate);

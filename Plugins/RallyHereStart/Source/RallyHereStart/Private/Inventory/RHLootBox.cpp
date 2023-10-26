@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "Inventory/RHLootBox.h"
 
@@ -15,25 +15,25 @@ URHLootBox::URHLootBox(const FObjectInitializer& ObjectInitializer /*= FObjectIn
 
 void URHLootBox::CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryStateBlock& Delegate)
 {
-	URHStoreItemHelper* StoreItemHelper = nullptr;
+	URHStoreSubsystem* StoreSubsystem = nullptr;
 	
 	if (UWorld* const World = GetWorld())
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			StoreItemHelper = GameInstance->GetStoreItemHelper();
+			StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>();
 		}
 	}
 
-	if (StoreItemHelper == nullptr)
+	if (StoreSubsystem == nullptr)
 	{
 		Delegate.ExecuteIfBound(false);
 		return;
 	}
 
-	GetQuantityOwned(PlayerInfo, FRH_GetInventoryCountDelegate::CreateLambda([this, PlayerInfo, Delegate, StoreItemHelper](int32 ItemsToOwn)
+	GetQuantityOwned(PlayerInfo, FRH_GetInventoryCountDelegate::CreateLambda([this, PlayerInfo, Delegate, StoreSubsystem](int32 ItemsToOwn)
 		{
-			TArray<URHStoreItem*> StoreItems = StoreItemHelper->GetStoreItemsForVendor(LootBoxVendorId, false, true);
+			TArray<URHStoreItem*> StoreItems = StoreSubsystem->GetStoreItemsForVendor(LootBoxVendorId, false, true);
 			TArray<URHStoreItem*> StoreItemsToCheck;
 
 			for (URHStoreItem* StoreItem : StoreItems)

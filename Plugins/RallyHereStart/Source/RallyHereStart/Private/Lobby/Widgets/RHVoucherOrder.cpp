@@ -2,7 +2,7 @@
 
 #include "RallyHereStart.h"
 #include "Managers/RHPopupManager.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
 #include "Lobby/Widgets/RHVoucherOrder.h"
@@ -33,11 +33,11 @@ void URHVoucherOrder::DisplayVoucherRedemptionFailed()
 
 void URHVoucherOrder::GetVoucherOrders(const FRH_GetAffordableItemsInVendorDynamicDelegate& Delegate)
 {
-    if (ARHLobbyHUD* LobbyHUD = Cast<ARHLobbyHUD>(MyHud))
-    {
-        if (URHStoreItemHelper* StoreItemHelper = LobbyHUD->GetItemHelper())
-        {
-			StoreItemHelper->GetAffordableVoucherItems(MyHud->GetLocalPlayerInfo(), Delegate);
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
+		{
+			StoreSubsystem->GetAffordableVoucherItems(MyHud->GetLocalPlayerInfo(), Delegate);
         }
     }
 }
@@ -71,11 +71,11 @@ void URHVoucherOrder::RedeemVouchers(TArray<URHStoreItem*> VoucherItems, const F
 		{
 			if (RedeemVouchersHelper->PurchaseRequests.Num())
 			{
-				if (ARHLobbyHUD* LobbyHUD = Cast<ARHLobbyHUD>(MyHud))
+				if (UGameInstance* GameInstance = GetGameInstance())
 				{
-					if (URHStoreItemHelper* StoreItemHelper = LobbyHUD->GetItemHelper())
+					if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 					{
-						StoreItemHelper->SubmitFinalPurchase(RedeemVouchersHelper->PurchaseRequests, Delegate);
+						StoreSubsystem->SubmitFinalPurchase(RedeemVouchersHelper->PurchaseRequests, Delegate);
 						RedeemVouchersHelper = nullptr;
 						return;
 					}

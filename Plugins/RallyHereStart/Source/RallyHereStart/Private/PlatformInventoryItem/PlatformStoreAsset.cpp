@@ -5,7 +5,7 @@
 #include "PlatformInventoryItem/PInv_AssetManager.h"
 #include "PlatformInventoryItem/PInv_Delegates.h"
 #include "GameFramework/RHGameInstance.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "RH_CatalogSubsystem.h"
 
@@ -56,14 +56,14 @@ void UPlatformStoreAsset::IsOwned(const URH_PlayerInfo* PlayerInfo, const FRH_Ge
 		return;
 	}
 
-	URHStoreItemHelper* StoreItemHelper = nullptr;
+	URHStoreSubsystem* StoreSubsystem = nullptr;
 	URH_CatalogSubsystem* CatalogSubsystem = nullptr;
 
 	if (UWorld* const World = PlayerInfo->GetWorld())
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			StoreItemHelper = Cast<URHStoreItemHelper>(GameInstance->GetStoreItemHelper());
+			StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>();
 
 			if (auto pGISubsystem = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
 			{
@@ -73,7 +73,7 @@ void UPlatformStoreAsset::IsOwned(const URH_PlayerInfo* PlayerInfo, const FRH_Ge
 		}
 	}
 
-	if (StoreItemHelper == nullptr || CatalogSubsystem == nullptr)
+	if (StoreSubsystem == nullptr || CatalogSubsystem == nullptr)
 	{
 		Delegate.ExecuteIfBound(false);
 		return;
@@ -85,7 +85,7 @@ void UPlatformStoreAsset::IsOwned(const URH_PlayerInfo* PlayerInfo, const FRH_Ge
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{
 			// If we are a bundle, we need to search through all contents and make sure the player owns all items.
-			TArray<URHStoreItem*> StoreItems = StoreItemHelper->GetStoreItemsForVendor(*SubVendorId, false, true);
+			TArray<URHStoreItem*> StoreItems = StoreSubsystem->GetStoreItemsForVendor(*SubVendorId, false, true);
 			TArray<URHStoreItem*> StoreItemsToCheck;
 
 			for (int32 i = 0; i < StoreItems.Num(); ++i)
@@ -138,14 +138,14 @@ void UPlatformStoreAsset::CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH
 		return;
 	}
 
-	URHStoreItemHelper* StoreItemHelper = nullptr;
+	URHStoreSubsystem* StoreSubsystem = nullptr;
 	URH_CatalogSubsystem* CatalogSubsystem = nullptr;
 
 	if (UWorld* const World = PlayerInfo->GetWorld())
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			StoreItemHelper = Cast<URHStoreItemHelper>(GameInstance->GetStoreItemHelper());
+			StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>();
 
 			if (auto pGISubsystem = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
 			{
@@ -155,7 +155,7 @@ void UPlatformStoreAsset::CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH
 		}
 	}
 
-	if (StoreItemHelper == nullptr || CatalogSubsystem == nullptr)
+	if (StoreSubsystem == nullptr || CatalogSubsystem == nullptr)
 	{
 		Delegate.ExecuteIfBound(false);
 		return;
@@ -166,7 +166,7 @@ void UPlatformStoreAsset::CanOwnMore(const URH_PlayerInfo* PlayerInfo, const FRH
 	{
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{
-			TArray<URHStoreItem*> StoreItems = StoreItemHelper->GetStoreItemsForVendor(*SubVendorId, false, true);
+			TArray<URHStoreItem*> StoreItems = StoreSubsystem->GetStoreItemsForVendor(*SubVendorId, false, true);
 			TArray<URHStoreItem*> StoreItemsToCheck;
 
 			for (int32 i = 0; i < StoreItems.Num(); ++i)

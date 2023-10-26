@@ -3,7 +3,8 @@
 #include "RallyHereStart.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
 #include "GameFramework/RHGameInstance.h"
-#include "Managers/RHOrderManager.h"
+#include "Subsystems/RHNewsSubsystem.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "Managers/RHViewManager.h"
 #include "Lobby/Widgets/RHOrderModal.h"
 
@@ -11,11 +12,11 @@ bool URHOrderViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTa
 {
 	if (UWorld* World = GetWorld())
 	{
-		if (URHGameInstance* GameInstance = World->GetGameInstance<URHGameInstance>())
+		if (UGameInstance* GameInstance = World->GetGameInstance<UGameInstance>())
 		{
-			if (URHOrderManager* OrderManager = GameInstance->GetOrderManager())
+			if (URHOrderSubsystem* OrderSubsystem = GameInstance->GetSubsystem<URHOrderSubsystem>())
 			{
-				if (OrderManager->CanViewRedirectToOrder(ValidOrderTypes))
+				if (OrderSubsystem->CanViewRedirectToOrder(ValidOrderTypes))
 				{
 					if (URHViewManager* ViewManager = HUD->GetViewManager())
 					{
@@ -24,7 +25,7 @@ bool URHOrderViewRedirector::ShouldRedirect(ARHHUDCommon* HUD, const FGameplayTa
 						{
 							if (!ViewRoute.BlockOrders)
 							{
-								SceneData = OrderManager->GetNextOrder();
+								SceneData = OrderSubsystem->GetNextOrder();
 								return true;
 							}
 						}
@@ -44,9 +45,9 @@ void URHOrderModal::InitializeWidget_Implementation()
 	// Json Overrides - If we forget to update the data, this allows us to on the fly add in a header whenever needed.
 	if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
-		if (URHJsonDataFactory* JsonDataFactory = Cast<URHJsonDataFactory>(GameInstance->GetJsonDataFactory()))
+		if (URHNewsSubsystem* pNewsSubsystem = Cast<URHNewsSubsystem>(GameInstance->GetSubsystem<URHNewsSubsystem>()))
 		{
-			TSharedPtr<FJsonObject> OrderHeaderOverrides = JsonDataFactory->GetJsonPanelByName(TEXT("store"));
+			TSharedPtr<FJsonObject> OrderHeaderOverrides = pNewsSubsystem->GetJsonPanelByName(TEXT("store"));
 
 			if (OrderHeaderOverrides.IsValid())
 			{
@@ -65,7 +66,7 @@ void URHOrderModal::InitializeWidget_Implementation()
 							if (OverrideObj.Get()->TryGetObjectField(TEXT("header"), ObjectField))
 							{
 								const TArray<TSharedPtr<FJsonValue>>* OverrideLootIds;
-								FText HeaderOverride = FText::FromString(URHJsonDataFactory::GetLocalizedStringFromObject(ObjectField));
+								FText HeaderOverride = FText::FromString(URHNewsSubsystem::GetLocalizedStringFromObject(ObjectField));
 
 								if (OverrideObj.Get()->TryGetArrayField(TEXT("overrideLootIds"), OverrideLootIds))
 								{
@@ -87,15 +88,15 @@ void URHOrderModal::InitializeWidget_Implementation()
 	}
 }
 
-URHOrderManager* URHOrderModal::GetOrderManager() const
+URHOrderSubsystem* URHOrderModal::GetOrderSubsystem() const
 {
     if (MyHud.IsValid())
     {
-        return MyHud->GetOrderManager();
+        return MyHud->GetOrderSubsystem();
     }
     else
     {
-        UE_LOG(RallyHereStart, Warning, TEXT("URHOrderModal::OrderManager Warning: MyHud is not currently valid."));
+        UE_LOG(RallyHereStart, Warning, TEXT("URHOrderModal::GetOrderSubsystem Warning: MyHud is not currently valid."));
     }
     return nullptr;
 }

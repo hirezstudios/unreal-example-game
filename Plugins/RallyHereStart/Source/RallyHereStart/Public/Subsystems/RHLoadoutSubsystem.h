@@ -7,7 +7,8 @@
 #include "Engine/StreamableManager.h"
 #include "Inventory/RHLoadoutTypes.h"
 #include "RH_PlayerInfoSubsystem.h"
-#include "RHLoadoutDataFactory.generated.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "RHLoadoutSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSavedSeenAcquiredItemsUpdated);
 
@@ -254,7 +255,7 @@ public:
 };
 
 UCLASS(Config=Game)
-class RALLYHERESTART_API URHLoadoutDataFactory : public UObject
+class RALLYHERESTART_API URHLoadoutSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
@@ -262,19 +263,8 @@ class RALLYHERESTART_API URHLoadoutDataFactory : public UObject
 * initialization and bootstrapping
 */
 public:
-
-	virtual void Initialize();
-    virtual void PostLogin();
-    virtual void PostLogoff();
-
-/*
-* Getters
-*/
-public:
-
-	UFUNCTION(BlueprintPure, Category = "Loadout")
-	static URHLoadoutDataFactory* GetRHLoadoutDataFactory(const UObject* WorldContextObject);
-	static URHLoadoutDataFactory* Get(const UWorld* MyWorld);
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 /*
 * interface

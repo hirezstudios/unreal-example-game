@@ -6,12 +6,10 @@
 #include "Lobby/Widgets/RHLobbyWidget.h"
 #include "Online.h"
 #include "DataFactories/RHSettingsDataFactory.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHJsonDataFactory.h"
-#include "Managers/RHLoadoutDataFactory.h"
-#include "Managers/RHOrderManager.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "Managers/RHPopupManager.h"
-#include "Managers/RHUISessionManager.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
 
 ARHLobbyHUD::ARHLobbyHUD(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -159,10 +157,13 @@ void ARHLobbyHUD::HandleLoginStateChange(ERHLoginState LoginState)
 				QueueDataFactory->PostLogin();
 			}
 
-            if (URHStoreItemHelper* StoreItemHelper = GetItemHelper())
-            {
-                StoreItemHelper->OnNotEnoughCurrency.AddDynamic(this, &ARHLobbyHUD::OnNotEnoughCurrency);
-                StoreItemHelper->GetUpdatedStoreContents();
+			if (UGameInstance* GameInstance = GetGameInstance())
+			{
+				if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
+				{
+					StoreSubsystem->OnNotEnoughCurrency.AddDynamic(this, &ARHLobbyHUD::OnNotEnoughCurrency);
+					StoreSubsystem->GetUpdatedStoreContents();
+				}
             }
 
             if (ViewManager)
@@ -174,15 +175,12 @@ void ARHLobbyHUD::HandleLoginStateChange(ERHLoginState LoginState)
             SettingsFactory->PostLogin();
 
 			LoggedInPlayerInfo = GetLocalPlayerInfo();
-
-			if (LoggedInPlayerInfo != nullptr)
+			
+			if (URHOrderSubsystem* OrderSubsystem = GetOrderSubsystem())
 			{
-				if (URHOrderManager* OrderManager = GetOrderManager())
+				if (URHLocalDataSubsystem* LocalDataSubsystem = GetLocalDataSubsystem())
 				{
-					if (URHUISessionManager* SessionManager = GetUISessionManager())
-					{
-						OrderManager->SetOrderWatchForPlayer(LoggedInPlayerInfo, SessionManager->GetPlayerLoggedInTime(LoggedInPlayerInfo));
-					}
+					OrderSubsystem->SetOrderWatchForPlayer(LoggedInPlayerInfo, LocalDataSubsystem->GetPlayerLoggedInTime());
 				}
 			}
 
@@ -200,9 +198,12 @@ void ARHLobbyHUD::HandleLoginStateChange(ERHLoginState LoginState)
 				QueueDataFactory->PostLogoff();
 			}
 
-            if (URHStoreItemHelper* StoreItemHelper = GetItemHelper())
-            {
-                StoreItemHelper->OnNotEnoughCurrency.RemoveDynamic(this, &ARHLobbyHUD::OnNotEnoughCurrency);
+			if (UGameInstance* GameInstance = GetGameInstance())
+			{
+				if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
+				{
+					StoreSubsystem->OnNotEnoughCurrency.RemoveDynamic(this, &ARHLobbyHUD::OnNotEnoughCurrency);
+				}
             }
 
             if (ViewManager)
@@ -216,9 +217,9 @@ void ARHLobbyHUD::HandleLoginStateChange(ERHLoginState LoginState)
 
 			if (LoggedInPlayerInfo != nullptr)
 			{
-				if (URHOrderManager* OrderManager = GetOrderManager())
+				if (URHOrderSubsystem* OrderSubsystem = GetOrderSubsystem())
 				{
-					OrderManager->ClearOrderWatchForPlayer(LoggedInPlayerInfo);
+					OrderSubsystem->ClearOrderWatchForPlayer(LoggedInPlayerInfo);
 				}
 
 				LoggedInPlayerInfo = nullptr;
@@ -333,16 +334,6 @@ void ARHLobbyHUD::SetUIFocus_Implementation()
 
     UE_LOG(RallyHereStart, Verbose, TEXT("ARHLobbyHUD::SetUIFocus_Implementation() finished"));
     UE_LOG(RallyHereStart, Verbose, TEXT("============================================================"));
-}
-
-URHJsonDataFactory* ARHLobbyHUD::GetJsonDataFactory() const
-{
-    if (URHGameInstance* gameInstance = Cast<URHGameInstance>(GetGameInstance()))
-    {
-        return gameInstance->GetJsonDataFactory();
-    }
-
-    return nullptr;
 }
 
 /*

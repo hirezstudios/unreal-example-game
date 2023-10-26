@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataFactories/RHDataFactory.h"
 #include "Inventory/RHProgression.h"
 #include "RH_PlayerInfoSubsystem.h"
-#include "Shared/HUD/RHHUDCommon.h"
 #include "Templates/SharedPointer.h"
-#include "RHJsonDataFactory.generated.h"
-
-class URHGameInstance;
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "RHNewsSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FJsonPanelUpdated, const FString&, JsonName);
 
@@ -109,7 +106,7 @@ public:
 	URH_PlayerInfo* PlayerInfo;
 
 	UPROPERTY()
-	URHJsonDataFactory* JsonDataFactory;
+	TWeakObjectPtr<URHNewsSubsystem> NewsSubsystem;
 
 private:
 	void OnGetShouldShowResponse(bool bShouldShow, URHJsonData* JsonData);
@@ -151,15 +148,13 @@ private:
 DECLARE_DELEGATE_OneParam(FOnShouldShow, bool);
 
 UCLASS(Config = game)
-class RALLYHERESTART_API URHJsonDataFactory : public URHDataFactory
+class RALLYHERESTART_API URHNewsSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-	virtual void Initialize(ARHHUDCommon* InHud) override;
-	virtual void Uninitialize() override;
-
-	virtual bool IsLoggedIn() override;
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     UTexture2DDynamic* GetTextureByRemoteURL(const TSharedPtr<FJsonObject>* ImageUrlJson);
 
@@ -176,8 +171,6 @@ public:
 
     TSharedPtr<FJsonObject> GetJsonPanelByName(const FString& name);
 
-	URH_PlayerInfo* GetLocalPlayerInfo() const { return MyHud->GetLocalPlayerInfo(); };
-
 	UPROPERTY()
 	TMap<FString, UTexture2DDynamic*> MapFilePathToTexture;
 
@@ -185,8 +178,6 @@ public:
 	TMap<FString, TWeakObjectPtr<UTexture2DDynamic>> FilePathToWeakTexture;
 
 	TMap<FString, FString> MapRemoteUrlToFilePath;
-
-	TWeakObjectPtr<URHGameInstance> GameInstance;
 
 	FJsonPanelUpdated JsonPanelUpdated;
 
@@ -207,7 +198,6 @@ protected:
 
 private:
 	void TryLoadLandingPanels();
-	void OnLocalPlayerLoginChanged(ULocalPlayer* LocalPlayer);
 
 	UPROPERTY(config)
 	FSoftObjectPath PlayerProgressionXpClass;

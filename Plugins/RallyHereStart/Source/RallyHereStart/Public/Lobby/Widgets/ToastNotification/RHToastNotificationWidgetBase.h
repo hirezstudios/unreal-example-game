@@ -8,6 +8,8 @@
 #include "Managers/RHPartyManager.h"
 #include "RHToastNotificationWidgetBase.generated.h"
 
+class URHStoreItem;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnToastReceived);
 
 UENUM(BlueprintType)

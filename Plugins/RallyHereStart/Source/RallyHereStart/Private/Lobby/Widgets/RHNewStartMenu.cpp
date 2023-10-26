@@ -2,7 +2,7 @@
 
 #include "RallyHereStart.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
-#include "Managers/RHJsonDataFactory.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "Lobby/Widgets/RHNewStartMenu.h"
 
 void URHNewStartMenuWidget::InitializeWidget_Implementation()
@@ -17,11 +17,11 @@ void URHNewStartMenuWidget::UninitializeWidget_Implementation()
 
 void URHNewStartMenuWidget::CheckIsNewsAvailable(FOnGetIsNewsAvailableBlock Delegate /*= FOnGetIsNewsAvailableBlock()*/)
 {
-	if (URHJsonDataFactory* pJsonDataFactory = GetJsonDataFactory())
+	if (URHNewsSubsystem* pNewsSubsystem = GetNewsSubsystem())
 	{
 		TArray<URHJsonData*> DataToCheck;
 
-		TSharedPtr<FJsonObject> LandingPanelJson = pJsonDataFactory->GetJsonPanelByName(TEXT("landingpanel"));
+		TSharedPtr<FJsonObject> LandingPanelJson = pNewsSubsystem->GetJsonPanelByName(TEXT("landingpanel"));
 
 		if (LandingPanelJson.IsValid())
 		{
@@ -47,10 +47,10 @@ void URHNewStartMenuWidget::CheckIsNewsAvailable(FOnGetIsNewsAvailableBlock Dele
 								{
 									const TSharedPtr<FJsonObject>* ObjectField;
 
-									pJsonDataFactory->LoadData(Panel, WhatsNewPanelObj);
+									pNewsSubsystem->LoadData(Panel, WhatsNewPanelObj);
 									if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("imageUrl"), ObjectField))
 									{
-										Panel->Image = pJsonDataFactory->GetTextureByRemoteURL(ObjectField);
+										Panel->Image = pNewsSubsystem->GetTextureByRemoteURL(ObjectField);
 
 										if (Panel->Image)
 										{
@@ -65,7 +65,7 @@ void URHNewStartMenuWidget::CheckIsNewsAvailable(FOnGetIsNewsAvailableBlock Dele
 			}
 		}
 
-		pJsonDataFactory->CheckShouldShowForPlayer(DataToCheck, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
+		pNewsSubsystem->CheckShouldShowForPlayer(DataToCheck, MyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this, Delegate](FRHShouldShowPanelsWrapper Wrapper)
 			{
 				for (const auto& pair : Wrapper.ShouldShowByPanel)
 				{
@@ -81,23 +81,15 @@ void URHNewStartMenuWidget::CheckIsNewsAvailable(FOnGetIsNewsAvailableBlock Dele
 	}
 }
 
-URHJsonDataFactory* URHNewStartMenuWidget::GetJsonDataFactory()
+URHNewsSubsystem* URHNewStartMenuWidget::GetNewsSubsystem()
 {
-	if (MyHud.IsValid())
+	if (UGameInstance* GameInstance = GetGameInstance())
 	{
-		if (ARHLobbyHUD* LobbyHud = Cast<ARHLobbyHUD>(MyHud))
-		{
-			return Cast<URHJsonDataFactory>(LobbyHud->GetJsonDataFactory());
-		}
-		else
-		{
-			UE_LOG(RallyHereStart, Warning, TEXT("URHNewStartMainWidget::GetJsonDataFactory Warning: MyHud failed to cast to ARHLobbyHUD."));
-		}
+		return GameInstance->GetSubsystem<URHNewsSubsystem>();
 	}
 	else
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHNewStartMainWidget::GetJsonDataFactory Warning: MyHud is not currently valid."));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHNewStartMenuWidget::GetNewsSubsystem Warning: GameInstance  is not currently valid."));
 	}
-
 	return nullptr;
 }

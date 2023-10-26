@@ -4,8 +4,7 @@
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
 #include "Engine/Texture2DDynamic.h"
-#include "Managers/RHJsonDataFactory.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "RHNewsRotatorWidget.generated.h"
 
 UENUM(BlueprintType)
@@ -101,5 +100,5 @@ protected:
 
 private:
     UFUNCTION(BlueprintPure)
-    URHJsonDataFactory* GetJsonDataFactory();
+    URHNewsSubsystem* GetNewsSubsystem();
 };

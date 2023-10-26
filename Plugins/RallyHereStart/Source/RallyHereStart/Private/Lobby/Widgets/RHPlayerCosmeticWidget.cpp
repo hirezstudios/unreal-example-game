@@ -4,6 +4,7 @@
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Inventory/RHLoadoutTypes.h"
 #include "Lobby/Widgets/RHPlayerCosmeticWidget.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
 
 bool URHPlayerCosmeticWidget::GetItemsForSlot(FOnGetCosmeticItems Event, ERHLoadoutSlotTypes SlotType)

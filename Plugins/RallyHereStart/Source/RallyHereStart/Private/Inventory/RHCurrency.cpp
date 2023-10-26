@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Inventory/RHCurrency.h"
 
 URHCurrency::URHCurrency(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)

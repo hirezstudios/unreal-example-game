@@ -2,7 +2,8 @@
 #include "Engine/DataTable.h"
 #include "Inventory/RHEvent.h"
 #include "RH_ConfigSubsystem.h"
-#include "RHEventManager.generated.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "RHEventSubsystem.generated.h"
 
 USTRUCT(BlueprintType)
 struct FRHEventData : public FTableRowBase
@@ -18,16 +19,14 @@ struct FRHEventData : public FTableRowBase
 };
 
 UCLASS(Config = Game)
-class RALLYHERESTART_API URHEventManager : public UObject
+class RALLYHERESTART_API URHEventSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    // Initialize the Event Manager
-    virtual void Initialize();
-
-    // Clean Up the Event Manager
-    virtual void Uninitialize();
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	// Finds the first active event of the given type
 	template <typename T>
@@ -88,7 +87,7 @@ public:
 protected:
 	/** Path to the DataTable to load, configurable per game. If empty, it will not spawn one */
 	UPROPERTY(Config)
-	FSoftObjectPath EventManagerDataTableClassName;
+	FSoftObjectPath EventSubsystemDataTableClassName;
 
 	// Table of all available Context Actions
 	UPROPERTY(Transient)

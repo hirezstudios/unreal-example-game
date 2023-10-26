@@ -23,6 +23,6 @@ public:
 
 	virtual void AppendRequiredLootTableIds(TArray<int32>& LootTableIds) { }
 
-	// The Tag associated with the event, when loaded is set by the EventManager
+	// The Tag associated with the event, when loaded is set by the EventSubsystem
 	FName EventTag;
 };

@@ -1,9 +1,10 @@
 #pragma once
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RH_PlayerInfoSubsystem.h"
 #include "RallyHereAPI/Public/PlatformID.h"
-#include "RHOrderManager.generated.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "RHOrderSubsystem.generated.h"
 
 UENUM(BlueprintType)
 enum class ERHOrderType : uint8
@@ -100,13 +101,13 @@ public:
 };
 
 UCLASS(Config = Game)
-class RALLYHERESTART_API URHOrderManager : public UObject, public FTickableGameObject
+class RALLYHERESTART_API URHOrderSubsystem : public UGameInstanceSubsystem, public FTickableGameObject
 {
     GENERATED_BODY()
 
 public:
-	void Initialize(class URHStoreItemHelper* InStoreItemHelper);
-	void Uninitialize();
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	void SetOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo, const FDateTime& FirstValidTime);
 	void ClearOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo);
@@ -145,7 +146,7 @@ public:
 
 protected:
 
-	// Called whenever a purchase has completed in the StoreItemHelper
+	// Called whenever a purchase has completed in the StoreSubsystem
 	void OnPendingPurchaseReceived(const URH_PlayerInfo* PlayerInfo, const FRHAPI_PlayerOrder& PlayerOrderResult);
 
     // Checks various rules to tell if we currently can push a new order or if it goes on the queue
@@ -171,9 +172,8 @@ protected:
     UPROPERTY(Transient)
     URHOrder* PendingOrder;
 
-	// Pointer to the Store Item Helper
 	UPROPERTY(Transient)
-	URHStoreItemHelper* StoreItemHelper;
+	TObjectPtr<URHStoreSubsystem> StoreSubsystem;
 
 	UPROPERTY(Transient)
 	TArray<FRH_ActiveOrderWatch> ActiveOrderWatches;

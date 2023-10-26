@@ -6,7 +6,7 @@
 #include "Inventory/IconInfo.h"
 #include "Inventory/RHEvent.h"
 #include "RH_PlayerInventory.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RHBattlepass.generated.h"
 
 UENUM(BlueprintType)
@@ -144,7 +144,7 @@ public:
 
 protected:
 
-	URHStoreItemHelper* GetStoreItemHelper(const UObject* WorldContextObject);
+	URHStoreSubsystem* GetStoreSubsystem(const UObject* WorldContextObject);
 
 	// Flags the battlepass as fully loaded
 	void RewardAssetsFullyLoaded();

@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "RH_PlayerInfoSubsystem.h"
 #include "RH_CatalogSubsystem.h"
@@ -47,12 +47,12 @@ void URHBattlepass::GetCurrentLevel(URH_PlayerInfo* PlayerInfo, const FRH_GetInv
 	{
 		if (UWorld* World = PlayerInfo->GetWorld())
 		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+			if (UGameInstance* GameInstance = World->GetGameInstance())
 			{
-				if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+				if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 				{
 					FRHAPI_XpTable XpTable;
-					if (StoreItemHelper->GetXpTable(XpTableId, XpTable))
+					if (StoreSubsystem->GetXpTable(XpTableId, XpTable))
 					{
 						if (URH_PlayerInventory* PlayerInventory = PlayerInfo->GetPlayerInventory())
 						{
@@ -78,12 +78,12 @@ int32 URHBattlepass::GetLevelCount(const UObject* WorldContextObject) const
 
 		if (World != nullptr)
 		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+			if (UGameInstance* GameInstance = World->GetGameInstance())
 			{
-				if (URHStoreItemHelper* StoreItemHelper = GameInstance->GetStoreItemHelper())
+				if (URHStoreSubsystem* StoreSubsystem = GameInstance->GetSubsystem<URHStoreSubsystem>())
 				{
 					FRHAPI_XpTable XpTable;
-					if (StoreItemHelper->GetXpTable(XpTableId, XpTable))
+					if (StoreSubsystem->GetXpTable(XpTableId, XpTable))
 					{
 						if (const auto& Entries = XpTable.GetXpEntriesOrNull())
 						{
@@ -103,11 +103,11 @@ TArray<URHBattlepassLevel*> URHBattlepass::GetLevels(const UObject* WorldContext
 	// If we don't have cached levels, generate our level info now
 	if (!CachedBattlepassLevels.Num())
 	{
-		if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper(WorldContextObject))
+		if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem(WorldContextObject))
 		{
 			// First Create the Levels from the XP table
 			FRHAPI_XpTable XpTable;
-			if (StoreItemHelper->GetXpTable(XpTableId, XpTable))
+			if (StoreSubsystem->GetXpTable(XpTableId, XpTable))
 			{
 				if (const auto& Entries = XpTable.GetXpEntriesOrNull())
 				{
@@ -128,11 +128,11 @@ TArray<URHBattlepassLevel*> URHBattlepass::GetLevels(const UObject* WorldContext
 			}
 
 			// Then fill out the rewards
-			auto FillOutRewards = [this, StoreItemHelper](int32 VendorId, EBattlepassTrackType TrackType)
+			auto FillOutRewards = [this, StoreSubsystem](int32 VendorId, EBattlepassTrackType TrackType)
 			{
 				if (VendorId > 0)
 				{
-					TArray<URHStoreItem*> StoreItems = StoreItemHelper->GetStoreItemsForVendor(VendorId, false, false);
+					TArray<URHStoreItem*> StoreItems = StoreSubsystem->GetStoreItemsForVendor(VendorId, false, false);
 
 					TArray<FSoftObjectPath> AssetsToLoad;
 
@@ -193,9 +193,9 @@ TArray<URHBattlepassRewardItem*> URHBattlepass::GetInstantUnlockRewards(const UO
 	// If we don't have cached instant unlocks, generate it now
 	if (!CachedInstantUnlocks.Num() && InstantUnlockRewardVendorId > 0)
 	{
-		if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper(WorldContextObject))
+		if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem(WorldContextObject))
 		{
-			TArray<URHStoreItem*> StoreItems = StoreItemHelper->GetStoreItemsForVendor(InstantUnlockRewardVendorId, false, false);
+			TArray<URHStoreItem*> StoreItems = StoreSubsystem->GetStoreItemsForVendor(InstantUnlockRewardVendorId, false, false);
 
 			for (URHStoreItem* StoreItem : StoreItems)
 			{
@@ -241,15 +241,15 @@ URHBattlepassLevel* URHBattlepass::GetBattlepassLevel(int32 LevelNumber) const
 	return nullptr;
 }
 
-URHStoreItemHelper* URHBattlepass::GetStoreItemHelper(const UObject* WorldContextObject)
+URHStoreSubsystem* URHBattlepass::GetStoreSubsystem(const UObject* WorldContextObject)
 {
 	UWorld* const World = GEngine != nullptr ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
 
 	if (World != nullptr)
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			return GameInstance->GetStoreItemHelper();
+			return GameInstance->GetSubsystem<URHStoreSubsystem>();
 		}
 	}
 

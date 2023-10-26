@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "RHPurchaseModal.generated.h"
 
 /**
@@ -22,9 +21,6 @@ public:
 
     // basic internal utility
 protected:
-    // get the store item helper
-    UFUNCTION(BlueprintCallable)
-    URHStoreItemHelper*                           GetStoreItemHelper();
 
     // specialized functions
 public:

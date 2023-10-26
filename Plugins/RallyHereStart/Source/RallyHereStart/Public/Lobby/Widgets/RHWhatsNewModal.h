@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHJsonDataFactory.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "Managers/RHViewManager.h"
 #include "Engine/Texture2DDynamic.h"
 #include "RHWhatsNewModal.generated.h"
@@ -130,5 +130,5 @@ protected:
 
 private:
     UFUNCTION(BlueprintPure)
-    URHJsonDataFactory* GetJsonDataFactory();
+    URHNewsSubsystem* GetNewsSubsystem();
 };

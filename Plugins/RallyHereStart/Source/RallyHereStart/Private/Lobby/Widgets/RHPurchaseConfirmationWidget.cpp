@@ -3,7 +3,6 @@
 #include "RallyHereStart.h"
 #include "Inventory/RHBattlepass.h"
 #include "Inventory/RHCurrency.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "Managers/RHPopupManager.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Lobby/Widgets/RHPurchaseConfirmationWidget.h"
@@ -16,16 +15,6 @@ void URHPurchaseConfirmationWidget::InitializeWidget_Implementation()
 void URHPurchaseConfirmationWidget::UninitializeWidget_Implementation()
 {
     Super::UninitializeWidget_Implementation();
-}
-
-URHStoreItemHelper* URHPurchaseConfirmationWidget::GetStoreItemHelper() const
-{
-    if (MyHud.IsValid())
-    {
-		return MyHud->GetItemHelper();
-    }
-
-    return nullptr;
 }
 
 void URHPurchaseConfirmationWidget::PromptAlreadyPurchasing()

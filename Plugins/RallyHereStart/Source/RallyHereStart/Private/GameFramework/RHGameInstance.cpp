@@ -9,8 +9,6 @@
 #include "Engine/ReflectionCapture.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
 #include "GameMapsSettings.h"
-#include "Managers/RHPushNotificationManager.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "GameFramework/RHGameModeBase.h"
 #include "Misc/CoreDelegates.h"
 #include "PlatformInventoryItem/PlatformStoreAsset.h"
@@ -22,6 +20,7 @@
 #include "Interfaces/OnlineGameMatchesInterface.h"
 #include "EventClient/RallyHereEventClientIntegration.h"
 #include "PlayerExperience/PlayerExperienceGlobals.h"
+#include "Online.h"
 
 URHGameInstance::URHGameInstance(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -102,54 +101,6 @@ void URHGameInstance::Init()
 
 	UPlayerExperienceGlobals::Get().InitGlobalData(this);
 	FRallyHereEventClientIntegration::SetGameInstance(this);
-
-    if (!HasAnyFlags(RF_ClassDefaultObject))
-    {
-		if ((StoreItemHelper = NewObject<URHStoreItemHelper>(this)) != nullptr)
-		{
-			StoreItemHelper->Initialize(this);
-		}
-
-        if ((UISessionManager = NewObject<URHUISessionManager>(this)) != nullptr)
-        {
-            UISessionManager->Initialize(this);
-        }
-
-		if ((JsonDataFactory = NewObject<URHJsonDataFactory>(this)) != nullptr)
-		{
-			JsonDataFactory->GameInstance = this;
-			JsonDataFactory->Initialize(nullptr);
-		}
-
-		PushNotificationManager = NewObject<URHPushNotificationManager>(this);
-		if(PushNotificationManager)
-		{
-			PushNotificationManager->Initialize(JsonDataFactory);
-		}
-
-		if ((LootBoxManager = NewObject<URHLootBoxManager>(this)) != nullptr)
-		{
-			LootBoxManager->Initialize(this, StoreItemHelper);
-		}
-
-        if ((OrderManager = NewObject<URHOrderManager>(this)) != nullptr)
-        {
-            OrderManager->Initialize(StoreItemHelper);
-        }
-
-		if (!IsRunningDedicatedServer())
-		{
-			if ((LoadoutDataFactory = NewObject<URHLoadoutDataFactory>(this)) != nullptr)
-			{
-				LoadoutDataFactory->Initialize();
-			}
-		}
-
-		if ((EventManager = NewObject<URHEventManager>(this)) != nullptr)
-		{
-			EventManager->Initialize();
-		}
-	}
 }
 
 void URHGameInstance::Shutdown()
@@ -158,37 +109,7 @@ void URHGameInstance::Shutdown()
 
     Super::Shutdown();
 
-    if (StoreItemHelper)
-    {
-        StoreItemHelper->Uninitialize();
-    }
-
-    if (OrderManager)
-    {
-        OrderManager->Uninitialize();
-    }
-
-    if (JsonDataFactory)
-    {
-        JsonDataFactory->Uninitialize();
-    }
-
-    if (UISessionManager)
-    {
-        UISessionManager->Uninitialize();
-    }
-
-	if (LootBoxManager)
-	{
-		LootBoxManager->Uninitialize();
-	}
-
-	if (EventManager)
-	{
-		EventManager->Uninitialize();
-	}
-
-	FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeDelegateHandle);
+    FCoreDelegates::ApplicationHasEnteredForegroundDelegate.Remove(AppResumeDelegateHandle);
 	FCoreDelegates::ApplicationHasReactivatedDelegate.Remove(AppReactivatedDelegateHandle);
 }
 

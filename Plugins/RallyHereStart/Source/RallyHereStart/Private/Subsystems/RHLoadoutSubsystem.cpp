@@ -2,12 +2,11 @@
 
 #include "RallyHereStart.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
-#include "Managers/RHLoadoutDataFactory.h"
+#include "Subsystems/RHLoadoutSubsystem.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Inventory/RHLoadoutTypes.h"
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHGameUserSettings.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 
 void URH_PlayerLoadoutItem::SetLoadoutItemId(FString InLoadoutItemId)
@@ -208,8 +207,15 @@ void URH_PlayerLoadout::AsyncLoadItemComplete(FOnGetEquippedLoadoutItem Event, T
 	}
 }
 
-void URHLoadoutDataFactory::Initialize()
+bool URHLoadoutSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
+}
+
+void URHLoadoutSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
 	if (AccountDefaultLoadoutsDataTableClassName.ToString().Len() > 0)
 	{
 		AccountDefaultsDT = LoadObject<UDataTable>(nullptr, *AccountDefaultLoadoutsDataTableClassName.ToString(), nullptr, LOAD_None, nullptr);
@@ -240,32 +246,7 @@ void URHLoadoutDataFactory::Initialize()
 	}
 }
 
-void URHLoadoutDataFactory::PostLogin()
-{
-}
-
-void URHLoadoutDataFactory::PostLogoff()
-{
-}
-
-URHLoadoutDataFactory* URHLoadoutDataFactory::GetRHLoadoutDataFactory(const UObject* WorldContextObject)
-{
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
-	return URHLoadoutDataFactory::Get(World);
-}
-
-URHLoadoutDataFactory* URHLoadoutDataFactory::Get(const UWorld* MyWorld)
-{
-	if (MyWorld != nullptr)
-	{
-		URHGameInstance* pGameInstance = MyWorld->GetGameInstance<URHGameInstance>();
-		return pGameInstance != nullptr ? pGameInstance->GetLoadoutDataFactory() : nullptr;
-	}
-
-	return nullptr;
-}
-
-void URHLoadoutDataFactory::GetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo, const FTimespan& StaleThreshold /* = FTimespan()*/, bool bForceRefresh /*= false*/, FRH_GetPlayerInfoLoadoutsBlock Delegate /*= FRH_GetPlayerInfoLoadoutsBlock()*/)
+void URHLoadoutSubsystem::GetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo, const FTimespan& StaleThreshold /* = FTimespan()*/, bool bForceRefresh /*= false*/, FRH_GetPlayerInfoLoadoutsBlock Delegate /*= FRH_GetPlayerInfoLoadoutsBlock()*/)
 {
 	if (PlayerInfo == nullptr)
 	{
@@ -286,10 +267,10 @@ void URHLoadoutDataFactory::GetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo,
 		}
 	}
 
-	PlayerInfo->GetPlayerSettings("loadout", StaleThreshold, bForceRefresh, FRH_PlayerInfoGetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutDataFactory::OnGetPlayerLoadoutSettingsResponse, PlayerInfo, Delegate));
+	PlayerInfo->GetPlayerSettings("loadout", StaleThreshold, bForceRefresh, FRH_PlayerInfoGetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutSubsystem::OnGetPlayerLoadoutSettingsResponse, PlayerInfo, Delegate));
 }
 
-void URHLoadoutDataFactory::OnGetPlayerLoadoutSettingsResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& Response, URH_PlayerInfo* PlayerInfo, FRH_GetPlayerInfoLoadoutsBlock Delegate)
+void URHLoadoutSubsystem::OnGetPlayerLoadoutSettingsResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& Response, URH_PlayerInfo* PlayerInfo, FRH_GetPlayerInfoLoadoutsBlock Delegate)
 {
 	if (bSuccess)
 	{
@@ -310,7 +291,7 @@ void URHLoadoutDataFactory::OnGetPlayerLoadoutSettingsResponse(bool bSuccess, FR
 	}
 }
 
-void URHLoadoutDataFactory::GetPlayerLoadoutSettingByLoadoutType(URH_PlayerInfo* PlayerInfo, ERHLoadoutTypes LoadoutType, bool bCreateIfNeeded, const FTimespan& StaleThreshold /* = FTimespan()*/, bool bForceRefresh /*= false*/, FRH_GetPlayerInfoLoadoutBlock Delegate /*= FRH_GetPlayerInfoLoadoutBlock()*/)
+void URHLoadoutSubsystem::GetPlayerLoadoutSettingByLoadoutType(URH_PlayerInfo* PlayerInfo, ERHLoadoutTypes LoadoutType, bool bCreateIfNeeded, const FTimespan& StaleThreshold /* = FTimespan()*/, bool bForceRefresh /*= false*/, FRH_GetPlayerInfoLoadoutBlock Delegate /*= FRH_GetPlayerInfoLoadoutBlock()*/)
 {
 	if (PlayerInfo == nullptr)
 	{
@@ -337,10 +318,10 @@ void URHLoadoutDataFactory::GetPlayerLoadoutSettingByLoadoutType(URH_PlayerInfo*
 		}
 	}
 
-	PlayerInfo->GetPlayerSettings("loadout", StaleThreshold, bForceRefresh, FRH_PlayerInfoGetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutDataFactory::OnGetPlayerLoadoutSettingByLoadoutTypeResponse, PlayerInfo, LoadoutType, bCreateIfNeeded, Delegate));
+	PlayerInfo->GetPlayerSettings("loadout", StaleThreshold, bForceRefresh, FRH_PlayerInfoGetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutSubsystem::OnGetPlayerLoadoutSettingByLoadoutTypeResponse, PlayerInfo, LoadoutType, bCreateIfNeeded, Delegate));
 }
 
-void URHLoadoutDataFactory::OnGetPlayerLoadoutSettingByLoadoutTypeResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& Response, URH_PlayerInfo* PlayerInfo, ERHLoadoutTypes LoadoutType, bool bCreateIfNeeded, FRH_GetPlayerInfoLoadoutBlock Delegate)
+void URHLoadoutSubsystem::OnGetPlayerLoadoutSettingByLoadoutTypeResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& Response, URH_PlayerInfo* PlayerInfo, ERHLoadoutTypes LoadoutType, bool bCreateIfNeeded, FRH_GetPlayerInfoLoadoutBlock Delegate)
 {
 	if (bSuccess)
 	{
@@ -409,7 +390,7 @@ void URHLoadoutDataFactory::OnGetPlayerLoadoutSettingByLoadoutTypeResponse(bool 
 	Delegate.ExecuteIfBound(PlayerInfo, nullptr);
 }
 
-void URHLoadoutDataFactory::SetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo, const TArray<URH_PlayerLoadout*>& Loadouts, FRH_SetPlayerInfoLoadoutsBlock Delegate /*= FRH_SetPlayerInfoLoadoutsBlock()*/)
+void URHLoadoutSubsystem::SetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo, const TArray<URH_PlayerLoadout*>& Loadouts, FRH_SetPlayerInfoLoadoutsBlock Delegate /*= FRH_SetPlayerInfoLoadoutsBlock()*/)
 {
 	if (Loadouts.Num() > 0 && PlayerInfo != nullptr)
 	{
@@ -418,12 +399,12 @@ void URHLoadoutDataFactory::SetPlayerLoadoutSettings(URH_PlayerInfo* PlayerInfo,
 		{
 			FRH_PlayerSettingsDataWrapper SettingsData;
 			SettingsData.Content = SettingsContent;
-			PlayerInfo->SetPlayerSettings("loadout", SettingsData, FRH_PlayerInfoSetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutDataFactory::OnSetPlayerLoadoutSettingsResponse, PlayerInfo, Delegate));
+			PlayerInfo->SetPlayerSettings("loadout", SettingsData, FRH_PlayerInfoSetPlayerSettingsDelegate::CreateUObject(this, &URHLoadoutSubsystem::OnSetPlayerLoadoutSettingsResponse, PlayerInfo, Delegate));
 		}
 	}
 }
 
-void URHLoadoutDataFactory::OnSetPlayerLoadoutSettingsResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& ResponseData, URH_PlayerInfo* PlayerInfo, FRH_SetPlayerInfoLoadoutsBlock Delegate)
+void URHLoadoutSubsystem::OnSetPlayerLoadoutSettingsResponse(bool bSuccess, FRH_PlayerSettingsDataWrapper& ResponseData, URH_PlayerInfo* PlayerInfo, FRH_SetPlayerInfoLoadoutsBlock Delegate)
 {
 	if (bSuccess && PlayerInfo != nullptr)
 	{
@@ -455,7 +436,7 @@ void URHLoadoutDataFactory::OnSetPlayerLoadoutSettingsResponse(bool bSuccess, FR
 	Delegate.ExecuteIfBound(PlayerInfo, false);
 }
 
-UPlatformInventoryItem* URHLoadoutDataFactory::GetDefaultItemForLoadoutSlotType(const ERHLoadoutSlotTypes SlotType)
+UPlatformInventoryItem* URHLoadoutSubsystem::GetDefaultItemForLoadoutSlotType(const ERHLoadoutSlotTypes SlotType)
 {
 	if (auto FoundDefaultItem = DefaultLoadoutItems.Find(SlotType))
 	{
@@ -465,7 +446,7 @@ UPlatformInventoryItem* URHLoadoutDataFactory::GetDefaultItemForLoadoutSlotType(
 	return nullptr;
 }
 
-bool URHLoadoutDataFactory::CreateLocalLoadout(URH_PlayerLoadout*& Loadout, ERHLoadoutTypes LoadoutType, int32 SortOrder)
+bool URHLoadoutSubsystem::CreateLocalLoadout(URH_PlayerLoadout*& Loadout, ERHLoadoutTypes LoadoutType, int32 SortOrder)
 {
 	URH_PlayerLoadout* NewLoadout = NewObject<URH_PlayerLoadout>();
 
@@ -500,7 +481,7 @@ bool URHLoadoutDataFactory::CreateLocalLoadout(URH_PlayerLoadout*& Loadout, ERHL
     return false;
 }
 
-bool URHLoadoutDataFactory::PackagePlayerLoadouts(const TArray<URH_PlayerLoadout*>& InLoadouts, TMap<FString, FSettingData>& OutSettingsContent)
+bool URHLoadoutSubsystem::PackagePlayerLoadouts(const TArray<URH_PlayerLoadout*>& InLoadouts, TMap<FString, FSettingData>& OutSettingsContent)
 {
 	OutSettingsContent.Empty();
 
@@ -517,7 +498,7 @@ bool URHLoadoutDataFactory::PackagePlayerLoadouts(const TArray<URH_PlayerLoadout
 				}
 				else
 				{
-					UE_LOG(RallyHereStart, Warning, TEXT("URHLoadoutDataFactory::PackagePlayerLoadouts failed to Package Loadout with Id=%s"), *(InLoadout->GetLoadoutId()));
+					UE_LOG(RallyHereStart, Warning, TEXT("URHLoadoutSubsystem::PackagePlayerLoadouts failed to Package Loadout with Id=%s"), *(InLoadout->GetLoadoutId()));
 				}
 			}
 		}
@@ -526,7 +507,7 @@ bool URHLoadoutDataFactory::PackagePlayerLoadouts(const TArray<URH_PlayerLoadout
 	return OutSettingsContent.Num() > 0;
 }
 
-bool URHLoadoutDataFactory::PackagePlayerLoadout(URH_PlayerLoadout* InLoadout, FSettingData& OutSettingData)
+bool URHLoadoutSubsystem::PackagePlayerLoadout(URH_PlayerLoadout* InLoadout, FSettingData& OutSettingData)
 {
 	if (InLoadout == nullptr)
 	{
@@ -583,7 +564,7 @@ bool URHLoadoutDataFactory::PackagePlayerLoadout(URH_PlayerLoadout* InLoadout, F
 	return NewValue && NewValue->GetValue().IsValid();
 }
 
-bool URHLoadoutDataFactory::UnpackageLoadoutSettings(const TMap<FString, FSettingData>& InSettingsContent, FRHPlayerLoadoutsWrapper& OutLoadouts)
+bool URHLoadoutSubsystem::UnpackageLoadoutSettings(const TMap<FString, FSettingData>& InSettingsContent, FRHPlayerLoadoutsWrapper& OutLoadouts)
 {
 	OutLoadouts.LoadoutsById.Empty();
 
@@ -598,7 +579,7 @@ bool URHLoadoutDataFactory::UnpackageLoadoutSettings(const TMap<FString, FSettin
 			}
 			else
 			{
-				UE_LOG(RallyHereStart, Warning, TEXT("URHLoadoutDataFactory::UnpackageLoadoutSettings failed to Unpackage Loadout Setting with Id=%s"), *(tuple.Key));
+				UE_LOG(RallyHereStart, Warning, TEXT("URHLoadoutSubsystem::UnpackageLoadoutSettings failed to Unpackage Loadout Setting with Id=%s"), *(tuple.Key));
 			}
 		}
 	}
@@ -606,7 +587,7 @@ bool URHLoadoutDataFactory::UnpackageLoadoutSettings(const TMap<FString, FSettin
 	return OutLoadouts.LoadoutsById.Num() > 0;
 }
 
-bool URHLoadoutDataFactory::UnpackageLoadoutSetting(const FString& InLoadoutId, const FSettingData& InSettingData, URH_PlayerLoadout*& OutLoadout)
+bool URHLoadoutSubsystem::UnpackageLoadoutSetting(const FString& InLoadoutId, const FSettingData& InSettingData, URH_PlayerLoadout*& OutLoadout)
 {
 	const auto Value = InSettingData.GetValueOrNull();
 	if (Value == nullptr)
@@ -676,7 +657,7 @@ bool URHLoadoutDataFactory::UnpackageLoadoutSetting(const FString& InLoadoutId, 
 	return OutLoadout != nullptr && OutLoadout->LoadoutId == InLoadoutId;
 }
 
-TArray<URH_PlayerLoadout*> URHLoadoutDataFactory::GetLoadoutsFromWrapper(const FRHPlayerLoadoutsWrapper& InWrapper)
+TArray<URH_PlayerLoadout*> URHLoadoutSubsystem::GetLoadoutsFromWrapper(const FRHPlayerLoadoutsWrapper& InWrapper)
 {
 	TArray<URH_PlayerLoadout*> Result;
 

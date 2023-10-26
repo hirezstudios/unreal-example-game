@@ -8,6 +8,7 @@
 #include "InputAction.h"
 #include "RHUISoundTheme.h"
 #include "Managers/RHInputManager.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
 #include "Managers/RHViewManager.h"
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
 #include "DataFactories/RHSettingsDataFactory.h"
@@ -62,26 +63,19 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Data Factories", meta = (DisplayName = "Get Login Data Factory"))
     virtual class URHLoginDataFactory* GetLoginDataFactory() const { return LoginDataFactory; };
 
-    // Returns the Store Item Helper to be able to access store items
-    UFUNCTION(BlueprintCallable, Category = "Data Factories")
-    virtual class URHStoreItemHelper*    GetItemHelper() const;
-
     // Returns the UI Session Manager for session based state
     UFUNCTION(BlueprintCallable, Category = "Data Factories")
-    virtual class URHUISessionManager*   GetUISessionManager() const;
+    virtual class URHLocalDataSubsystem*   GetLocalDataSubsystem() const;
 
     // Returns the Order Manager to be able to hook into any player orders
     UFUNCTION(BlueprintCallable, Category = "Managers")
-    class URHOrderManager*    GetOrderManager() const;
+    class URHOrderSubsystem*    GetOrderSubsystem() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Managers")
 	class URHInputManager* GetInputManager() { return InputManager; }
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Managers")
 	class URHPopupManager* GetPopupManager();
-
-    UFUNCTION(BlueprintCallable, Category = "Data Factories", meta = (DisplayName = "Get Loadout Data Factory"))
-    virtual class URHLoadoutDataFactory*         GetLoadoutDataFactory() const;
 
     UFUNCTION(BlueprintCallable, Category = "Data Factories")
     virtual class URHSettingsDataFactory* GetSettingsDataFactory() const { return SettingsFactory; };

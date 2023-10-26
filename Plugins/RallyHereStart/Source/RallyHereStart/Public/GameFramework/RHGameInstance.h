@@ -5,13 +5,8 @@
 #include "Engine/MapBuildDataRegistry.h"
 #include "Engine/DataTable.h"
 #include "GameplayTags.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHOrderManager.h"
-#include "Managers/RHEventManager.h"
-#include "Managers/RHJsonDataFactory.h"
-#include "Managers/RHLoadoutDataFactory.h"
-#include "Managers/RHLootBoxManager.h"
-#include "Managers/RHUISessionManager.h"
+#include "OnlineError.h"
+#include "OnlineSubsystemTypes.h"
 #include "Interfaces/IMessageSanitizerInterface.h"
 #include "Misc/Guid.h"
 #include "RHGameInstance.generated.h"
@@ -41,25 +36,7 @@ public:
 	virtual void Init() override;
     virtual void Shutdown() override;
 
-    URHOrderManager* GetOrderManager() const { return OrderManager; }
-
-    UFUNCTION(BlueprintPure, Category = "System Managers")
-    URHStoreItemHelper* GetStoreItemHelper() const { return StoreItemHelper; }
-
-    URHUISessionManager* GetUISessionManager() const { return UISessionManager; }
-
-	UFUNCTION(BlueprintPure, Category = "System Managers")
-	URHLootBoxManager* GetLootBoxManager() const { return LootBoxManager; }
-
-    URHJsonDataFactory* GetJsonDataFactory() const { return JsonDataFactory; }
-
-	UFUNCTION(BlueprintPure, Category = "System Managers")
-	URHLoadoutDataFactory* GetLoadoutDataFactory() const { return LoadoutDataFactory; }
-
-	UFUNCTION(BlueprintPure, Category = "System Managers")
-	URHEventManager* GetEventManager() const { return EventManager; }
-
-	ERHNetworkError::Type RetrieveCurrentNetworkError() const;
+    ERHNetworkError::Type RetrieveCurrentNetworkError() const;
 	void ClearCurrentNetworkError();
 
 	void HandleNetworkConnectionStatusChanged(const FString& ServiceName, EOnlineServerConnectionStatus::Type LastConnectionStatus, EOnlineServerConnectionStatus::Type ConnectionStatus);
@@ -118,38 +95,6 @@ private:
 
     void AppReactivatedCallback();
     FDelegateHandle AppReactivatedHandle;
-
-    // Manager for processing orders player obtains
-    UPROPERTY(Transient)
-    URHOrderManager* OrderManager;
-
-    // Helper for getting vendor/item information
-    UPROPERTY(Transient)
-    URHStoreItemHelper* StoreItemHelper;
-
-    // Helper for downloading and organizing JSON configuration data
-    UPROPERTY(Transient)
-    URHJsonDataFactory* JsonDataFactory;
-
-	// Helper for controlling push notifications
-	UPROPERTY(Transient)
-	class URHPushNotificationManager* PushNotificationManager;
-
-	// Helper for getting loadout information about the local player.
-	UPROPERTY(Transient)
-	URHLoadoutDataFactory* LoadoutDataFactory;
-
-    // Manager for getting state based information for the players current login session
-    UPROPERTY(Transient)
-    URHUISessionManager* UISessionManager;
-
-	// Manager for handling common loot box functionality
-	UPROPERTY(Transient)
-	URHLootBoxManager* LootBoxManager;
-
-	// Helper for getting event data
-	UPROPERTY(Transient)
-	URHEventManager* EventManager;
 
 public:
 	void HandleCheckPerUserPrivilegeResults(const FBlockedQueryResult& QueryResult, int32 MessageId);

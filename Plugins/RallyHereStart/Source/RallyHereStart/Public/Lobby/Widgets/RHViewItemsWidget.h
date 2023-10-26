@@ -3,8 +3,9 @@
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "RHViewItemsWidget.generated.h"
+
+class URHStoreItem;
 
 UCLASS(BlueprintType)
 class RALLYHERESTART_API URHViewItemData : public URHWidget

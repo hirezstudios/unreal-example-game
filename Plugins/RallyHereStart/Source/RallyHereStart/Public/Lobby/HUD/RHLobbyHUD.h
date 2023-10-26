@@ -1,11 +1,9 @@
 #pragma once
 #include "Shared/HUD/RHHUDCommon.h"
 #include "GameFramework/RHHUDInterface.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "DataFactories/RHQueueDataFactory.h"
 #include "DataFactories/RHLoginDataFactory.h"
 #include "Managers/RHPartyManager.h"
-#include "Managers/RHJsonDataFactory.h"
 #include "Shared/Widgets/RHWidget.h"
 #include "RHLobbyHUD.generated.h"
 
@@ -34,18 +32,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Data Factories", meta = (DisplayName = "Get Queue Data Factory"))
     class URHQueueDataFactory* GetQueueDataFactory() const { return QueueDataFactory;  }
 
-    UFUNCTION(BlueprintCallable, Category = "Data Factories", meta = (DisplayName = "Get Json Data Factory"))
-    class URHJsonDataFactory* GetJsonDataFactory() const;
-
     // This needs to be defined here to avoid ambiguous access.
     virtual class URHLoginDataFactory* GetLoginDataFactory() const override { return Super::GetLoginDataFactory(); };
 
     // This needs to be defined here to avoid ambiguous access.
     virtual class URHPartyManager* GetPartyManager() const override { return Super::GetPartyManager(); };
 
-    class URHStoreItemHelper* GetStoreItemHelper() const { return GetItemHelper(); };
-
-	// System
+    // System
 public:
     UFUNCTION(BlueprintCallable)
     void ShowPopupConfirmation(FText Message, ESocialMessageType MessageType);

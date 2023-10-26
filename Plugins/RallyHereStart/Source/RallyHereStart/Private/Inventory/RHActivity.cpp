@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "Inventory/RHActivity.h"

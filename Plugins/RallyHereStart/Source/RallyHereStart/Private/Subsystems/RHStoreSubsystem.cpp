@@ -1,10 +1,10 @@
 #include "RallyHereStart.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHUISessionManager.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Online.h"
 #include "OnlineSubsystem.h"
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHGameUserSettings.h"
+#include "Subsystems/RHOrderSubsystem.h"
 #include "Inventory/RHCurrency.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
@@ -15,27 +15,33 @@
 #include "RH_LocalPlayerSubsystem.h"
 #include "PlatformInventoryItem/PInv_AssetManager.h"
 
-IOnlineSubsystem* URHStoreItemHelper::GetStoreOSS()
+IOnlineSubsystem* URHStoreSubsystem::GetStoreOSS()
 {
-	URHStoreItemHelper* CDO = URHStoreItemHelper::StaticClass()->GetDefaultObject<URHStoreItemHelper>();
+	URHStoreSubsystem* CDO = URHStoreSubsystem::StaticClass()->GetDefaultObject<URHStoreSubsystem>();
 	FName StoreOSS = ensure(CDO) ? CDO->StoreOSS : NAME_None;
 	return IOnlineSubsystem::Get(StoreOSS);
 }
 
-void URHStoreItemHelper::Initialize(UGameInstance* InGameInstance)
+bool URHStoreSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::Initialize()."));
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
+}
 
-	GameInstance = InGameInstance;
+void URHStoreSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::Initialize()."));
+
 	XpTablesLoaded = false;
 	PricePointsLoaded = false;
 	PortalOffersLoaded = false;
 	IsQueryingPortalOffers = false;
 	StoreVendorsLoaded = false;
 
-	if (URHGameInstance* RHGameInstance = Cast<URHGameInstance>(GameInstance))
+	if (URHGameInstance* RHGameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
-		RHGameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHStoreItemHelper::OnLoginPlayerChanged);
+		RHGameInstance->OnLocalPlayerLoginChanged.AddUObject(this, &URHStoreSubsystem::OnLoginPlayerChanged);
 	}
 
     // Because Premium and Free Currencies are so ubiqutous, we will load them and keep them cached
@@ -71,34 +77,36 @@ void URHStoreItemHelper::Initialize(UGameInstance* InGameInstance)
 	}
 }
 
-void URHStoreItemHelper::Uninitialize()
+void URHStoreSubsystem::Deinitialize()
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::Uninitialize()."));
+	Super::Deinitialize();
 
-	if (URHGameInstance* RHGameInstance = Cast<URHGameInstance>(GameInstance))
+	UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::Deinitialize()."));
+
+	if (URHGameInstance* RHGameInstance = Cast<URHGameInstance>(GetGameInstance()))
 	{
 		RHGameInstance->OnLocalPlayerLoginChanged.RemoveAll(this);
 	}
 }
 
-void URHStoreItemHelper::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
+void URHStoreSubsystem::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 {
 	if (URH_CatalogSubsystem* CatalogSubsystem = GetRH_CatalogSubsystem())
 	{
 		// Don't re-request if we have the data
 		if (!XpTablesLoaded)
 		{
-			CatalogSubsystem->GetCatalogXpAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreItemHelper::OnXpTablesUpdated));
+			CatalogSubsystem->GetCatalogXpAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreSubsystem::OnXpTablesUpdated));
 		}
 
 		if (!InventoryBucketUseRuleSetsLoaded)
 		{
-			CatalogSubsystem->GetCatalogInventoryBucketUseRuleSetsAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreItemHelper::OnInventoryBucketUseRuleSetsUpdated));
+			CatalogSubsystem->GetCatalogInventoryBucketUseRuleSetsAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreSubsystem::OnInventoryBucketUseRuleSetsUpdated));
 		}
 
 		if (!PricePointsLoaded)
 		{
-			CatalogSubsystem->GetCatalogPricePointsAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreItemHelper::OnPricePointsUpdated));
+			CatalogSubsystem->GetCatalogPricePointsAll(FRH_CatalogCallDelegate::CreateUObject(this, &URHStoreSubsystem::OnPricePointsUpdated));
 		}
 
 		if (!BaseStoreVendorsLoaded)
@@ -145,10 +153,10 @@ void URHStoreItemHelper::OnLoginPlayerChanged(ULocalPlayer* LocalPlayer)
 	}
 }
 
-void URHStoreItemHelper::AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector)
+void URHStoreSubsystem::AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector)
 {
 	Super::AddReferencedObjects(InThis, Collector);
-	URHStoreItemHelper* This = CastChecked<URHStoreItemHelper>(InThis);
+	URHStoreSubsystem* This = CastChecked<URHStoreSubsystem>(InThis);
 
 	for (auto Entry : This->PricePoints)
 	{
@@ -156,7 +164,7 @@ void URHStoreItemHelper::AddReferencedObjects(UObject* InThis, FReferenceCollect
 	}
 }
 
-URHStoreItem* URHStoreItemHelper::GetStoreItem(const FRH_LootId& LootId)
+URHStoreItem* URHStoreSubsystem::GetStoreItem(const FRH_LootId& LootId)
 {
 	if (LootId.IsValid())
 	{
@@ -178,7 +186,7 @@ URHStoreItem* URHStoreItemHelper::GetStoreItem(const FRH_LootId& LootId)
 	return nullptr;
 }
 
-URHStoreItem* URHStoreItemHelper::GetStoreItem(const FRHAPI_Loot& LootItem)
+URHStoreItem* URHStoreSubsystem::GetStoreItem(const FRHAPI_Loot& LootItem)
 {
 	if (auto findItem = StoreItems.Find(LootItem.GetLootId()))
 	{
@@ -188,7 +196,7 @@ URHStoreItem* URHStoreItemHelper::GetStoreItem(const FRHAPI_Loot& LootItem)
 	return CreateStoreItem(LootItem);
 }
 
-URHStoreItem* URHStoreItemHelper::CreateStoreItem(const FRHAPI_Loot& LootItem)
+URHStoreItem* URHStoreSubsystem::CreateStoreItem(const FRHAPI_Loot& LootItem)
 {
 	if (URHStoreItem* StoreItem = NewObject<URHStoreItem>())
 	{
@@ -200,7 +208,7 @@ URHStoreItem* URHStoreItemHelper::CreateStoreItem(const FRHAPI_Loot& LootItem)
 	return nullptr;
 }
 
-URHStoreItem* URHStoreItemHelper::GetStoreItemForVendor(int32 nVendorId, const FRH_LootId& nLootItemId)
+URHStoreItem* URHStoreSubsystem::GetStoreItemForVendor(int32 nVendorId, const FRH_LootId& nLootItemId)
 {
 	if (URH_CatalogSubsystem* CatalogSubsystem = GetRH_CatalogSubsystem())
 	{
@@ -218,14 +226,14 @@ URHStoreItem* URHStoreItemHelper::GetStoreItemForVendor(int32 nVendorId, const F
 	return nullptr;
 }
 
-TArray<URHStoreItem*> URHStoreItemHelper::GetStoreItemsForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers)
+TArray<URHStoreItem*> URHStoreSubsystem::GetStoreItemsForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers)
 {
 	TMap<FRH_LootId, int32> QuantityMap;
 
 	return GetStoreItemsAndQuantitiesForVendor(nVendorId, bIncludeInactiveItems, bSearchSubContainers, QuantityMap);
 }
 
-TArray<URHStoreItem*> URHStoreItemHelper::GetStoreItemsAndQuantitiesForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers, TMap<FRH_LootId, int32>& QuantityMap, int32 ExternalQuantity/* = 1*/)
+TArray<URHStoreItem*> URHStoreSubsystem::GetStoreItemsAndQuantitiesForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers, TMap<FRH_LootId, int32>& QuantityMap, int32 ExternalQuantity/* = 1*/)
 {
 	TArray<URHStoreItem*> StoreItemsOut;
 
@@ -265,7 +273,7 @@ TArray<URHStoreItem*> URHStoreItemHelper::GetStoreItemsAndQuantitiesForVendor(in
 	return StoreItemsOut;
 }
 
-TArray<FRH_LootId> URHStoreItemHelper::GetLootIdsForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers)
+TArray<FRH_LootId> URHStoreSubsystem::GetLootIdsForVendor(int32 nVendorId, bool bIncludeInactiveItems, bool bSearchSubContainers)
 {
 	TArray<FRH_LootId> StoreItemsOut;
 
@@ -302,7 +310,7 @@ TArray<FRH_LootId> URHStoreItemHelper::GetLootIdsForVendor(int32 nVendorId, bool
 	return StoreItemsOut;
 }
 
-void URHStoreItemHelper::RequestVendorData(TArray<int32> VendorIds, FRH_CatalogCallBlock Delegate)
+void URHStoreSubsystem::RequestVendorData(TArray<int32> VendorIds, FRH_CatalogCallBlock Delegate)
 {
 	if (VendorIds.Num() > 0)
 	{
@@ -314,9 +322,9 @@ void URHStoreItemHelper::RequestVendorData(TArray<int32> VendorIds, FRH_CatalogC
 	}
 }
 
-void URHStoreItemHelper::OnXpTablesUpdated(bool Success)
+void URHStoreSubsystem::OnXpTablesUpdated(bool Success)
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::OnXpTablesUpdated Success: %d"), Success);
+	UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::OnXpTablesUpdated Success: %d"), Success);
 
 	if (Success)
 	{
@@ -325,9 +333,9 @@ void URHStoreItemHelper::OnXpTablesUpdated(bool Success)
 	}
 }
 
-void URHStoreItemHelper::OnPricePointsUpdated(bool Success)
+void URHStoreSubsystem::OnPricePointsUpdated(bool Success)
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::OnPricePointsUpdated Success: %d"), Success);
+	UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::OnPricePointsUpdated Success: %d"), Success);
 
 	if (Success)
 	{
@@ -336,9 +344,9 @@ void URHStoreItemHelper::OnPricePointsUpdated(bool Success)
 	}
 }
 
-void URHStoreItemHelper::OnInventoryBucketUseRuleSetsUpdated(bool Success)
+void URHStoreSubsystem::OnInventoryBucketUseRuleSetsUpdated(bool Success)
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::OnPortalUseRulesetsUpdated Success: %d"), Success);
+	UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::OnPortalUseRulesetsUpdated Success: %d"), Success);
 
 	if (Success)
 	{
@@ -346,7 +354,7 @@ void URHStoreItemHelper::OnInventoryBucketUseRuleSetsUpdated(bool Success)
 	}
 }
 
-void URHStoreItemHelper::UIX_CompletePurchaseItem(URHStorePurchaseRequest* pPurchaseRequest, const FRH_CatalogCallDynamicDelegate& Delegate)
+void URHStoreSubsystem::UIX_CompletePurchaseItem(URHStorePurchaseRequest* pPurchaseRequest, const FRH_CatalogCallDynamicDelegate& Delegate)
 {
 	TArray<URHStorePurchaseRequest*> PurchaseRequests;
 
@@ -355,7 +363,7 @@ void URHStoreItemHelper::UIX_CompletePurchaseItem(URHStorePurchaseRequest* pPurc
 	SubmitFinalPurchase(PurchaseRequests, Delegate);
 }
 
-void URHStoreItemHelper::SubmitFinalPurchase(TArray<URHStorePurchaseRequest*> PurchaseRequests, const FRH_CatalogCallBlock& Delegate)
+void URHStoreSubsystem::SubmitFinalPurchase(TArray<URHStorePurchaseRequest*> PurchaseRequests, const FRH_CatalogCallBlock& Delegate)
 {
 	// Don't allow the client to submit multiple purchases
 	// NOTE: In case we end up wanting this, we might loop back and modify this to allow multiple pendings.
@@ -376,7 +384,7 @@ void URHStoreItemHelper::SubmitFinalPurchase(TArray<URHStorePurchaseRequest*> Pu
 
 		if (RequestingPlayerInfo != PurchaseRequests[i]->RequestingPlayerInfo)
 		{
-			UE_LOG(RallyHereStart, Error, TEXT("URHStoreItemHelper::SubmitFinalPurchase - PurchaseRequests have mismatched RequestingPlayerUuids!"));
+			UE_LOG(RallyHereStart, Error, TEXT("URHStoreSubsystem::SubmitFinalPurchase - PurchaseRequests have mismatched RequestingPlayerUuids!"));
 			Delegate.ExecuteIfBound(false);
 			return;
 		}
@@ -387,7 +395,7 @@ void URHStoreItemHelper::SubmitFinalPurchase(TArray<URHStorePurchaseRequest*> Pu
 		PurchaseTaskHelper = NewObject<URH_PurchaseAsyncTaskHelper>();
 		PurchaseTaskHelper->PurchaseRequests = PurchaseRequests;
 		PurchaseTaskHelper->CatalogSubsystem = CatalogSubsystem;
-		PurchaseTaskHelper->StoreItemHelper = this;
+		PurchaseTaskHelper->StoreSubsystem = this;
 		PurchaseTaskHelper->OnCompleteDelegate = FRH_CatalogCallDelegate::CreateWeakLambda(this, [this, Delegate, CatalogSubsystem, PurchaseRequests, RequestingPlayerInfo](bool bSuccess)
 			{
 				PurchaseTaskHelper = nullptr;
@@ -483,7 +491,7 @@ void URH_PurchaseAsyncTaskHelper::CheckPurchaseValidity()
 
 	for (int32 i = 0; i < PurchaseRequests.Num(); ++i)
 	{
-		StoreItemHelper->CheckPurchaseRequestValidity(PurchaseRequests[i], FRH_CatalogCallDelegate::CreateWeakLambda(this, [this](bool bSuccess)
+		StoreSubsystem->CheckPurchaseRequestValidity(PurchaseRequests[i], FRH_CatalogCallDelegate::CreateWeakLambda(this, [this](bool bSuccess)
 			{
 				// If any individual item is invalid, we skip the whole purchase
 				RequestsCompleted++;
@@ -503,7 +511,7 @@ void URH_PurchaseAsyncTaskHelper::CheckPurchaseValidity()
 	}
 }
 
-void URHStoreItemHelper::CheckPurchaseRequestValidity(URHStorePurchaseRequest* PurchaseRequest, const FRH_CatalogCallBlock& Delegate)
+void URHStoreSubsystem::CheckPurchaseRequestValidity(URHStorePurchaseRequest* PurchaseRequest, const FRH_CatalogCallBlock& Delegate)
 {
 	if (PurchaseRequest && PurchaseRequest->IsValid() && PurchaseRequest->Quantity > 0)
 	{
@@ -529,7 +537,7 @@ void URHStoreItemHelper::CheckPurchaseRequestValidity(URHStorePurchaseRequest* P
 	Delegate.ExecuteIfBound(false);
 }
 
-void URHStoreItemHelper::HasEnoughCurrency(URHStorePurchaseRequest* pPurchaseRequest, const FRH_CatalogCallBlock& Delegate)
+void URHStoreSubsystem::HasEnoughCurrency(URHStorePurchaseRequest* pPurchaseRequest, const FRH_CatalogCallBlock& Delegate)
 {
 	if (pPurchaseRequest == nullptr || !pPurchaseRequest->IsValid())
 	{
@@ -543,7 +551,7 @@ void URHStoreItemHelper::HasEnoughCurrency(URHStorePurchaseRequest* pPurchaseReq
 		}));
 }
 
-void URHStoreItemHelper::GetCurrencyOwned(TSoftObjectPtr<UPlatformInventoryItem> CurrencyType, const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryCountBlock& Delegate)
+void URHStoreSubsystem::GetCurrencyOwned(TSoftObjectPtr<UPlatformInventoryItem> CurrencyType, const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryCountBlock& Delegate)
 {
 	// If we need to know how much a player owns of a currency and its not loaded, we need to load it now or we get invalid data.
 	if (!CurrencyType.IsNull())
@@ -565,7 +573,7 @@ void URHStoreItemHelper::GetCurrencyOwned(TSoftObjectPtr<UPlatformInventoryItem>
 	Delegate.ExecuteIfBound(0);
 }
 
-void URHStoreItemHelper::GetCurrencyOwned(UPlatformInventoryItem* pPlatformInvItem, const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryCountBlock& Delegate)
+void URHStoreSubsystem::GetCurrencyOwned(UPlatformInventoryItem* pPlatformInvItem, const URH_PlayerInfo* PlayerInfo, const FRH_GetInventoryCountBlock& Delegate)
 {
 	if (pPlatformInvItem == nullptr || PlayerInfo == nullptr)
 	{
@@ -583,7 +591,7 @@ void URHStoreItemHelper::GetCurrencyOwned(UPlatformInventoryItem* pPlatformInvIt
 	}
 }
 
-bool URHStoreItemHelper::GetXpTable(int32 XpTableId, FRHAPI_XpTable& XpTable)
+bool URHStoreSubsystem::GetXpTable(int32 XpTableId, FRHAPI_XpTable& XpTable)
 {
 	if (XpTablesLoaded)
 	{
@@ -596,38 +604,38 @@ bool URHStoreItemHelper::GetXpTable(int32 XpTableId, FRHAPI_XpTable& XpTable)
 	return false;
 }
 
-bool URHStoreItemHelper::QueryPortalOffers()
+bool URHStoreSubsystem::QueryPortalOffers()
 {
 	if (IsQueryingPortalOffers)
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers query already in progress"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers query already in progress"));
 		return false;
 	}
 
 	if (!GWorld || !GWorld->GetFirstLocalPlayerFromController())
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to find world or first local player controller"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to find world or first local player controller"));
 		return false;
 	}
 
 	auto* OSS = GetStoreOSS();
 	if (!OSS)
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to get online subsystem"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to get online subsystem"));
 		return false;
 	}
 
 	auto Store = OSS->GetStoreV2Interface();
 	if (!Store.IsValid())
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to get store interface"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to get store interface"));
 		return false;
 	}
 
 	const auto PlayerId = GWorld->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId();
 	if (!PlayerId.IsValid())
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to get player id"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to get player id"));
 		return false;
 	}
 
@@ -656,7 +664,7 @@ bool URHStoreItemHelper::QueryPortalOffers()
 							}
 							else if (AssetsToLoad.Num() == 0 && StoreItem->GetSku(SKU))
 							{
-								UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::QueryPortalOffers adding product id %s for loot id %i"), *SKU, pItemPair.Value.GetLootId());
+								UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::QueryPortalOffers adding product id %s for loot id %i"), *SKU, pItemPair.Value.GetLootId());
 								ProductIds.Add(SKU);
 								SkuToStoreItem.Add(SKU, StoreItem);
 							}
@@ -667,32 +675,32 @@ bool URHStoreItemHelper::QueryPortalOffers()
 		}
 		else
 		{
-			UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to get mcts shop vendor %i"), GetPortalOffersVendorId());
+			UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to get mcts shop vendor %i"), GetPortalOffersVendorId());
 		}
 	}
 	else
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPortalOffers failed to get mcts shop"));
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPortalOffers failed to get mcts shop"));
 	}
 
 	if (AssetsToLoad.Num())
 	{
 		// If we need to load more assets to check put us in the actively working on a query state
 		IsQueryingPortalOffers = true;
-		UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &URHStoreItemHelper::PortalOffersItemsFullyLoaded));
+		UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &URHStoreSubsystem::PortalOffersItemsFullyLoaded));
 		return true;
 	}
 	else if (ProductIds.Num())
 	{
 		IsQueryingPortalOffers = true;
-		Store->QueryOffersById(*PlayerId, ProductIds, FOnQueryOnlineStoreOffersComplete::CreateUObject(this, &URHStoreItemHelper::QueryPlatformStoreOffersComplete));
+		Store->QueryOffersById(*PlayerId, ProductIds, FOnQueryOnlineStoreOffersComplete::CreateUObject(this, &URHStoreSubsystem::QueryPlatformStoreOffersComplete));
 		return true;
 	}
 
 	return false;
 }
 
-void URHStoreItemHelper::PortalOffersItemsFullyLoaded()
+void URHStoreSubsystem::PortalOffersItemsFullyLoaded()
 {
 	// We have fully loaded all our portal offer items, kick off the skue request now
 	IsQueryingPortalOffers = false;
@@ -703,13 +711,13 @@ void URHStoreItemHelper::PortalOffersItemsFullyLoaded()
 	}
 }
 
-void URHStoreItemHelper::QueryPlatformStoreOffersComplete(bool bSuccess, const TArray<FUniqueOfferId>& offers, const FString& error)
+void URHStoreSubsystem::QueryPlatformStoreOffersComplete(bool bSuccess, const TArray<FUniqueOfferId>& offers, const FString& error)
 {
 	IsQueryingPortalOffers = false;
 
 	if (!bSuccess)
 	{
-		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreItemHelper::QueryPlatformStoreOffersComplete returned error %s"), *error);
+		UE_LOG(RallyHereStart, Warning, TEXT("URHStoreSubsystem::QueryPlatformStoreOffersComplete returned error %s"), *error);
 	}
 
 	if (offers.Num() > 0)
@@ -722,7 +730,7 @@ void URHStoreItemHelper::QueryPlatformStoreOffersComplete(bool bSuccess, const T
 				TArray<FOnlineStoreOfferRef> Offers;
 				Store->GetOffers(Offers);
 
-				UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::QueryPlatformStoreOffersComplete found %i offers"), Offers.Num());
+				UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::QueryPlatformStoreOffersComplete found %i offers"), Offers.Num());
 				for (auto& offer : Offers)
 				{
 					if (auto StoreItem = SkuToStoreItem.Find(offer->OfferId))
@@ -751,7 +759,7 @@ void URHStoreItemHelper::QueryPlatformStoreOffersComplete(bool bSuccess, const T
 	OnPortalOffersReceived.Broadcast();
 }
 
-void URHStoreItemHelper::EnterInGameStoreUI()
+void URHStoreSubsystem::EnterInGameStoreUI()
 {
 	if (IOnlineSubsystem* OSS = GetStoreOSS())
 	{
@@ -763,7 +771,7 @@ void URHStoreItemHelper::EnterInGameStoreUI()
 	}
 }
 
-void URHStoreItemHelper::ExitInGameStoreUI()
+void URHStoreSubsystem::ExitInGameStoreUI()
 {
 	if (IOnlineSubsystem* OSS = GetStoreOSS())
 	{
@@ -775,7 +783,7 @@ void URHStoreItemHelper::ExitInGameStoreUI()
 	}
 }
 
-bool URHStoreItemHelper::CheckEmptyInGameStore(const class UObject* WorldContextObject)
+bool URHStoreSubsystem::CheckEmptyInGameStore(const class UObject* WorldContextObject)
 {
 	if (auto OSS = GetStoreOSS())
 	{
@@ -784,7 +792,7 @@ bool URHStoreItemHelper::CheckEmptyInGameStore(const class UObject* WorldContext
 		{
 			TArray<FOnlineStoreOfferRef> Offers;
 			Store->GetOffers(Offers);
-			UE_LOG(RallyHereStart, Verbose, TEXT("URHStoreItemHelper::CheckEmptyInGameStore got %i offers"), Offers.Num());
+			UE_LOG(RallyHereStart, Verbose, TEXT("URHStoreSubsystem::CheckEmptyInGameStore got %i offers"), Offers.Num());
 			if (Offers.Num() <= 0)
 			{
 				if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
@@ -798,7 +806,7 @@ bool URHStoreItemHelper::CheckEmptyInGameStore(const class UObject* WorldContext
 							const auto ExternalUI = Online::GetExternalUIInterface();
 							if (ExternalUI.IsValid())
 							{
-								UE_LOG(RallyHereStart, Log, TEXT("URHStoreItemHelper::CheckEmptyInGameStore called ShowPlatformMessageBox"));
+								UE_LOG(RallyHereStart, Log, TEXT("URHStoreSubsystem::CheckEmptyInGameStore called ShowPlatformMessageBox"));
 								ExternalUI->ShowPlatformMessageBox(*UserId, EPlatformMessageType::EmptyStore);
 								return true;
 							}
@@ -812,7 +820,7 @@ bool URHStoreItemHelper::CheckEmptyInGameStore(const class UObject* WorldContext
 	return false;
 }
 
-void URHStoreItemHelper::EntitlementProcessingComplete(bool bSuccessful, FRHAPI_PlatformEntitlementProcessResult Result)
+void URHStoreSubsystem::EntitlementProcessingComplete(bool bSuccessful, FRHAPI_PlatformEntitlementProcessResult Result)
 {
 	if (bSuccessful)
 	{
@@ -824,7 +832,7 @@ void URHStoreItemHelper::EntitlementProcessingComplete(bool bSuccessful, FRHAPI_
 				{
 					if (const URH_PlayerInfo* PlayerInfo = RHSS->GetLocalPlayerInfo())
 					{
-						PlayerInfo->GetPlayerInventory()->AddPendingOrdersFromEntitlementResult(Result, FRH_OrderDetailsDelegate::CreateUObject(this, &URHStoreItemHelper::OnEntitlementResult, PlayerInfo));
+						PlayerInfo->GetPlayerInventory()->AddPendingOrdersFromEntitlementResult(Result, FRH_OrderDetailsDelegate::CreateUObject(this, &URHStoreSubsystem::OnEntitlementResult, PlayerInfo));
 					}
 				}
 			}
@@ -832,17 +840,21 @@ void URHStoreItemHelper::EntitlementProcessingComplete(bool bSuccessful, FRHAPI_
 	}
 }
 
-void URHStoreItemHelper::OnEntitlementResult(const TArray<FRHAPI_PlayerOrder>& OrderResults, const URH_PlayerInfo* PlayerInfo)
+void URHStoreSubsystem::OnEntitlementResult(const TArray<FRHAPI_PlayerOrder>& OrderResults, const URH_PlayerInfo* PlayerInfo)
 {
 	OnPendingPurchaseReceived.Broadcast();
 	for (const auto& OrderResult : OrderResults)
 	{
 		OnPendingPurchaseReceivedNative.ExecuteIfBound(PlayerInfo, OrderResult);
 	}
-	Cast<URHGameInstance>(GameInstance)->GetOrderManager()->OnPlayerOrder(OrderResults, PlayerInfo);
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		GameInstance->GetSubsystem<URHOrderSubsystem>()->OnPlayerOrder(OrderResults, PlayerInfo);
+	}
 }
 
-TSoftObjectPtr<UPlatformInventoryItem> URHStoreItemHelper::GetInventoryItem(const FRH_ItemId& ItemId) const
+TSoftObjectPtr<UPlatformInventoryItem> URHStoreSubsystem::GetInventoryItem(const FRH_ItemId& ItemId) const
 {
 	if (ItemId.IsValid())
 	{
@@ -856,7 +868,7 @@ TSoftObjectPtr<UPlatformInventoryItem> URHStoreItemHelper::GetInventoryItem(cons
 	return nullptr;
 }
 
-bool URHStoreItemHelper::GetPriceForGUID(FStorePriceKey PricePoint, TArray<URHStoreItemPrice*>& Prices)
+bool URHStoreSubsystem::GetPriceForGUID(FStorePriceKey PricePoint, TArray<URHStoreItemPrice*>& Prices)
 {
 	if (PricePointsLoaded)
 	{
@@ -875,7 +887,7 @@ bool URHStoreItemHelper::GetPriceForGUID(FStorePriceKey PricePoint, TArray<URHSt
 }
 
 
-void URHStoreItemHelper::GeneratePriceData(FStorePriceKey PricePointKey, TArray<URHStoreItemPrice*>& Prices)
+void URHStoreSubsystem::GeneratePriceData(FStorePriceKey PricePointKey, TArray<URHStoreItemPrice*>& Prices)
 {
 	if (URH_CatalogSubsystem* CatalogSubsystem = GetRH_CatalogSubsystem())
 	{
@@ -896,7 +908,7 @@ void URHStoreItemHelper::GeneratePriceData(FStorePriceKey PricePointKey, TArray<
 
 				if (URHStoreItemPrice* NewPrice = NewObject<URHStoreItemPrice>())
 				{
-					NewPrice->pItemHelper = this;
+					NewPrice->pStoreSubsystem = this;
 					NewPrice->Price = Price.GetPrice();
 					// Presale price only differs from current price if there is a sale.
 					NewPrice->PreSalePrice = NewPrice->Price;
@@ -931,12 +943,12 @@ void URHStoreItemHelper::GeneratePriceData(FStorePriceKey PricePointKey, TArray<
 	}
 }
 
-void URHStoreItemHelper::GetCouponsForItem(const URHStoreItem* StoreItem, TArray<FRHAPI_Loot>& Coupons) const
+void URHStoreSubsystem::GetCouponsForItem(const URHStoreItem* StoreItem, TArray<FRHAPI_Loot>& Coupons) const
 {
 	CouponsForLootTableItems.MultiFind(StoreItem->GetLootId(), Coupons);
 }
 
-void URHStoreItemHelper::ProcessCouponVendor()
+void URHStoreSubsystem::ProcessCouponVendor()
 {
 	CouponsForLootTableItems.Empty();
 
@@ -962,7 +974,7 @@ void URHStoreItemHelper::ProcessCouponVendor()
 	}
 }
 
-int32 URHStoreItemHelper::GetVoucherVendorId() const
+int32 URHStoreSubsystem::GetVoucherVendorId() const
 {
 	switch (URHUIBlueprintFunctionLibrary::GetPlatformIdByOSS(GetStoreOSS()))
 	{
@@ -989,7 +1001,7 @@ int32 URHStoreItemHelper::GetVoucherVendorId() const
 	return INDEX_NONE;
 }
 
-void URHStoreItemHelper::GetAdditionalStoreVendors(TArray<int32>& StoreVendorsIds)
+void URHStoreSubsystem::GetAdditionalStoreVendors(TArray<int32>& StoreVendorsIds)
 {
 	if (GameCurrencyVendorId > 0)
 	{
@@ -1003,7 +1015,7 @@ void URHStoreItemHelper::GetAdditionalStoreVendors(TArray<int32>& StoreVendorsId
 	}
 }
 
-URHStoreItem* URHStoreItemHelper::GetDLCForVoucher(const URHStoreItem* DLCVoucher)
+URHStoreItem* URHStoreSubsystem::GetDLCForVoucher(const URHStoreItem* DLCVoucher)
 {
     if (DLCVoucher)
     {
@@ -1035,7 +1047,7 @@ URHStoreItem* URHStoreItemHelper::GetDLCForVoucher(const URHStoreItem* DLCVouche
     return nullptr;
 }
 
-void URHStoreItemHelper::RedeemDLCVoucher(URHStoreItem* DLCVoucher, URH_PlayerInfo* PlayerInfo, const FRH_CatalogCallDynamicDelegate& Delegate)
+void URHStoreSubsystem::RedeemDLCVoucher(URHStoreItem* DLCVoucher, URH_PlayerInfo* PlayerInfo, const FRH_CatalogCallDynamicDelegate& Delegate)
 {
     if (DLCVoucher)
     {
@@ -1062,7 +1074,7 @@ void URHStoreItemHelper::RedeemDLCVoucher(URHStoreItem* DLCVoucher, URH_PlayerIn
 	Delegate.ExecuteIfBound(false);
 }
 
-void URHStoreItemHelper::GetUpdatedStoreContents()
+void URHStoreSubsystem::GetUpdatedStoreContents()
 {
     TArray<int32> VendorIds;
 
@@ -1091,7 +1103,7 @@ void URHStoreItemHelper::GetUpdatedStoreContents()
 	OnStoreItemsReady.Broadcast();
 }
 
-void URHStoreItemHelper::SortPriceData(TArray<URHStoreItemPrice*>& Prices)
+void URHStoreSubsystem::SortPriceData(TArray<URHStoreItemPrice*>& Prices)
 {
 	// Note: Probably not the most efficient doing all this work in a sort function, but most items have at most 2 prices, so this isn't sorting a TON of data
 	Prices.Sort([](URHStoreItemPrice& A, URHStoreItemPrice& B)
@@ -1122,12 +1134,12 @@ void URHStoreItemHelper::SortPriceData(TArray<URHStoreItemPrice*>& Prices)
 	});
 }
 
-void URHStoreItemHelper::GetAffordableVoucherItems(URH_PlayerInfo* PlayerInfo, FRH_GetAffordableItemsInVendorBlock Delegate)
+void URHStoreSubsystem::GetAffordableVoucherItems(URH_PlayerInfo* PlayerInfo, FRH_GetAffordableItemsInVendorBlock Delegate)
 {
 	GetRedeemableItemsInVendor(PlayerInfo, PortalOffersVendorId, GetVoucherVendorId(), Delegate);
 }
 
-void URHStoreItemHelper::GetRedeemableItemsInVendor(URH_PlayerInfo* PlayerInfo, int32 CurrencyVendorId, int32 RedemptionVendorId, FRH_GetAffordableItemsInVendorBlock Delegate)
+void URHStoreSubsystem::GetRedeemableItemsInVendor(URH_PlayerInfo* PlayerInfo, int32 CurrencyVendorId, int32 RedemptionVendorId, FRH_GetAffordableItemsInVendorBlock Delegate)
 {
 	if (URH_CatalogSubsystem* CatalogSubsystem = GetRH_CatalogSubsystem())
 	{
@@ -1154,7 +1166,7 @@ void URHStoreItemHelper::GetRedeemableItemsInVendor(URH_PlayerInfo* PlayerInfo, 
 	Delegate.ExecuteIfBound(TArray<URHStoreItem*>(), TArray<URHStoreItem*>());
 }
 
-void URHStoreItemHelper::GetRedeemableItemsInVendor_INTERNAL(URH_PlayerInfo* PlayerInfo, int32 CurrencyVendorId, int32 RedemptionVendorId, FRH_GetAffordableItemsInVendorBlock Delegate)
+void URHStoreSubsystem::GetRedeemableItemsInVendor_INTERNAL(URH_PlayerInfo* PlayerInfo, int32 CurrencyVendorId, int32 RedemptionVendorId, FRH_GetAffordableItemsInVendorBlock Delegate)
 {
 	TArray<URHStoreItem*> PossibleRedemptionItems = GetStoreItemsForVendor(RedemptionVendorId, false, false);
 
@@ -1188,7 +1200,7 @@ void URHStoreItemHelper::GetRedeemableItemsInVendor_INTERNAL(URH_PlayerInfo* Pla
 	if (Helper->ItemsToCheck.Num() > 0)
 	{
 		Helper->PlayerInfo = PlayerInfo;
-		Helper->StoreItemHelper = this;
+		Helper->StoreSubsystem = this;
 		Helper->CatalogSubsystem = GetRH_CatalogSubsystem();
 		Helper->CurrencyVendorId = CurrencyVendorId;
 		Helper->OnCompleteDelegate = Delegate;
@@ -1202,7 +1214,7 @@ void URHStoreItemHelper::GetRedeemableItemsInVendor_INTERNAL(URH_PlayerInfo* Pla
 	}
 }
 
-bool URHStoreItemHelper::CanRedeemVoucher(URHStoreItem* VoucherItem)
+bool URHStoreSubsystem::CanRedeemVoucher(URHStoreItem* VoucherItem)
 {
 	if (VoucherItem != nullptr)
 	{
@@ -1229,7 +1241,7 @@ bool URHStoreItemHelper::CanRedeemVoucher(URHStoreItem* VoucherItem)
 	return false;
 }
 
-URHCurrency* URHStoreItemHelper::GetCurrencyItem(const FRH_ItemId& ItemId) const
+URHCurrency* URHStoreSubsystem::GetCurrencyItem(const FRH_ItemId& ItemId) const
 {
 	URHCurrency* CurrencyItem = nullptr;
 	if (UPInv_AssetManager* AssetManager = Cast<UPInv_AssetManager>(UAssetManager::GetIfValid()))
@@ -1240,9 +1252,9 @@ URHCurrency* URHStoreItemHelper::GetCurrencyItem(const FRH_ItemId& ItemId) const
 	return CurrencyItem;
 }
 
-URH_PlayerInfo* URHStoreItemHelper::GetPlayerInfo(const FGuid& PlayerUuid) const
+URH_PlayerInfo* URHStoreSubsystem::GetPlayerInfo(const FGuid& PlayerUuid) const
 {
-	if (GameInstance)
+	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		if (const auto* GameInstanceSubsystem = GameInstance->GetSubsystem<URH_GameInstanceSubsystem>())
 		{
@@ -1256,8 +1268,9 @@ URH_PlayerInfo* URHStoreItemHelper::GetPlayerInfo(const FGuid& PlayerUuid) const
 	return nullptr;
 }
 
-URH_CatalogSubsystem* URHStoreItemHelper::GetRH_CatalogSubsystem() const
+URH_CatalogSubsystem* URHStoreSubsystem::GetRH_CatalogSubsystem() const
 {
+	UGameInstance* GameInstance = GetGameInstance();
 	if (GameInstance == nullptr)
 	{
 		return nullptr;
@@ -1280,11 +1293,11 @@ URH_CatalogSubsystem* URHStoreItemHelper::GetRH_CatalogSubsystem() const
 ////                                                                                                                                  ////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void URHStoreItem::Initialize(URHStoreItemHelper* pHelper, const FRHAPI_Loot& LootItem)
+void URHStoreItem::Initialize(URHStoreSubsystem* pHelper, const FRHAPI_Loot& LootItem)
 {
 	LootId = LootItem.GetLootId();
 	VendorId = LootItem.GetVendorId();
-	pItemHelper = pHelper;
+	pStoreSubsystem = pHelper;
 
 	UPInv_AssetManager* pManager = Cast<UPInv_AssetManager>(UAssetManager::GetIfValid());
 
@@ -1311,12 +1324,9 @@ void URHStoreItem::Initialize(URHStoreItemHelper* pHelper, const FRHAPI_Loot& Lo
 
 URHStoreItem* URHStoreItem::GetDLCForVoucher()
 {
-	if (pItemHelper.IsValid())
+	if (pStoreSubsystem.IsValid())
 	{
-		if (URHStoreItemHelper* RHStoreItemHelper = Cast<URHStoreItemHelper>(pItemHelper.Get()))
-		{
-			return RHStoreItemHelper->GetDLCForVoucher(this);
-		}
+		return pStoreSubsystem.Get()->GetDLCForVoucher(this);
 	}
 
 	return nullptr;
@@ -1344,9 +1354,9 @@ TSoftObjectPtr<UPlatformInventoryItem> URHStoreItem::GetInventoryItem() const
 
 bool URHStoreItem::GetCatalogVendorItem(FRHAPI_Loot& LootItem) const
 {
-	if (pItemHelper.IsValid())
+	if (pStoreSubsystem.IsValid())
 	{
-		if (URH_CatalogSubsystem* CatalogSubsystem = pItemHelper.Get()->GetRH_CatalogSubsystem())
+		if (URH_CatalogSubsystem* CatalogSubsystem = pStoreSubsystem.Get()->GetRH_CatalogSubsystem())
 		{
 			return CatalogSubsystem->GetVendorItemByLootId(GetLootId(), LootItem);
 		}
@@ -1360,9 +1370,9 @@ URH_CatalogItem* URHStoreItem::GetCatalogItem() const
 	FRHAPI_Loot LootItem;
 	if (GetCatalogVendorItem(LootItem))
 	{
-		if (pItemHelper.IsValid())
+		if (pStoreSubsystem.IsValid())
 		{
-			if (URH_CatalogSubsystem* CatalogSubsystem = pItemHelper.Get()->GetRH_CatalogSubsystem())
+			if (URH_CatalogSubsystem* CatalogSubsystem = pStoreSubsystem.Get()->GetRH_CatalogSubsystem())
 			{
 				if (const auto& ItemId = LootItem.GetItemIdOrNull())
 				{
@@ -1416,14 +1426,14 @@ int32 URHStoreItem::GetSortOrder() const
 bool URHStoreItem::GetPriceData(TArray<URHStoreItemPrice*>& Prices)
 {
 	FRHAPI_Loot LootItem;
-	if (pItemHelper.IsValid())
+	if (pStoreSubsystem.IsValid())
 	{
 		if (GetCatalogVendorItem(LootItem))
 		{
 			const auto& CurrentPrice = LootItem.GetCurrentPricePointGuidOrNull();
 			const auto& PreSalePrice = LootItem.GetPreSalePricePointGuidOrNull();
 
-			return pItemHelper.Get()->GetPriceForGUID(FStorePriceKey(CurrentPrice ? FGuid(*CurrentPrice) : FGuid(), PreSalePrice ? FGuid(*PreSalePrice) : FGuid()), Prices);
+			return pStoreSubsystem.Get()->GetPriceForGUID(FStorePriceKey(CurrentPrice ? FGuid(*CurrentPrice) : FGuid(), PreSalePrice ? FGuid(*PreSalePrice) : FGuid()), Prices);
 		}
 	}
 
@@ -1665,9 +1675,9 @@ bool URHStoreItem::BundleContainsItemId(const FRH_ItemId& nItemId, bool bSearchS
 	{
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{
-			if (pItemHelper.IsValid())
+			if (pStoreSubsystem.IsValid())
 			{
-				TArray<URHStoreItem*> ContainedItems = pItemHelper.Get()->GetStoreItemsForVendor(*SubVendorId, false, bSearchSubContainers);
+				TArray<URHStoreItem*> ContainedItems = pStoreSubsystem.Get()->GetStoreItemsForVendor(*SubVendorId, false, bSearchSubContainers);
 
 				for (URHStoreItem* ContainedItem : ContainedItems)
 				{
@@ -1694,9 +1704,9 @@ bool URHStoreItem::GetBundledContents(TArray<URHStoreItem*>& ContainedItems) con
 	{
 		if (const auto& SubVendorId = LootItem.GetSubVendorIdOrNull())
 		{
-			if (pItemHelper.IsValid())
+			if (pStoreSubsystem.IsValid())
 			{
-				ContainedItems = pItemHelper.Get()->GetStoreItemsForVendor(*SubVendorId, false, false);
+				ContainedItems = pStoreSubsystem.Get()->GetStoreItemsForVendor(*SubVendorId, false, false);
 				return ContainedItems.Num() > 0;
 			}
 		}
@@ -1808,9 +1818,9 @@ bool URHStoreItem::ShouldDisplayToUser() const
 void URHStoreItem::UIX_ShowPurchaseConfirmation(URHStoreItemPrice* pPrice)
 {
 	// ShowPurchaseConfimration takes a specific price, if a team wishes to use this differently they can ignore the pointer
-	if (pItemHelper.IsValid())
+	if (pStoreSubsystem.IsValid())
 	{
-		pItemHelper.Get()->OnPurchaseItem.Broadcast(this, pPrice);
+		pStoreSubsystem.Get()->OnPurchaseItem.Broadcast(this, pPrice);
 	}
 }
 
@@ -1826,7 +1836,7 @@ URHStorePurchaseRequest* URHStoreItem::GetPurchaseRequest()
 		NewPurchaseRequest->PriceInUI = 0;
 		NewPurchaseRequest->CurrencyType = nullptr;
 		NewPurchaseRequest->CouponId = 0;
-		NewPurchaseRequest->pItemHelper = pItemHelper;
+		NewPurchaseRequest->pStoreSubsystem = pStoreSubsystem;
 
 		FRHAPI_Loot LootItem;
 
@@ -1844,13 +1854,13 @@ URHStorePurchaseRequest* URHStoreItem::GetPurchaseRequest()
 
 void URHStoreItem::PurchaseFromPortal()
 {
-	const FName OSSName = URHStoreItemHelper::GetStoreOSS()->GetSubsystemName();
+	const FName OSSName = URHStoreSubsystem::GetStoreOSS()->GetSubsystemName();
 	if (OSSName == PS4_SUBSYSTEM || OSSName == PS5_SUBSYSTEM)
 	{
-		if (pItemHelper.IsValid())
+		if (pStoreSubsystem.IsValid())
 		{
 			// Pop up the portal offer confirmation screen for Playstation
-			pItemHelper.Get()->OnPurchasePortalItem.Broadcast(this);
+			pStoreSubsystem.Get()->OnPurchasePortalItem.Broadcast(this);
 		}
 	}
 	else
@@ -1864,7 +1874,7 @@ void URHStoreItem::ConfirmGotoPortalOffer()
 {
 	if (GWorld && PortalOffer)
 	{
-		if (const IOnlineSubsystem* OSS = URHStoreItemHelper::GetStoreOSS())
+		if (const IOnlineSubsystem* OSS = URHStoreSubsystem::GetStoreOSS())
 		{
 			if (const ULocalPlayer* LocalPlayer = GWorld->GetFirstLocalPlayerFromController())
 			{
@@ -1891,12 +1901,12 @@ void URHStoreItem::PortalPurchaseComplete(const FOnlineError& Result, const TSha
 			{
 				if (URH_EntitlementSubsystem* ESS = RHSS->GetEntitlementSubsystem())
 				{
-					const URHGameInstance* GameInstance = Cast<URHGameInstance>(GWorld->GetGameInstance());
-					URHStoreItemHelper* StoreItemHelper = GameInstance ? GameInstance->GetStoreItemHelper() : nullptr;
+					const UGameInstance* GameInstance = GWorld->GetGameInstance();
+					URHStoreSubsystem* StoreSubsystem = GameInstance ? GameInstance->GetSubsystem<URHStoreSubsystem>() : nullptr;
 					OnPortalPurchaseSubmitted.Broadcast();
-					if (StoreItemHelper)
+					if (StoreSubsystem)
 					{
-						ESS->SubmitEntitlementsForLoggedInOSS(FRH_ProcessEntitlementCompletedDelegate::CreateUObject(StoreItemHelper, &URHStoreItemHelper::EntitlementProcessingComplete));
+						ESS->SubmitEntitlementsForLoggedInOSS(FRH_ProcessEntitlementCompletedDelegate::CreateUObject(StoreSubsystem, &URHStoreSubsystem::EntitlementProcessingComplete));
 					}
 					else
 					{
@@ -1910,7 +1920,7 @@ void URHStoreItem::PortalPurchaseComplete(const FOnlineError& Result, const TSha
 
 void URHStoreItem::CanAfford(const URH_PlayerInfo* PlayerInfo, const URHStoreItemPrice* Price, int32 Quantity, const FRH_GetInventoryStateBlock& Delegate)
 {
-	if (pItemHelper.IsValid() && Price != nullptr && PlayerInfo != nullptr)
+	if (pStoreSubsystem.IsValid() && Price != nullptr && PlayerInfo != nullptr)
 	{
 		GetBestCouponForPrice(Price, PlayerInfo, FRH_GetStoreItemDelegate::CreateWeakLambda(this, [this, PlayerInfo, Price, Quantity, Delegate](URHStoreItem* Coupon)
 			{
@@ -1921,7 +1931,7 @@ void URHStoreItem::CanAfford(const URH_PlayerInfo* PlayerInfo, const URHStoreIte
 					EndPrice = URH_CatalogBlueprintLibrary::GetCouponDiscountedPrice(Coupon->GetCatalogItem(), EndPrice);
 				}
 
-				pItemHelper.Get()->GetCurrencyOwned(Price->CurrencyType, PlayerInfo, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, Quantity, EndPrice, Delegate](int32 Count)
+				pStoreSubsystem.Get()->GetCurrencyOwned(Price->CurrencyType, PlayerInfo, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, Quantity, EndPrice, Delegate](int32 Count)
 					{
 						Delegate.ExecuteIfBound(Count >= (EndPrice * Quantity));
 					}));
@@ -1954,14 +1964,14 @@ void URHStoreItem::GetBestCouponForPrice(const URHStoreItemPrice* Price, const U
 
 void URHStoreItem::GetCouponsForPrice(const URHStoreItemPrice* Price, const URH_PlayerInfo* PlayerInfo, const FRH_GetStoreItemsBlock& Delegate)
 {
-	if (pItemHelper.IsValid() && Price && Price->CurrencyType.IsValid())
+	if (pStoreSubsystem.IsValid() && Price && Price->CurrencyType.IsValid())
 	{
 		TArray<FRHAPI_Loot> CouponsToCheck;
 		TArray<FRHAPI_Loot> Coupons;
 		
-		pItemHelper.Get()->GetCouponsForItem(this, Coupons);
+		pStoreSubsystem.Get()->GetCouponsForItem(this, Coupons);
 
-		if (URH_CatalogSubsystem* CatalogSubsystem = pItemHelper.Get()->GetRH_CatalogSubsystem())
+		if (URH_CatalogSubsystem* CatalogSubsystem = pStoreSubsystem.Get()->GetRH_CatalogSubsystem())
 		{
 			for (int32 i = 0; i < Coupons.Num(); ++i)
 			{
@@ -1986,7 +1996,7 @@ void URHStoreItem::GetCouponsForPrice(const URHStoreItemPrice* Price, const URH_
 
 			for (const auto& CouponToCheck : CouponsToCheck)
 			{
-				if (URHStoreItem* StoreItem = pItemHelper.Get()->GetStoreItem(CouponToCheck.GetItemId(0)))
+				if (URHStoreItem* StoreItem = pStoreSubsystem.Get()->GetStoreItem(CouponToCheck.GetItemId(0)))
 				{
 					Helper->ItemsToCheck.Add(StoreItem);
 				}
@@ -2059,7 +2069,7 @@ void URH_GetAllAffordableItemsHelper::OnIsAffordableResponse(bool bSuccess, TPai
 {
 	RequestsCompleted++;
 
-	if (bSuccess && CatalogSubsystem != nullptr && StoreItemHelper != nullptr)
+	if (bSuccess && CatalogSubsystem != nullptr && StoreSubsystem != nullptr)
 	{
 		FRHAPI_Vendor Vendor;
 		if (CatalogSubsystem->GetVendorById(CurrencyVendorId, Vendor))
@@ -2074,7 +2084,7 @@ void URH_GetAllAffordableItemsHelper::OnIsAffordableResponse(bool bSuccess, TPai
 					if (ItemId != 0 && ItemId == ItemPricePair.Value->CurrencyType.Get()->GetItemId())
 					{
 						PurchaseItems.Add(ItemPricePair.Key);
-						CurrencyItems.Add(StoreItemHelper->GetStoreItem(VendorItemPair.Value));
+						CurrencyItems.Add(StoreSubsystem->GetStoreItem(VendorItemPair.Value));
 						break;
 					}
 				}
@@ -2086,9 +2096,9 @@ void URH_GetAllAffordableItemsHelper::OnIsAffordableResponse(bool bSuccess, TPai
 	{
 		OnCompleteDelegate.ExecuteIfBound(PurchaseItems, CurrencyItems);
 
-		if (StoreItemHelper != nullptr)
+		if (StoreSubsystem != nullptr)
 		{
-			StoreItemHelper->GetOwnershipTrackers.Remove(this);
+			StoreSubsystem->GetOwnershipTrackers.Remove(this);
 		}
 	}
 }
@@ -2103,9 +2113,9 @@ void URH_GetAllAffordableItemsHelper::OnIsAffordableResponse(bool bSuccess, TPai
 
 void URHStorePurchaseRequest::SubmitPurchaseRequest(const FRH_CatalogCallDynamicDelegate& Delegate)
 {
-	if (pItemHelper.IsValid())
+	if (pStoreSubsystem.IsValid())
 	{
-		pItemHelper->UIX_CompletePurchaseItem(this, Delegate);
+		pStoreSubsystem->UIX_CompletePurchaseItem(this, Delegate);
 	}
 	else
 	{
@@ -2133,9 +2143,9 @@ int32 URHStoreItemPrice::GetPriceWithCoupon(URHStoreItem* Coupon) const
 
 void URHStoreItemPrice::CanAfford(const URH_PlayerInfo* PlayerInfo, int32 Quantity, URHStoreItem* Coupon, const FRH_GetInventoryStateBlock& Delegate)
 {
-	if (pItemHelper.IsValid() && PlayerInfo != nullptr)
+	if (pStoreSubsystem.IsValid() && PlayerInfo != nullptr)
 	{
-		pItemHelper.Get()->GetCurrencyOwned(CurrencyType, PlayerInfo, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, Quantity, Coupon, Delegate](int32 Count)
+		pStoreSubsystem.Get()->GetCurrencyOwned(CurrencyType, PlayerInfo, FRH_GetInventoryCountDelegate::CreateWeakLambda(this, [this, Quantity, Coupon, Delegate](int32 Count)
 			{
 				Delegate.ExecuteIfBound(Count >= (GetPriceWithCoupon(Coupon) * Quantity));
 			}));

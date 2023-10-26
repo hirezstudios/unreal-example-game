@@ -160,9 +160,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Utilities")
 	static bool CanReportServer(const UObject* WorldContextObject);
 
-	UFUNCTION()
-	static URHStoreItemHelper* GetStoreItemHelper(const UObject* WorldContextObject);
-
 	// Returns the given key for a specified action
 	UFUNCTION(BlueprintPure, Category = "Bindings")
 	static FKey GetKeyForBinding(class APlayerController* PlayerController, FName Binding, bool SecondaryKey, bool FallbackToDefault, bool IsGamepadDoubleTap);

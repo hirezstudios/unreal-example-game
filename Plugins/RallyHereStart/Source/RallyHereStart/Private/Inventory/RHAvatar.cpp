@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Inventory/RHAvatar.h"
 
 URHAvatar::URHAvatar(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)

@@ -2,12 +2,13 @@
 #include "Online.h"
 #include "Interfaces/OnlineStoreInterfaceV2.h"
 #include "Interfaces/OnlinePurchaseInterface.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "RH_PlayerInfoSubsystem.h"
 #include "RH_CatalogSubsystem.h"
 #include "RH_PlayerInventory.h"
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
 #include "Inventory/RHCurrency.h"
-#include "RHStoreItemHelper.generated.h"
+#include "RHStoreSubsystem.generated.h"
 
 class URHStoreItem;
 
@@ -182,9 +183,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Platform UMG | Purchase Request")
 	const URH_PlayerInfo* RequestingPlayerInfo;
 
-    // Reference to the Store Item Helper that created us
+    // Reference to the Store Subsystem that created us
     UPROPERTY()
-    TWeakObjectPtr<class URHStoreItemHelper> pItemHelper;
+    TWeakObjectPtr<class URHStoreSubsystem> pStoreSubsystem;
 
     // Submits the Purchase Request
     UFUNCTION(BlueprintCallable, Category = "Platform UMG | Purchase Request", meta = (DisplayName = "Submit Purchase Request", AutoCreateRefTerm = "Delegate"))
@@ -258,9 +259,9 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Store Item Price")
     TSoftObjectPtr<UPlatformInventoryItem> CurrencyType;
 
-    // Reference to the Store Item that created us
+    // Reference to the Store Subsystem that created us
     UPROPERTY()
-    TWeakObjectPtr<class URHStoreItemHelper> pItemHelper;
+    TWeakObjectPtr<class URHStoreSubsystem> pStoreSubsystem;
 
 	// Returns the computed price of the offer with the coupon
 	UFUNCTION(BlueprintPure, Category = "Store Item Price")
@@ -282,8 +283,8 @@ class RALLYHERESTART_API URHStoreItem : public UObject
     GENERATED_BODY()
 
 public:
-    // Initializes the Store Item, setting its reference back to the Item Helper and the item is represents
-    void Initialize(URHStoreItemHelper* pHelper, const FRHAPI_Loot& LootItem);
+    // Initializes the Store Item, setting its reference back to the Store Subsystem and the item is represents
+    void Initialize(URHStoreSubsystem* pStoreSubsystem, const FRHAPI_Loot& LootItem);
 
 	 // Returns the reference to the uasset version of the item
     UFUNCTION(BlueprintPure, Category = "Store Item")
@@ -456,7 +457,7 @@ protected:
     // Callback from purchasing from portal
     void PortalPurchaseComplete(const FOnlineError& Result, const TSharedRef<FPurchaseReceipt>& Receipt);
 
-	// Gets the prices for the item off the StoreItemHelper
+	// Gets the prices for the item off the StoreSubsystem
 	bool GetPriceData(TArray<URHStoreItemPrice*>& Prices);
 
     // The loot item id of this store item
@@ -467,7 +468,7 @@ protected:
 
     // Reference to the Store Item Helper that created us
     UPROPERTY()
-    TWeakObjectPtr<class URHStoreItemHelper> pItemHelper;
+    TWeakObjectPtr<class URHStoreSubsystem> pStoreSubsystem;
 
     // Reference to the platform inventory item associated with the Store Item
     UPROPERTY()
@@ -507,16 +508,14 @@ public:
 };
 
 UCLASS(Config = Game, BlueprintType)
-class RALLYHERESTART_API URHStoreItemHelper : public UObject
+class RALLYHERESTART_API URHStoreSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    // Initialized the Store Item Helper
-    void Initialize(UGameInstance* InGameInstance);
-
-	// Cleans up the Store Item Helper
-	void Uninitialize();
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	static void AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector);
 
@@ -796,9 +795,6 @@ protected:
     UPROPERTY(Transient)
     bool IsQueryingPortalOffers;
 
-    UPROPERTY(Transient)
-    UGameInstance* GameInstance;
-
 	UPROPERTY(Config)
 	int32 PortalOffersVendorId;
 
@@ -863,7 +859,7 @@ public:
 	URH_CatalogSubsystem* CatalogSubsystem;
 
 	UPROPERTY()
-	URHStoreItemHelper* StoreItemHelper;
+	URHStoreSubsystem* StoreSubsystem;
 
 	FRH_CatalogCallDelegate OnCompleteDelegate;
 
@@ -923,7 +919,7 @@ public:
 	URH_CatalogSubsystem* CatalogSubsystem;
 
 	UPROPERTY()
-	URHStoreItemHelper* StoreItemHelper;
+	URHStoreSubsystem* StoreSubsystem;
 
 	UPROPERTY(Transient)
 	TMap<URHStoreItem*, URHStoreItemPrice*> ItemsToCheck;

@@ -1,7 +1,7 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "RallyHereStart.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RH_CatalogSubsystem.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "Shared/HUD/RHHUDCommon.h"
@@ -11,10 +11,10 @@ void URHStoreWidget::InitializeWidget_Implementation()
 {
     Super::InitializeWidget_Implementation();
 
-    if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper())
+    if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem())
     {
-        StoreItemHelper->OnReceivePricePoints.AddDynamic(this, &URHStoreWidget::OnPricePointsReveived);
-        StoreItemHelper->OnPortalOffersReceived.AddDynamic(this, &URHStoreWidget::OnPortalOffersReceived);
+		StoreSubsystem->OnReceivePricePoints.AddDynamic(this, &URHStoreWidget::OnPricePointsReveived);
+		StoreSubsystem->OnPortalOffersReceived.AddDynamic(this, &URHStoreWidget::OnPortalOffersReceived);
     }
 }
 
@@ -22,9 +22,9 @@ void URHStoreWidget::UninitializeWidget_Implementation()
 {
     Super::UninitializeWidget_Implementation();
 
-    if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper())
+    if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem())
     {
-        StoreItemHelper->ExitInGameStoreUI();
+		StoreSubsystem->ExitInGameStoreUI();
     }
 }
 
@@ -34,7 +34,7 @@ TArray<URHStoreSection*> URHStoreWidget::GetStoreLayout(int32& ErrorCode)
 	URHStoreSection* NewSection;
 	TArray<URHStoreItem*> Items;
 
-	if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper())
+	if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem())
 	{
 		// This is just one example of ways we can parse out show panels, each product will need to determine how they want their store displayed and 
 		// create their own store front/parsing of the store loot tables.
@@ -48,7 +48,7 @@ TArray<URHStoreSection*> URHStoreWidget::GetStoreLayout(int32& ErrorCode)
 				if (URH_CatalogSubsystem* CatalogSubsystem = pGISubsystem->GetCatalogSubsystem())
 				{
 					FRHAPI_Vendor Vendor;
-					if (CatalogSubsystem->GetVendorById(StoreItemHelper->GetStoreVendorId(), Vendor))
+					if (CatalogSubsystem->GetVendorById(StoreSubsystem->GetStoreVendorId(), Vendor))
 					{
 						int32 i = 0; // Exampling of different panel types
 						if (const auto& LootItems = Vendor.GetLootOrNull())
@@ -61,7 +61,7 @@ TArray<URHStoreSection*> URHStoreWidget::GetStoreLayout(int32& ErrorCode)
 								{
 									if (*SubVendorId != STORE_VENDOR_BUNDLES)
 									{
-										Items = StoreItemHelper->GetStoreItemsForVendor(*SubVendorId, false, true);
+										Items = StoreSubsystem->GetStoreItemsForVendor(*SubVendorId, false, true);
 										if (Items.Num() > 0)
 										{
 											NewSection = CreateStoreSection(Items, EStoreSectionTypes::AccountCosmetics, i % 2 == 0 ? EStoreItemWidgetType::ESmallPanel : EStoreItemWidgetType::ETallPanel, i % 2 == 1);
@@ -81,7 +81,7 @@ TArray<URHStoreSection*> URHStoreWidget::GetStoreLayout(int32& ErrorCode)
 			}
 		}
 
-		Items = StoreItemHelper->GetStoreItemsForVendor(STORE_VENDOR_BUNDLES, false, false);
+		Items = StoreSubsystem->GetStoreItemsForVendor(STORE_VENDOR_BUNDLES, false, false);
 		if (Items.Num() > 0)
 		{
 			NewSection = CreateStoreSection(Items, EStoreSectionTypes::Bundles, EStoreItemWidgetType::ETallPanel);
@@ -92,7 +92,7 @@ TArray<URHStoreSection*> URHStoreWidget::GetStoreLayout(int32& ErrorCode)
 			}
 		}
 
-		Items = StoreItemHelper->GetStoreItemsForVendor(StoreItemHelper->GetPortalOffersVendorId(), false, false);
+		Items = StoreSubsystem->GetStoreItemsForVendor(StoreSubsystem->GetPortalOffersVendorId(), false, false);
 
 		if (Items.Num() > 0)
 		{
@@ -204,11 +204,11 @@ URHStoreSection* URHStoreWidget::CreateStoreSection(TArray<URHStoreItem*>& Store
 	return CurrentSection;
 }
 
-URHStoreItemHelper* URHStoreWidget::GetStoreItemHelper() const
+URHStoreSubsystem* URHStoreWidget::GetStoreSubsystem() const
 {
-    if (MyHud.IsValid())
-    {
-        return MyHud->GetItemHelper();
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		return GameInstance->GetSubsystem<URHStoreSubsystem>();
     }
 
     return nullptr;
@@ -216,12 +216,12 @@ URHStoreItemHelper* URHStoreWidget::GetStoreItemHelper() const
 
 bool URHStoreWidget::HasAllRequiredStoreInformation() const
 {
-	if (URHStoreItemHelper* StoreItemHelper = GetStoreItemHelper())
+	if (URHStoreSubsystem* StoreSubsystem = GetStoreSubsystem())
 	{
-		UE_LOG(RallyHereStart, Verbose, TEXT("URHStoreWidget::HasAllRequiredStoreInformation %s %s %s"), StoreItemHelper->StoreVendorsLoaded ? TEXT("true") : TEXT("false"),
-																									   StoreItemHelper->ArePricePointsLoaded() ? TEXT("true") : TEXT("false"),
-																									   StoreItemHelper->ArePortalOffersLoaded() ? TEXT("true") : TEXT("false"));
-		return StoreItemHelper->StoreVendorsLoaded && StoreItemHelper->ArePricePointsLoaded() && StoreItemHelper->ArePortalOffersLoaded();
+		UE_LOG(RallyHereStart, Verbose, TEXT("URHStoreWidget::HasAllRequiredStoreInformation %s %s %s"), StoreSubsystem->StoreVendorsLoaded ? TEXT("true") : TEXT("false"),
+																									   StoreSubsystem->ArePricePointsLoaded() ? TEXT("true") : TEXT("false"),
+																									   StoreSubsystem->ArePortalOffersLoaded() ? TEXT("true") : TEXT("false"));
+		return StoreSubsystem->StoreVendorsLoaded && StoreSubsystem->ArePricePointsLoaded() && StoreSubsystem->ArePortalOffersLoaded();
 	}
 	else
 	{

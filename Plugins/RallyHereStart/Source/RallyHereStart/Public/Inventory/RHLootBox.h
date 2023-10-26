@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "PlatformInventoryItem/PlatformInventoryItem.h"
 #include "RHLootBox.generated.h"
 

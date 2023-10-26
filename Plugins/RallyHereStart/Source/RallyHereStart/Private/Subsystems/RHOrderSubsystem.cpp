@@ -2,25 +2,26 @@
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHGameUserSettings.h"
 #include "Inventory/RHCurrency.h"
-#include "Managers/RHOrderManager.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHLootBoxManager.h"
 #include "Managers/RHViewManager.h"
+#include "Subsystems/RHLoadoutSubsystem.h"
+#include "Subsystems/RHLootBoxSubsystem.h"
+#include "Subsystems/RHOrderSubsystem.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "RH_GameInstanceSubsystem.h"
 #include "OnlineSubsystem.h"
 
 DECLARE_STATS_GROUP(TEXT("RallyHereStart"), STATGROUP_RallyHereStart, STATCAT_Advanced);
 
-URHLootBoxManager* GetLootBoxManager(const UObject* WorldContextObject)
+URHLootBoxSubsystem* GetLootBoxManager(const UObject* WorldContextObject)
 {
 	if (WorldContextObject != nullptr)
 	{
 		if (UWorld* const World = WorldContextObject->GetWorld())
 		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+			if (UGameInstance* GameInstance = World->GetGameInstance())
 			{
-				return GameInstance->GetLootBoxManager();
+				return GameInstance->GetSubsystem<URHLootBoxSubsystem>();
 			}
 		}
 	}
@@ -28,15 +29,15 @@ URHLootBoxManager* GetLootBoxManager(const UObject* WorldContextObject)
 	return nullptr;
 }
 
-URHLoadoutDataFactory* GetLoadoutDataFactory(const UObject* WorldContextObject)
+URHLoadoutSubsystem* GetLoadoutSubsystem(const UObject* WorldContextObject)
 {
 	if (WorldContextObject != nullptr)
 	{
 		if (UWorld* const World = WorldContextObject->GetWorld())
 		{
-			if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+			if (UGameInstance* GameInstance = World->GetGameInstance())
 			{
-				return GameInstance->GetLoadoutDataFactory();
+				return GameInstance->GetSubsystem<URHLoadoutSubsystem>();
 			}
 		}
 	}
@@ -44,29 +45,30 @@ URHLoadoutDataFactory* GetLoadoutDataFactory(const UObject* WorldContextObject)
 	return nullptr;
 }
 
-void URHOrderManager::Initialize(class URHStoreItemHelper* InStoreItemHelper)
+bool URHOrderSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHOrderManager::Initialize()."));
+	return !CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance();
+}
 
-	StoreItemHelper = InStoreItemHelper;
+void URHOrderSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	StoreSubsystem = Collection.InitializeDependency<URHStoreSubsystem>();
+	Super::Initialize(Collection);
 
-	if (StoreItemHelper != nullptr)
+	UE_LOG(RallyHereStart, Log, TEXT("URHOrderSubsystem::Initialize()."));
+
+	if (StoreSubsystem != nullptr)
 	{
-		StoreItemHelper->OnPendingPurchaseReceivedNative.BindUObject(this, &URHOrderManager::OnPendingPurchaseReceived);
+		StoreSubsystem->OnPendingPurchaseReceivedNative.BindUObject(this, &URHOrderSubsystem::OnPendingPurchaseReceived);
 	}
 }
 
-void URHOrderManager::Uninitialize()
+TStatId URHOrderSubsystem::GetStatId() const
 {
-	UE_LOG(RallyHereStart, Log, TEXT("URHOrderManager::Uninitialize()."));
+	RETURN_QUICK_DECLARE_CYCLE_STAT(URHOrderSubsystem, STATGROUP_RallyHereStart);
 }
 
-TStatId URHOrderManager::GetStatId() const
-{
-	RETURN_QUICK_DECLARE_CYCLE_STAT(URHOrderManager, STATGROUP_RallyHereStart);
-}
-
-void URHOrderManager::Tick(float DeltaTime)
+void URHOrderSubsystem::Tick(float DeltaTime)
 {
     // Process the Pending Order and promote any to Queued as Needed
     if (PendingOrder)
@@ -88,7 +90,7 @@ void URHOrderManager::Tick(float DeltaTime)
     }
 }
 
-URHOrder* URHOrderManager::GetNextOrder()
+URHOrder* URHOrderSubsystem::GetNextOrder()
 {
     URHOrder* NextOrder = nullptr;
 
@@ -101,7 +103,7 @@ URHOrder* URHOrderManager::GetNextOrder()
     return NextOrder;
 }
 
-void URHOrderManager::DisplayNextOrder()
+void URHOrderSubsystem::DisplayNextOrder()
 {
     if (QueuedOrders.Num() > 0 && CanDisplayOrder())
     {
@@ -111,7 +113,7 @@ void URHOrderManager::DisplayNextOrder()
     }
 }
 
-void URHOrderManager::SetOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo, const FDateTime& FirstValidTime)
+void URHOrderSubsystem::SetOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo, const FDateTime& FirstValidTime)
 {
 	// If we are already watching the player ignore the request
 	if (PlayerInfo != nullptr)
@@ -130,14 +132,14 @@ void URHOrderManager::SetOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo, const F
 
 		FRH_ActiveOrderWatch NewWatch = FRH_ActiveOrderWatch();
 		NewWatch.PlayerInfo = PlayerInfo;
-		NewWatch.OrderDetailsBlock = FRH_OrderDetailsDelegate::CreateUObject(this, &URHOrderManager::OnPlayerOrder, ConstPlayerInfo);
+		NewWatch.OrderDetailsBlock = FRH_OrderDetailsDelegate::CreateUObject(this, &URHOrderSubsystem::OnPlayerOrder, ConstPlayerInfo);
 		NewWatch.FirstValidOrderTime = FirstValidTime;
 		PlayerInfo->GetPlayerInventory()->SetOrderWatch(NewWatch.OrderDetailsBlock);
 		ActiveOrderWatches.Add(NewWatch);
 	}
 }
 
-void URHOrderManager::ClearOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo)
+void URHOrderSubsystem::ClearOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo)
 {
 	if (PlayerInfo != nullptr)
 	{
@@ -153,7 +155,7 @@ void URHOrderManager::ClearOrderWatchForPlayer(URH_PlayerInfo* PlayerInfo)
 	}
 }
 
-void URHOrderManager::OnPendingPurchaseReceived(const URH_PlayerInfo* PlayerInfo, const FRHAPI_PlayerOrder& PlayerOrderResult)
+void URHOrderSubsystem::OnPendingPurchaseReceived(const URH_PlayerInfo* PlayerInfo, const FRHAPI_PlayerOrder& PlayerOrderResult)
 {
 	FRH_ActiveOrderWatch* OrderWatch = ActiveOrderWatches.FindByPredicate([PlayerInfo](const FRH_ActiveOrderWatch& Watch)
 	{
@@ -168,9 +170,9 @@ void URHOrderManager::OnPendingPurchaseReceived(const URH_PlayerInfo* PlayerInfo
 	}
 }
 
-void URHOrderManager::OnPlayerOrder(const TArray<FRHAPI_PlayerOrder>& OrderResults, const URH_PlayerInfo* PlayerInfo)
+void URHOrderSubsystem::OnPlayerOrder(const TArray<FRHAPI_PlayerOrder>& OrderResults, const URH_PlayerInfo* PlayerInfo)
 {
-	if (StoreItemHelper == nullptr)
+	if (StoreSubsystem == nullptr)
 	{
 		return;
 	}
@@ -251,13 +253,13 @@ void URHOrderManager::OnPlayerOrder(const TArray<FRHAPI_PlayerOrder>& OrderResul
 					case ERHAPI_PlayerOrderEntryResult::TransientSingleLootAlreadyApplied:
 						continue; // Error regarding something having previously been successful, so we don't want to display anything to the user.
 					default:
-						OnOrderFailed.Broadcast(NSLOCTEXT("OrderManager", "Error", "An error occured while processing your order"));
+						OnOrderFailed.Broadcast(NSLOCTEXT("OrderSubsystem", "Error", "An error occured while processing your order"));
 						continue;
 				}
 			}
 			else
 			{
-				OnOrderFailed.Broadcast(NSLOCTEXT("OrderManager", "Error", "An error occured while processing your order"));
+				OnOrderFailed.Broadcast(NSLOCTEXT("OrderSubsystem", "Error", "An error occured while processing your order"));
 				continue;
 			}
 
@@ -307,7 +309,7 @@ void URHOrderManager::OnPlayerOrder(const TArray<FRHAPI_PlayerOrder>& OrderResul
 				}
 
 				CreateOrderForItem(
-					StoreItemHelper->GetStoreItemForVendor(LootItem.GetVendorId(), LootItem.GetLootId()),
+					StoreSubsystem->GetStoreItemForVendor(LootItem.GetVendorId(), LootItem.GetLootId()),
 					PlayerInfo,
 					quantity,
 					OrderResult.GetClientOrderRefId(FGuid()),
@@ -360,12 +362,12 @@ void URHOrderManager::OnPlayerOrder(const TArray<FRHAPI_PlayerOrder>& OrderResul
 	}
 }
 
-void URHOrderManager::CreateOrderForItem(URHStoreItem* StoreItem, const URH_PlayerInfo* PlayerInfo)
+void URHOrderSubsystem::CreateOrderForItem(URHStoreItem* StoreItem, const URH_PlayerInfo* PlayerInfo)
 {
 	CreateOrderForItem(StoreItem, PlayerInfo, 1, FGuid{}, TOptional<ERHAPI_InventoryBucket>()); // Blueprint doesn't like default Guid parameters
 }
 
-void URHOrderManager::CreateOrderForItem(URHStoreItem* StoreItem, const URH_PlayerInfo* PlayerInfo, int32 Quantity, const FGuid& PurchaseRefId, TOptional<ERHAPI_InventoryBucket> eInventoryBucket)
+void URHOrderSubsystem::CreateOrderForItem(URHStoreItem* StoreItem, const URH_PlayerInfo* PlayerInfo, int32 Quantity, const FGuid& PurchaseRefId, TOptional<ERHAPI_InventoryBucket> eInventoryBucket)
 {
     if (!StoreItem)
     {
@@ -400,14 +402,12 @@ void URHOrderManager::CreateOrderForItem(URHStoreItem* StoreItem, const URH_Play
 
 	if (GetItemOrderType(StoreItem) == ERHOrderType::Voucher)
 	{
-		URHStoreItemHelper* RHStoreItemHelper = Cast<URHStoreItemHelper>(StoreItemHelper);
-
-		if (!RHStoreItemHelper)
+		if (!StoreSubsystem)
 		{
 			return;
 		}
 
-		if (!RHStoreItemHelper->CanRedeemVoucher(StoreItem))
+		if (!StoreSubsystem->CanRedeemVoucher(StoreItem))
 		{
 			OnInvalidVoucherObtained.Broadcast(StoreItem);
 			return;
@@ -473,7 +473,7 @@ void URHOrderManager::CreateOrderForItem(URHStoreItem* StoreItem, const URH_Play
 	}
 }
 
-bool URHOrderManager::CanViewRedirectToOrder(TArray<ERHOrderType> ValidTypes)
+bool URHOrderSubsystem::CanViewRedirectToOrder(TArray<ERHOrderType> ValidTypes)
 {
 	if (!CanDisplayOrderSharedCheck())
 	{
@@ -488,7 +488,7 @@ bool URHOrderManager::CanViewRedirectToOrder(TArray<ERHOrderType> ValidTypes)
 	return false;
 }
 
-bool URHOrderManager::CanDisplayOrder()
+bool URHOrderSubsystem::CanDisplayOrder()
 {
 	if (!OnOrderReady.IsBound())
 	{
@@ -528,12 +528,12 @@ bool URHOrderManager::CanDisplayOrder()
     return false;
 }
 
-bool URHOrderManager::CanDisplayOrderSharedCheck()
+bool URHOrderSubsystem::CanDisplayOrderSharedCheck()
 {
 	return true;
 }
 
-bool URHOrderManager::CanAddItemToPendingOrder(URHStoreItem* StoreItem, const FGuid& PurchaseRefId) const
+bool URHOrderSubsystem::CanAddItemToPendingOrder(URHStoreItem* StoreItem, const FGuid& PurchaseRefId) const
 {
     //If there is no pending order return false
     if (!PendingOrder)
@@ -556,7 +556,7 @@ bool URHOrderManager::CanAddItemToPendingOrder(URHStoreItem* StoreItem, const FG
     return true;
 }
 
-ERHOrderType URHOrderManager::GetItemOrderType(URHStoreItem* StoreItem) const
+ERHOrderType URHOrderSubsystem::GetItemOrderType(URHStoreItem* StoreItem) const
 {
     if (!StoreItem)
     {
@@ -564,9 +564,9 @@ ERHOrderType URHOrderManager::GetItemOrderType(URHStoreItem* StoreItem) const
     }
 
 	// Check if the item is from a loot box
-	if (URHLootBoxManager* LootBoxManager = GetLootBoxManager(GetOuter()))
+	if (URHLootBoxSubsystem* LootBoxSubsystem = GetLootBoxManager(GetOuter()))
 	{
-		if (LootBoxManager->IsFromLootBox(StoreItem))
+		if (LootBoxSubsystem->IsFromLootBox(StoreItem))
 		{
 			return ERHOrderType::LootBox;
 		}

@@ -4,7 +4,6 @@
 #include "Player/Controllers/RHPlayerState.h"
 #include "GameFramework/RHGameInstance.h"
 #include "Shared/HUD/RHHUDCommon.h"
-#include "Managers/RHStoreItemHelper.h"
 #include "RHUIBlueprintFunctionLibrary.h"
 #include "Player/Controllers/RHPlayerController.h"
 #include "RH_LocalPlayer.h"

@@ -1,8 +1,8 @@
 // Copyright 2022-2023 Rally Here Interactive, Inc. All Rights Reserved.
 
 #include "GameFramework/RHGameInstance.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHEventManager.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/RHEventSubsystem.h"
 #include "RH_PlayerInfoSubsystem.h"
 #include "Inventory/RHEvent.h"
 
@@ -21,11 +21,11 @@ int32 URHEvent::GetRemainingSeconds(const UObject* WorldContextObject) const
 
 	if (World != nullptr)
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(World->GetGameInstance()))
+		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
-			if (URHEventManager* EventManager = GameInstance->GetEventManager())
+			if (URHEventSubsystem* EventSubsystem = GameInstance->GetSubsystem<URHEventSubsystem>())
 			{
-				FTimespan Timespan = EventManager->GetEventEndTime(EventTag) - EventManager->GetCurrentTime();
+				FTimespan Timespan = EventSubsystem->GetEventEndTime(EventTag) - EventSubsystem->GetCurrentTime();
 
 				return (int32)Timespan.GetTotalSeconds();
 			}

@@ -4,8 +4,6 @@
 #include "CoreMinimal.h"
 #include "Lobby/Widgets/RHStoreWidget.h"
 #include "Inventory/RHBattlepass.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHOrderManager.h"
 #include "Shared/Widgets/RHWidget.h"
 #include "RHPurchaseConfirmationWidget.generated.h"
 
@@ -100,10 +98,6 @@ protected:
     //Quantity of the StoreItem we are trying to purchase
     UPROPERTY(BlueprintReadWrite)
     int32 PurchaseQuantity;
-
-    // Returns the StoreItemHelper
-    UFUNCTION(BlueprintPure)
-    URHStoreItemHelper* GetStoreItemHelper() const;
 
 	// Checks if the purchase quantity can be changed by the given amount
 	UFUNCTION(BlueprintCallable, Category = "Purchase Confirmation", meta = (DisplayName = "Can Change Purchase Quantity", AutoCreateRefTerm = "Delegate"))

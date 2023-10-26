@@ -3,9 +3,10 @@
 #include "RallyHereStart.h"
 #include "GameFramework/RHGameInstance.h"
 #include "GameFramework/RHGameUserSettings.h"
-#include "Managers/RHOrderManager.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHUISessionManager.h"
+#include "Subsystems/RHOrderSubsystem.h"
+#include "Subsystems/RHStoreSubsystem.h"
+#include "Subsystems/RHLocalDataSubsystem.h"
+#include "Subsystems/RHNewsSubsystem.h"
 #include "Shared/HUD/RHHUDCommon.h"
 #include "Lobby/HUD/RHLobbyHUD.h"
 #include "Lobby/Widgets/RHWhatsNewModal.h"
@@ -26,38 +27,35 @@ void URHHomeScreenWidget::CheckForOnShownEvents()
 
 bool URHHomeScreenWidget::CheckForVoucherRedemption()
 {
-	if (URHOrderManager* OrderManager = MyHud->GetOrderManager())
+	if (URHOrderSubsystem* OrderSubsystem = MyHud->GetOrderSubsystem())
 	{
-		if (URHGameInstance* GameInstance = Cast<URHGameInstance>(GetGameInstance()))
+		if (URHLocalDataSubsystem* LocalDataSubsystem = MyHud->GetLocalDataSubsystem())
 		{
-			if (URHUISessionManager* SessionManager = GameInstance->GetUISessionManager())
+			if (LocalDataSubsystem->ShouldCheckForVouchers())
 			{
-				if (SessionManager->ShouldCheckForVouchers(MyHud->GetLocalPlayerInfo()))
+				if (URHStoreSubsystem* StoreSubsystem = GetGameInstance()->GetSubsystem<URHStoreSubsystem>())
 				{
-					if (URHStoreItemHelper* StoreItemHelper = MyHud->GetItemHelper())
-					{
-						TArray<URHStoreItem*> StoreItems;
-						TArray<URHStoreItem*> VoucherItems;
+					TArray<URHStoreItem*> StoreItems;
+					TArray<URHStoreItem*> VoucherItems;
 
-						SessionManager->SetHasCheckedForVouchers(MyHud->GetLocalPlayerInfo());
+					LocalDataSubsystem->SetHasCheckedForVouchers();
 
-						StoreItemHelper->GetAffordableVoucherItems(MyHud->GetLocalPlayerInfo(), FRH_GetAffordableItemsInVendorDelegate::CreateWeakLambda(this, [this, OrderManager, SessionManager](TArray<URHStoreItem*> StoreItems, TArray<URHStoreItem*> VoucherItems)
+					StoreSubsystem->GetAffordableVoucherItems(MyHud->GetLocalPlayerInfo(), FRH_GetAffordableItemsInVendorDelegate::CreateWeakLambda(this, [this, OrderSubsystem](TArray<URHStoreItem*> StoreItems, TArray<URHStoreItem*> VoucherItems)
+						{
+							if (VoucherItems.Num() > 0)
 							{
-								if (VoucherItems.Num() > 0)
+								for (int32 i = 0; i < VoucherItems.Num(); ++i)
 								{
-									for (int32 i = 0; i < VoucherItems.Num(); ++i)
-									{
-										OrderManager->CreateOrderForItem(VoucherItems[i], MyHud->GetLocalPlayerInfo());
-									}
+									OrderSubsystem->CreateOrderForItem(VoucherItems[i], MyHud->GetLocalPlayerInfo());
 								}
-								else
-								{
-									CheckForOnShownEvents();
-								}
-							}));
+							}
+							else
+							{
+								CheckForOnShownEvents();
+							}
+						}));
 
-						return true;
-					}
+					return true;
 				}
 			}
 		}
@@ -72,13 +70,13 @@ bool URHHomeScreenWidget::CheckForWhatsNewModal()
 
 	if (ARHLobbyHUD* LobbyHud = Cast<ARHLobbyHUD>(MyHud))
 	{
-		if (URHUISessionManager* SessionManager = LobbyHud->GetUISessionManager())
+		if (URHLocalDataSubsystem* LocalDataSubsystem = LobbyHud->GetLocalDataSubsystem())
 		{
-			if (SessionManager->ShouldShowNewsPanel(LobbyHud->GetLocalPlayerInfo()))
+			if (LocalDataSubsystem->ShouldShowNewsPanel())
 			{
-				if (URHJsonDataFactory* pJsonDataFactory = Cast<URHJsonDataFactory>(LobbyHud->GetJsonDataFactory()))
+				if (URHNewsSubsystem* pNewsSubsystem = GetGameInstance()->GetSubsystem<URHNewsSubsystem>())
 				{
-					TSharedPtr<FJsonObject> LandingPanelJson = pJsonDataFactory->GetJsonPanelByName(TEXT("landingpanel"));
+					TSharedPtr<FJsonObject> LandingPanelJson = pNewsSubsystem->GetJsonPanelByName(TEXT("landingpanel"));
 
 					if (LandingPanelJson.IsValid())
 					{
@@ -102,13 +100,13 @@ bool URHHomeScreenWidget::CheckForWhatsNewModal()
 										if (URHWhatsNewPanel* Panel = NewObject<URHWhatsNewPanel>())
 										{
 											// Only show if panel should show on this platform
-											pJsonDataFactory->LoadData(Panel, WhatsNewPanelObj);
+											pNewsSubsystem->LoadData(Panel, WhatsNewPanelObj);
 											const TSharedPtr<FJsonObject>* ObjectField;
 											FString PanelIdString = "";
 
 											if ((*WhatsNewPanelObj)->TryGetObjectField(TEXT("imageUrl"), ObjectField))
 											{
-												Panel->Image = pJsonDataFactory->GetTextureByRemoteURL(ObjectField);
+												Panel->Image = pNewsSubsystem->GetTextureByRemoteURL(ObjectField);
 
 												// Only show if there is a valid image
 												if (Panel->Image)
@@ -149,9 +147,8 @@ bool URHHomeScreenWidget::CheckForWhatsNewModal()
 					}
 
 					// Clear the session manager for this login of the news seen
-					SessionManager->SetNewsPanelSeen(LobbyHud->GetLocalPlayerInfo());
-
-					pJsonDataFactory->CheckShouldShowForPlayer(PanelsToCheck, LobbyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this](FRHShouldShowPanelsWrapper Wrapper)
+					LocalDataSubsystem->SetNewsPanelSeen();
+					pNewsSubsystem->CheckShouldShowForPlayer(PanelsToCheck, LobbyHud->GetLocalPlayerInfo(), FOnGetShouldShowPanels::CreateLambda([this](FRHShouldShowPanelsWrapper Wrapper)
 						{
 							for (const auto& pair : Wrapper.ShouldShowByPanel)
 							{

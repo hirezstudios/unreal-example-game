@@ -3,8 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Shared/Widgets/RHWidget.h"
-#include "Managers/RHStoreItemHelper.h"
-#include "Managers/RHStoreItemHelper.h"
+#include "Subsystems/RHStoreSubsystem.h"
 #include "RHStoreWidget.generated.h"
 
 // Enum to tell the UI which type of store widget panel to create for the given item.
@@ -137,9 +136,8 @@ public:
 	bool HasAllRequiredStoreInformation() const;
 
 protected:
-    // Returns the StoreItemHelper
-    UFUNCTION(BlueprintPure)
-    URHStoreItemHelper* GetStoreItemHelper() const;
+    // Returns the Store Subsystem
+    URHStoreSubsystem* GetStoreSubsystem() const;
 
 	// Parses items into panels for the section
 	URHStoreSection* CreateStoreSection(TArray<URHStoreItem*>& StoreItems, EStoreSectionTypes SectionType, EStoreItemWidgetType PanelSize, bool SinglePanel = false);
